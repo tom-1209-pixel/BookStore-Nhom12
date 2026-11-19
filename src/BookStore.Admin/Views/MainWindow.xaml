@@ -1,0 +1,35 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Window
+    x:Class="BookStore.Admin.Views.MainWindow"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    Title="Hệ thống quản lý nhà sách – Ứng dụng quản trị">
+
+    <NavigationView x:Name="ODieuHuong"
+                    x:FieldModifier="private"
+                    IsBackButtonVisible="Collapsed"
+                    IsSettingsVisible="False"
+                    PaneDisplayMode="Left"
+                    OpenPaneLength="240"
+                    SelectionChanged="NavigationView_SelectionChanged">
+
+        <NavigationView.MenuItems>
+            <NavigationViewItem Content="Tổng quan" Tag="thongke" Icon="Home" IsSelected="True" />
+            <NavigationViewItem Content="Quản lý đơn hàng" Tag="donhang" Icon="Shop" />
+            <NavigationViewItem Content="Quản lý sách" Tag="sach" Icon="Library" />
+            <NavigationViewItem Content="Danh mục" Tag="danhmuc" Icon="List" />
+            <NavigationViewItem Content="Kho và nhập hàng" Tag="kho" Icon="Download" />
+            <NavigationViewItem Content="Khách hàng" Tag="khachhang" Icon="People" />
+            <NavigationViewItem Content="Báo cáo thống kê" Tag="baocao" Icon="Calendar" />
+        </NavigationView.MenuItems>
+
+        <NavigationView.PaneFooter>
+            <StackPanel Padding="14,8" Spacing="4">
+                <TextBlock x:Name="ONguoiDung" Style="{StaticResource CaptionTextBlockStyle}" TextWrapping="Wrap" />
+                <HyperlinkButton Content="Đăng xuất" Click="DangXuat_Click" Padding="0" />
+            </StackPanel>
+        </NavigationView.PaneFooter>
+
+        <Frame x:Name="OKhungNoiDung" x:FieldModifier="private" />
+    </NavigationView>
+</Window>

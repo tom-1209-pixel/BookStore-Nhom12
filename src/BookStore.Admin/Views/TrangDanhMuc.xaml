@@ -1,0 +1,143 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Page
+    x:Class="BookStore.Admin.Views.TrangDanhMuc"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:models="using:BookStore.Admin.Models">
+
+    <Grid Padding="18,14" RowSpacing="10">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+
+        <TextBlock Grid.Row="0" Text="Quản lý danh mục" Style="{StaticResource TitleTextBlockStyle}" />
+
+        <Grid Grid.Row="1" ColumnSpacing="8">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="200" />
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="Auto" />
+                <ColumnDefinition Width="Auto" />
+            </Grid.ColumnDefinitions>
+            <ComboBox Grid.Column="0" HorizontalAlignment="Stretch"
+                      ItemsSource="{x:Bind ViewModel.CacLoai}"
+                      SelectedItem="{x:Bind ViewModel.LoaiDangChon, Mode=TwoWay}" />
+            <TextBox Grid.Column="1" PlaceholderText="Tìm theo tên"
+                     Text="{x:Bind ViewModel.TuKhoa, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                     KeyDown="OTuKhoa_KeyDown" />
+            <Button Grid.Column="2" Content="Tìm" Style="{StaticResource AccentButtonStyle}"
+                    Command="{x:Bind ViewModel.NapCommand}" />
+            <Button Grid.Column="3" Content="Thêm mới" Command="{x:Bind ViewModel.LamMoiFormCommand}" />
+        </Grid>
+
+        <Grid Grid.Row="2" ColumnSpacing="16">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="3*" />
+                <ColumnDefinition Width="2*" />
+            </Grid.ColumnDefinitions>
+
+            <Border Grid.Column="0"
+                    Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
+                    BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
+                    BorderThickness="1" CornerRadius="8">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="*" />
+                    </Grid.RowDefinitions>
+
+                    <ProgressBar Grid.Row="0" IsIndeterminate="True"
+                                 Visibility="{x:Bind ViewModel.DangTai, Mode=OneWay, Converter={StaticResource BoolSangVisibility}}" />
+
+                    <Grid Grid.Row="1" Padding="14,10" ColumnSpacing="8"
+                          Background="{ThemeResource LayerFillColorDefaultBrush}">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="42" />
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="80" />
+                        </Grid.ColumnDefinitions>
+                        <TextBlock Grid.Column="0" Text="Mã" FontWeight="SemiBold" />
+                        <TextBlock Grid.Column="1" Text="Tên và thông tin" FontWeight="SemiBold" />
+                        <TextBlock Grid.Column="2" Text="Liên kết" FontWeight="SemiBold" HorizontalAlignment="Right" />
+                    </Grid>
+
+                    <ListView Grid.Row="2"
+                              ItemsSource="{x:Bind ViewModel.DanhSach}"
+                              ItemContainerStyle="{StaticResource DongDanhSach}"
+                              SelectedItem="{x:Bind ViewModel.MucDangChon, Mode=TwoWay}"
+                              SelectionMode="Single">
+                        <ListView.ItemTemplate>
+                            <DataTemplate x:DataType="models:DanhMuc">
+                                <Grid Padding="4,8" ColumnSpacing="8">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="42" />
+                                        <ColumnDefinition Width="*" />
+                                        <ColumnDefinition Width="80" />
+                                    </Grid.ColumnDefinitions>
+                                    <TextBlock Grid.Column="0" Text="{x:Bind Ma}" />
+                                    <StackPanel Grid.Column="1">
+                                        <TextBlock Text="{x:Bind Ten}" TextTrimming="CharacterEllipsis" />
+                                        <TextBlock Text="{x:Bind ThongTinPhu}" TextTrimming="CharacterEllipsis"
+                                                   Style="{StaticResource CaptionTextBlockStyle}"
+                                                   Foreground="{ThemeResource TextFillColorSecondaryBrush}" />
+                                    </StackPanel>
+                                    <TextBlock Grid.Column="2" Text="{x:Bind SoLienKet}" HorizontalAlignment="Right" />
+                                </Grid>
+                            </DataTemplate>
+                        </ListView.ItemTemplate>
+                    </ListView>
+                </Grid>
+            </Border>
+
+            <Border Grid.Column="1"
+                    Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
+                    BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
+                    BorderThickness="1" CornerRadius="8" Padding="18">
+                <ScrollViewer>
+                    <StackPanel Spacing="12">
+                        <TextBlock Text="{x:Bind ViewModel.TieuDeForm, Mode=OneWay}"
+                                   Style="{StaticResource SubtitleTextBlockStyle}" />
+
+                        <InfoBar IsOpen="{x:Bind ViewModel.CoThongBao, Mode=OneWay}" IsClosable="True"
+                                 Message="{x:Bind ViewModel.ThongBao, Mode=OneWay}" />
+
+                        <TextBox Header="Tên"
+                                 Text="{x:Bind ViewModel.FormTen, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+
+                        <TextBox Header="{x:Bind ViewModel.LoaiDangChon.NhanMoTa, Mode=OneWay}"
+                                 AcceptsReturn="True" Height="110" TextWrapping="Wrap"
+                                 Visibility="{x:Bind ViewModel.HienMoTa, Mode=OneWay, Converter={StaticResource BoolSangVisibility}}"
+                                 Text="{x:Bind ViewModel.FormMoTa, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+
+                        <TextBox Header="Địa chỉ"
+                                 Visibility="{x:Bind ViewModel.HienLienHe, Mode=OneWay, Converter={StaticResource BoolSangVisibility}}"
+                                 Text="{x:Bind ViewModel.FormDiaChi, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+
+                        <TextBox Header="Số điện thoại"
+                                 Visibility="{x:Bind ViewModel.HienLienHe, Mode=OneWay, Converter={StaticResource BoolSangVisibility}}"
+                                 Text="{x:Bind ViewModel.FormSoDienThoai, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+
+                        <TextBox Header="Email"
+                                 Visibility="{x:Bind ViewModel.HienEmail, Mode=OneWay, Converter={StaticResource BoolSangVisibility}}"
+                                 Text="{x:Bind ViewModel.FormEmail, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+
+                        <StackPanel Orientation="Horizontal" Spacing="8">
+                            <Button Content="Lưu" Style="{StaticResource AccentButtonStyle}"
+                                    Command="{x:Bind ViewModel.LuuCommand}" />
+                            <Button Content="Làm mới" Command="{x:Bind ViewModel.LamMoiFormCommand}" />
+                            <Button Content="Xóa" Command="{x:Bind ViewModel.XoaCommand}"
+                                    IsEnabled="{x:Bind ViewModel.DangSua, Mode=OneWay}" />
+                        </StackPanel>
+
+                        <TextBlock Style="{StaticResource CaptionTextBlockStyle}" TextWrapping="Wrap"
+                                   Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                                   Text="Mục đang được sách hoặc phiếu nhập sử dụng sẽ không xóa được, để giữ toàn vẹn dữ liệu các giao dịch cũ." />
+                    </StackPanel>
+                </ScrollViewer>
+            </Border>
+        </Grid>
+    </Grid>
+</Page>
