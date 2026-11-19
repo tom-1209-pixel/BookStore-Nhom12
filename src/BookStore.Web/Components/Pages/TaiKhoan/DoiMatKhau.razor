@@ -1,0 +1,41 @@
+﻿@page "/tai-khoan/doi-mat-khau"
+@using Microsoft.AspNetCore.Authorization
+@attribute [Authorize]
+
+<PageTitle>Đổi mật khẩu</PageTitle>
+
+<div class="row justify-content-center">
+    <div class="col-md-6">
+        <div class="khung-trang">
+            <h1 class="h5 mb-3">Đổi mật khẩu</h1>
+
+            <BangThongBao ThongBao="@ThongBao" Loi="@Loi" />
+
+            <form method="post" action="/tai-khoan/doi-mat-khau">
+                <AntiforgeryToken />
+
+                <div class="mb-3">
+                    <label class="form-label" for="mk-cu">Mật khẩu hiện tại</label>
+                    <input class="form-control" id="mk-cu" name="matKhauCu" type="password" required />
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label" for="mk-moi">Mật khẩu mới</label>
+                    <input class="form-control" id="mk-moi" name="matKhauMoi" type="password" required minlength="6" />
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label" for="mk-moi-2">Xác nhận mật khẩu mới</label>
+                    <input class="form-control" id="mk-moi-2" name="xacNhanMatKhauMoi" type="password" required minlength="6" />
+                </div>
+
+                <button class="btn btn-primary w-100" type="submit">Đổi mật khẩu</button>
+            </form>
+        </div>
+    </div>
+</div>
+
+@code {
+    [SupplyParameterFromQuery] private string? ThongBao { get; set; }
+    [SupplyParameterFromQuery] private string? Loi { get; set; }
+}

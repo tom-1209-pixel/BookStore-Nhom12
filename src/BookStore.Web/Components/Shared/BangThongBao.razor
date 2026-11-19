@@ -1,0 +1,22 @@
+﻿@* Hien thi thong bao thanh cong hoac loi lay tu query string *@
+
+@if (!string.IsNullOrWhiteSpace(ThongBao))
+{
+    <div class="alert alert-success alert-dismissible fade show" role="alert">
+        @ThongBao
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+}
+
+@if (!string.IsNullOrWhiteSpace(Loi))
+{
+    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+        @Loi
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+}
+
+@code {
+    [Parameter] public string? ThongBao { get; set; }
+    [Parameter] public string? Loi { get; set; }
+}

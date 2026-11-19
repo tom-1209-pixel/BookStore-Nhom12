@@ -1,0 +1,61 @@
+﻿@page "/dang-ky"
+
+<PageTitle>Đăng ký tài khoản</PageTitle>
+
+<div class="row justify-content-center">
+    <div class="col-md-7 col-lg-6">
+        <div class="khung-trang">
+            <h1 class="h5 mb-3">Đăng ký tài khoản khách hàng</h1>
+
+            <BangThongBao Loi="@Loi" />
+
+            <form method="post" action="/tai-khoan/dang-ky">
+                <AntiforgeryToken />
+
+                <div class="mb-3">
+                    <label class="form-label" for="dk-ho-ten">Họ tên <span class="text-danger">*</span></label>
+                    <input class="form-control" id="dk-ho-ten" name="hoTen" required maxlength="100" />
+                </div>
+
+                <div class="row g-3">
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="dk-ten">Tên đăng nhập <span class="text-danger">*</span></label>
+                        <input class="form-control" id="dk-ten" name="tenDangNhap" required minlength="4" maxlength="50" />
+                        <div class="form-text">Ít nhất 4 ký tự.</div>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="dk-dt">Số điện thoại</label>
+                        <input class="form-control" id="dk-dt" name="soDienThoai" maxlength="20" />
+                    </div>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label" for="dk-email">Email <span class="text-danger">*</span></label>
+                    <input class="form-control" id="dk-email" name="email" type="email" required maxlength="100" />
+                </div>
+
+                <div class="row g-3">
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="dk-mk">Mật khẩu <span class="text-danger">*</span></label>
+                        <input class="form-control" id="dk-mk" name="matKhau" type="password" required minlength="6" />
+                        <div class="form-text">Ít nhất 6 ký tự.</div>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="dk-mk2">Xác nhận mật khẩu <span class="text-danger">*</span></label>
+                        <input class="form-control" id="dk-mk2" name="xacNhanMatKhau" type="password" required minlength="6" />
+                    </div>
+                </div>
+
+                <button class="btn btn-primary w-100" type="submit">Tạo tài khoản</button>
+            </form>
+
+            <p class="text-center small text-muted mt-3 mb-0">
+                Đã có tài khoản? <a href="/dang-nhap">Đăng nhập</a>
+            </p>
+        </div>
+    </div>
+</div>
+
+@code {
+    [SupplyParameterFromQuery] private string? Loi { get; set; }
+}

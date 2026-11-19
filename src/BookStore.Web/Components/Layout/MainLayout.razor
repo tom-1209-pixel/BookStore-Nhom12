@@ -1,0 +1,129 @@
+﻿@inherits LayoutComponentBase
+@inject IGioHangService GioHangService
+@inject ISachService SachService
+
+<div class="page">
+    <header class="thanh-dau">
+        <div class="container">
+            <div class="d-flex align-items-center gap-3 py-2 flex-wrap">
+                <a class="thuong-hieu" href="/">
+                    <span class="thuong-hieu-icon">📚</span>
+                    <span>
+                        <strong>Nhà sách trực tuyến</strong>
+                        <small>Hệ thống quản lý và bán sách</small>
+                    </span>
+                </a>
+
+                <form class="o-tim-kiem" method="get" action="/sach">
+                    <input class="form-control" type="search" name="tuKhoa"
+                           placeholder="Tìm theo tên sách, tác giả hoặc ISBN..." value="@TuKhoaHienTai" />
+                    <button class="btn btn-primary" type="submit">Tìm</button>
+                </form>
+
+                <div class="ms-auto d-flex align-items-center gap-2">
+                    <a class="btn btn-outline-primary position-relative" href="/gio-hang">
+                        🛒 Giỏ hàng
+                        @if (_soLuongGio > 0)
+                        {
+                            <span class="badge rounded-pill bg-danger position-absolute top-0 start-100 translate-middle">
+                                @_soLuongGio
+                            </span>
+                        }
+                    </a>
+
+                    <AuthorizeView>
+                        <Authorized>
+                            <div class="dropdown">
+                                <button class="btn btn-light dropdown-toggle" data-bs-toggle="dropdown" type="button">
+                                    @TaiKhoanEndpoints.LayHoTen(context.User)
+                                </button>
+                                <ul class="dropdown-menu dropdown-menu-end">
+                                    <li><a class="dropdown-item" href="/tai-khoan/don-hang">Đơn hàng của tôi</a></li>
+                                    <li><a class="dropdown-item" href="/tai-khoan/doi-mat-khau">Đổi mật khẩu</a></li>
+                                    <li>
+                                        <hr class="dropdown-divider" />
+                                    </li>
+                                    <li>
+                                        <form method="post" action="/tai-khoan/dang-xuat">
+                                            <AntiforgeryToken />
+                                            <button class="dropdown-item" type="submit">Đăng xuất</button>
+                                        </form>
+                                    </li>
+                                </ul>
+                            </div>
+                        </Authorized>
+                        <NotAuthorized>
+                            <a class="btn btn-light" href="/dang-nhap">Đăng nhập</a>
+                            <a class="btn btn-primary" href="/dang-ky">Đăng ký</a>
+                        </NotAuthorized>
+                    </AuthorizeView>
+                </div>
+            </div>
+
+            <nav class="thanh-danh-muc">
+                <a href="/sach">Tất cả sách</a>
+                @foreach (var l in _danhMuc)
+                {
+                    <a href="@($"/sach?maLoaiSach={l.MaLoaiSach}")">@l.TenLoaiSach</a>
+                }
+            </nav>
+        </div>
+    </header>
+
+    <main class="container py-4">
+        @Body
+    </main>
+
+    <footer class="chan-trang">
+        <div class="container py-4">
+            <div class="row g-4">
+                <div class="col-md-5">
+                    <h6>Nhà sách trực tuyến</h6>
+                    <p class="mb-0 small">
+                        Đồ án môn Ngôn ngữ lập trình C# – Nhóm 12, Khoa Công nghệ thông tin,
+                        Trường Đại học Sài Gòn.
+                    </p>
+                </div>
+                <div class="col-md-3">
+                    <h6>Hỗ trợ</h6>
+                    <ul class="list-unstyled small mb-0">
+                        <li>Phí vận chuyển: 25.000đ</li>
+                        <li>Miễn phí cho đơn từ 300.000đ</li>
+                        <li>Thanh toán COD hoặc VNPay</li>
+                    </ul>
+                </div>
+                <div class="col-md-4">
+                    <h6>Liên hệ</h6>
+                    <ul class="list-unstyled small mb-0">
+                        <li>273 An Dương Vương, Quận 5, TP.HCM</li>
+                        <li>Điện thoại: (028) 3835 2309</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </footer>
+</div>
+
+@code {
+    [CascadingParameter] private HttpContext? HttpCtx { get; set; }
+
+    private int _soLuongGio;
+    private List<LoaiSachDto> _danhMuc = new();
+
+    private string? TuKhoaHienTai => HttpCtx?.Request.Query["tuKhoa"];
+
+    protected override async Task OnInitializedAsync()
+    {
+        _danhMuc = (await SachService.LayDanhMucAsync())
+            .Where(l => l.TrangThai)
+            .Take(6)
+            .ToList();
+
+        var maKH = HttpCtx is null ? null : TaiKhoanEndpoints.LayMaKhachHang(HttpCtx.User);
+        if (maKH is not null)
+        {
+            var gio = await GioHangService.LayGioHangAsync(maKH.Value);
+            _soLuongGio = gio.TongSoLuong;
+        }
+    }
+}

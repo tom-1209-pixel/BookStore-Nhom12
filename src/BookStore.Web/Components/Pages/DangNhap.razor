@@ -1,0 +1,47 @@
+﻿@page "/dang-nhap"
+
+<PageTitle>Đăng nhập</PageTitle>
+
+<div class="row justify-content-center">
+    <div class="col-md-6 col-lg-5">
+        <div class="khung-trang">
+            <h1 class="h5 mb-3">Đăng nhập</h1>
+
+            <BangThongBao ThongBao="@ThongBao" Loi="@Loi" />
+
+            <form method="post" action="/tai-khoan/dang-nhap">
+                <AntiforgeryToken />
+                <input type="hidden" name="duongDanTiep" value="@DuongDanTiep" />
+
+                <div class="mb-3">
+                    <label class="form-label" for="ten-dang-nhap">Tên đăng nhập</label>
+                    <input class="form-control" id="ten-dang-nhap" name="tenDangNhap" required autofocus />
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label" for="mat-khau">Mật khẩu</label>
+                    <input class="form-control" id="mat-khau" name="matKhau" type="password" required />
+                </div>
+
+                <button class="btn btn-primary w-100" type="submit">Đăng nhập</button>
+            </form>
+
+            <p class="text-end small mt-2 mb-0"><a href="/quen-mat-khau">Quên mật khẩu?</a></p>
+
+            <p class="text-center small text-muted mt-3 mb-0">
+                Chưa có tài khoản? <a href="/dang-ky">Đăng ký ngay</a>
+            </p>
+
+            <div class="alert alert-light border small mt-3 mb-0">
+                <strong>Tài khoản demo:</strong> <code>khachhang</code> / <code>123456</code>.
+                Tài khoản quản lý chỉ dùng được trên ứng dụng quản trị Desktop.
+            </div>
+        </div>
+    </div>
+</div>
+
+@code {
+    [SupplyParameterFromQuery] private string? Loi { get; set; }
+    [SupplyParameterFromQuery] private string? ThongBao { get; set; }
+    [SupplyParameterFromQuery] private string? DuongDanTiep { get; set; }
+}

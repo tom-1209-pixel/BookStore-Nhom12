@@ -1,0 +1,133 @@
+﻿@page "/sach/{MaSach:int}"
+@inject ISachService SachService
+@inject NavigationManager Nav
+
+<PageTitle>@(_sach?.TenSach ?? "Chi tiết sách")</PageTitle>
+
+<BangThongBao ThongBao="@ThongBao" Loi="@Loi" />
+
+@if (_sach is null)
+{
+    <div class="khung-trang text-center py-5">
+        <p class="mb-2 fw-semibold">Không tìm thấy quyển sách này.</p>
+        <a class="btn btn-primary" href="/sach">Về danh sách sách</a>
+    </div>
+}
+else
+{
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb small">
+            <li class="breadcrumb-item"><a href="/">Trang chủ</a></li>
+            <li class="breadcrumb-item"><a href="@($"/sach?maLoaiSach={_sach.MaLoaiSach}")">@_sach.TenLoaiSach</a></li>
+            <li class="breadcrumb-item active" aria-current="page">@_sach.TenSach</li>
+        </ol>
+    </nav>
+
+    <div class="khung-trang">
+        <div class="row g-4">
+            <div class="col-md-4">
+                <div class="the-sach" style="border:none; padding:0">
+                    <div class="bia" style="height:300px; font-size:5rem">📖</div>
+                </div>
+            </div>
+
+            <div class="col-md-8">
+                <h1 class="h4">@_sach.TenSach</h1>
+                <p class="text-muted mb-3">
+                    Tác giả: <strong>@(string.IsNullOrWhiteSpace(_sach.TenTacGia) ? "—" : _sach.TenTacGia)</strong>
+                    @if (!string.IsNullOrWhiteSpace(_sach.TenNXB))
+                    {
+                        <text> &middot; NXB @_sach.TenNXB</text>
+                    }
+                </p>
+
+                <div class="d-flex align-items-center gap-3 mb-3">
+                    <span class="gia" style="font-size:1.6rem">@_sach.GiaBan.ToString("#,##0") đ</span>
+                    @if (_sach.ConHang)
+                    {
+                        <span class="badge bg-success">Còn @_sach.SoLuongTon quyển</span>
+                    }
+                    else
+                    {
+                        <span class="badge bg-secondary">Tạm hết hàng</span>
+                    }
+                </div>
+
+                @if (_sach.ConHang)
+                {
+                    <form method="post" action="/gio-hang/them" class="row g-2 align-items-end mb-4">
+                        <AntiforgeryToken />
+                        <input type="hidden" name="maSach" value="@_sach.MaSach" />
+                        <input type="hidden" name="duongDanTiep" value="@($"/sach/{_sach.MaSach}")" />
+                        <div class="col-auto">
+                            <label class="form-label small" for="so-luong">Số lượng</label>
+                            <input class="form-control" id="so-luong" type="number" name="soLuong"
+                                   value="1" min="1" max="@_sach.SoLuongTon" style="width:7rem" />
+                        </div>
+                        <div class="col-auto">
+                            <button class="btn btn-primary" type="submit">🛒 Thêm vào giỏ hàng</button>
+                        </div>
+                    </form>
+                }
+                else
+                {
+                    <div class="alert alert-secondary">
+                        Sách đang hết hàng. Vui lòng quay lại sau khi nhà sách nhập thêm.
+                    </div>
+                }
+
+                <table class="table table-sm">
+                    <tbody>
+                        <tr><th style="width:11rem">Mã sách</th><td>@_sach.MaSach</td></tr>
+                        <tr><th>ISBN</th><td>@(_sach.ISBN ?? "—")</td></tr>
+                        <tr><th>Danh mục</th><td>@_sach.TenLoaiSach</td></tr>
+                        <tr><th>Năm xuất bản</th><td>@(_sach.NamXuatBan?.ToString() ?? "—")</td></tr>
+                        <tr><th>Số trang</th><td>@(_sach.SoTrang?.ToString() ?? "—")</td></tr>
+                    </tbody>
+                </table>
+
+                @if (!string.IsNullOrWhiteSpace(_sach.MoTa))
+                {
+                    <h2 class="h6 mt-4">Giới thiệu sách</h2>
+                    <p class="mb-0">@_sach.MoTa</p>
+                }
+            </div>
+        </div>
+    </div>
+
+    @if (_cungLoai.Count > 0)
+    {
+        <h2 class="h6 mt-4 mb-3">Sách cùng danh mục</h2>
+        <div class="row g-3">
+            @foreach (var s in _cungLoai)
+            {
+                <div class="col-6 col-md-3">
+                    <TheSach Sach="s" DuongDanTiep="@($"/sach/{MaSach}")" />
+                </div>
+            }
+        </div>
+    }
+}
+
+@code {
+    [Parameter] public int MaSach { get; set; }
+    [SupplyParameterFromQuery] private string? ThongBao { get; set; }
+    [SupplyParameterFromQuery] private string? Loi { get; set; }
+
+    private SachDto? _sach;
+    private List<SachDto> _cungLoai = new();
+
+    protected override async Task OnParametersSetAsync()
+    {
+        _sach = await SachService.LayTheoMaAsync(MaSach);
+        if (_sach is null) return;
+
+        var kq = await SachService.TimAsync(new TimSachDto
+        {
+            MaLoaiSach = _sach.MaLoaiSach,
+            SoDongMoiTrang = 5,
+            ChiSachDangBan = true
+        });
+        _cungLoai = kq.DanhSach.Where(s => s.MaSach != MaSach).Take(4).ToList();
+    }
+}

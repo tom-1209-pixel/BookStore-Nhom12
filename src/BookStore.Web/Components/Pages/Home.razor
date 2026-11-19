@@ -1,0 +1,78 @@
+﻿@page "/"
+@inject ISachService SachService
+
+<PageTitle>Nhà sách trực tuyến – Trang chủ</PageTitle>
+
+<BangThongBao ThongBao="@ThongBao" Loi="@Loi" />
+
+<div class="khung-trang mb-4" style="background:linear-gradient(120deg,#1b5e20,#2e7d32); color:#fff; border:none;">
+    <div class="row align-items-center g-3">
+        <div class="col-md-8">
+            <h1 class="h3 mb-2">Mua sách trực tuyến, nhận hàng tại nhà</h1>
+            <p class="mb-0">
+                Hơn <strong>@_tongSoSach</strong> đầu sách thuộc @_soDanhMuc danh mục. Miễn phí vận chuyển
+                cho đơn hàng từ 300.000đ, thanh toán khi nhận hàng hoặc qua VNPay.
+            </p>
+        </div>
+        <div class="col-md-4 text-md-end">
+            <a class="btn btn-light btn-lg" href="/sach">Xem tất cả sách</a>
+        </div>
+    </div>
+</div>
+
+<div class="row g-3 mb-4">
+    @foreach (var l in _danhMuc)
+    {
+        <div class="col-6 col-md-4 col-lg-2">
+            <a class="khung-trang d-block text-center text-decoration-none h-100" href="@($"/sach?maLoaiSach={l.MaLoaiSach}")">
+                <div style="font-size:1.8rem">@BieuTuong(l.TenLoaiSach)</div>
+                <div class="fw-semibold small mt-1">@l.TenLoaiSach</div>
+                <div class="text-muted small">@l.SoSach đầu sách</div>
+            </a>
+        </div>
+    }
+</div>
+
+<div class="d-flex align-items-center justify-content-between mb-3">
+    <h2 class="h5 mb-0">Sách mới cập nhật</h2>
+    <a href="/sach">Xem thêm →</a>
+</div>
+
+<div class="row g-3">
+    @foreach (var s in _sachMoi)
+    {
+        <div class="col-6 col-md-4 col-lg-3">
+            <TheSach Sach="s" DuongDanTiep="/" />
+        </div>
+    }
+</div>
+
+@code {
+    [CascadingParameter] private HttpContext? HttpCtx { get; set; }
+    [SupplyParameterFromQuery] private string? ThongBao { get; set; }
+    [SupplyParameterFromQuery] private string? Loi { get; set; }
+
+    private List<SachDto> _sachMoi = new();
+    private List<LoaiSachDto> _danhMuc = new();
+    private int _tongSoSach;
+    private int _soDanhMuc;
+
+    protected override async Task OnInitializedAsync()
+    {
+        _sachMoi = await SachService.LaySachMoiNhatAsync(8);
+        _danhMuc = (await SachService.LayDanhMucAsync()).Where(l => l.TrangThai).ToList();
+        _soDanhMuc = _danhMuc.Count;
+        _tongSoSach = _danhMuc.Sum(l => l.SoSach);
+    }
+
+    private static string BieuTuong(string tenLoai) => tenLoai switch
+    {
+        var t when t.Contains("Cong nghe", StringComparison.OrdinalIgnoreCase) => "💻",
+        var t when t.Contains("Van hoc Viet", StringComparison.OrdinalIgnoreCase) => "🇻🇳",
+        var t when t.Contains("Van hoc nuoc", StringComparison.OrdinalIgnoreCase) => "🌍",
+        var t when t.Contains("Kinh te", StringComparison.OrdinalIgnoreCase) => "📈",
+        var t when t.Contains("Ky nang", StringComparison.OrdinalIgnoreCase) => "🎯",
+        var t when t.Contains("Thieu nhi", StringComparison.OrdinalIgnoreCase) => "🧸",
+        _ => "📚"
+    };
+}
