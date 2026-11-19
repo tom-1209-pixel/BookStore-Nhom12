@@ -1,0 +1,35 @@
+@page "/quen-mat-khau"
+
+<PageTitle>Quên mật khẩu</PageTitle>
+
+<div class="row justify-content-center">
+    <div class="col-md-6 col-lg-5">
+        <div class="khung-trang">
+            <h1 class="h5 mb-3">Quên mật khẩu</h1>
+
+            <BangThongBao ThongBao="@ThongBao" Loi="@Loi" />
+
+            <p class="text-muted small">
+                Nhập email đã dùng để đăng ký. Hệ thống sẽ gửi liên kết đặt lại mật khẩu, liên kết có hiệu lực trong 30 phút.
+            </p>
+
+            <form method="post" action="/tai-khoan/quen-mat-khau">
+                <AntiforgeryToken />
+                <div class="mb-3">
+                    <label class="form-label" for="email">Email</label>
+                    <input class="form-control" id="email" name="email" type="email" required autofocus maxlength="100" />
+                </div>
+                <button class="btn btn-primary w-100" type="submit">Gửi liên kết đặt lại mật khẩu</button>
+            </form>
+
+            <p class="text-center small text-muted mt-3 mb-0">
+                <a href="/dang-nhap">← Quay lại đăng nhập</a>
+            </p>
+        </div>
+    </div>
+</div>
+
+@code {
+    [SupplyParameterFromQuery] private string? ThongBao { get; set; }
+    [SupplyParameterFromQuery] private string? Loi { get; set; }
+}

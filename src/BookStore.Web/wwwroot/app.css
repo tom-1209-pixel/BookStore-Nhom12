@@ -1,0 +1,155 @@
+:root {
+    --mau-chinh: #1b5e20;
+    --mau-chinh-dam: #124116;
+    --mau-nhan: #f9a825;
+    --mau-nen: #f6f7f5;
+    --mau-vien: #e2e5df;
+}
+
+html, body {
+    font-family: "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    background: var(--mau-nen);
+    color: #22281f;
+}
+
+.btn-primary {
+    --bs-btn-bg: var(--mau-chinh);
+    --bs-btn-border-color: var(--mau-chinh);
+    --bs-btn-hover-bg: var(--mau-chinh-dam);
+    --bs-btn-hover-border-color: var(--mau-chinh-dam);
+    --bs-btn-active-bg: var(--mau-chinh-dam);
+    --bs-btn-disabled-bg: var(--mau-chinh);
+    --bs-btn-disabled-border-color: var(--mau-chinh);
+}
+
+.btn-outline-primary {
+    --bs-btn-color: var(--mau-chinh);
+    --bs-btn-border-color: var(--mau-chinh);
+    --bs-btn-hover-bg: var(--mau-chinh);
+    --bs-btn-hover-border-color: var(--mau-chinh);
+    --bs-btn-active-bg: var(--mau-chinh);
+}
+
+a { color: var(--mau-chinh-dam); }
+
+.page { display: flex; flex-direction: column; min-height: 100vh; }
+main { flex: 1; }
+
+/* ---------- Thanh dau trang ---------- */
+.thanh-dau {
+    background: #fff;
+    border-bottom: 1px solid var(--mau-vien);
+    box-shadow: 0 1px 3px rgba(0, 0, 0, .04);
+}
+
+.thuong-hieu {
+    display: flex;
+    align-items: center;
+    gap: .6rem;
+    text-decoration: none;
+    color: var(--mau-chinh-dam);
+}
+
+.thuong-hieu-icon { font-size: 1.9rem; }
+.thuong-hieu strong { display: block; font-size: 1.1rem; line-height: 1.1; }
+.thuong-hieu small { display: block; font-size: .72rem; color: #6b7265; }
+
+.o-tim-kiem {
+    display: flex;
+    gap: .4rem;
+    flex: 1 1 320px;
+    max-width: 480px;
+}
+
+.thanh-danh-muc {
+    display: flex;
+    gap: 1.1rem;
+    flex-wrap: wrap;
+    padding: .5rem 0;
+    border-top: 1px solid var(--mau-vien);
+    font-size: .9rem;
+}
+
+.thanh-danh-muc a {
+    color: #3c4438;
+    text-decoration: none;
+    white-space: nowrap;
+}
+
+.thanh-danh-muc a:hover { color: var(--mau-chinh); text-decoration: underline; }
+
+/* ---------- The sach ---------- */
+.the-sach {
+    background: #fff;
+    border: 1px solid var(--mau-vien);
+    border-radius: .6rem;
+    padding: .9rem;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    transition: box-shadow .15s ease, transform .15s ease;
+}
+
+.the-sach:hover { box-shadow: 0 6px 18px rgba(0, 0, 0, .09); transform: translateY(-2px); }
+
+.the-sach .bia {
+    height: 170px;
+    border-radius: .4rem;
+    background: linear-gradient(135deg, #e8efe6, #cfe0ce);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 2.6rem;
+    margin-bottom: .7rem;
+}
+
+.the-sach .ten {
+    font-weight: 600;
+    font-size: .95rem;
+    line-height: 1.3;
+    min-height: 2.6em;
+    color: #22281f;
+    text-decoration: none;
+    display: block;
+}
+
+.the-sach .ten:hover { color: var(--mau-chinh); }
+.the-sach .tac-gia { font-size: .8rem; color: #6b7265; min-height: 1.2em; }
+
+.gia {
+    color: #c62828;
+    font-weight: 700;
+    font-size: 1.05rem;
+}
+
+.khung-trang {
+    background: #fff;
+    border: 1px solid var(--mau-vien);
+    border-radius: .6rem;
+    padding: 1.25rem;
+}
+
+.chan-trang {
+    background: #22281f;
+    color: #d8ded4;
+    margin-top: 2rem;
+}
+
+.chan-trang h6 { color: #fff; }
+
+.o-loc label { font-size: .85rem; font-weight: 600; }
+
+table.bang-don th { white-space: nowrap; }
+
+.moc-lich-su { border-left: 2px solid var(--mau-vien); padding-left: 1rem; }
+.moc-lich-su > li { position: relative; margin-bottom: .9rem; list-style: none; }
+.moc-lich-su > li::before {
+    content: "";
+    position: absolute;
+    left: -1.37rem;
+    top: .35rem;
+    width: .6rem;
+    height: .6rem;
+    border-radius: 50%;
+    background: var(--mau-chinh);
+}

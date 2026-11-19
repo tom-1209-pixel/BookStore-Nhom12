@@ -1,0 +1,147 @@
+﻿@page "/thanh-toan"
+@using Microsoft.AspNetCore.Authorization
+@attribute [Authorize]
+@inject IGioHangService GioHangService
+@inject ITaiKhoanService TaiKhoanService
+
+<PageTitle>Thanh toán</PageTitle>
+
+<h1 class="h5 mb-3">Thanh toán đơn hàng</h1>
+
+<BangThongBao Loi="@Loi" />
+
+@if (_gio.Dong.Count == 0)
+{
+    <div class="khung-trang text-center py-5">
+        <p class="fw-semibold mb-1">Giỏ hàng đang trống nên chưa thể thanh toán.</p>
+        <a class="btn btn-primary mt-2" href="/sach">Chọn sách</a>
+    </div>
+}
+else
+{
+    <form method="post" action="/dat-hang">
+        <AntiforgeryToken />
+        <div class="row g-3">
+            <div class="col-lg-7">
+                <div class="khung-trang mb-3">
+                    <h2 class="h6 mb-3">1. Thông tin người nhận</h2>
+
+                    <div class="mb-3">
+                        <label class="form-label" for="ho-ten">Họ tên người nhận <span class="text-danger">*</span></label>
+                        <input class="form-control" id="ho-ten" name="hoTenNguoiNhan" required
+                               maxlength="100" value="@_hoTenMacDinh" />
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label" for="dien-thoai">Số điện thoại <span class="text-danger">*</span></label>
+                        <input class="form-control" id="dien-thoai" name="soDienThoaiNhan" required
+                               maxlength="20" value="@_dienThoaiMacDinh" />
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label" for="dia-chi">Địa chỉ giao hàng <span class="text-danger">*</span></label>
+                        <textarea class="form-control" id="dia-chi" name="diaChiGiao" rows="2" required
+                                  maxlength="500">@_diaChiMacDinh</textarea>
+                    </div>
+
+                    <div class="mb-0">
+                        <label class="form-label" for="ghi-chu">Ghi chú cho nhà sách</label>
+                        <textarea class="form-control" id="ghi-chu" name="ghiChu" rows="2" maxlength="500"
+                                  placeholder="Ví dụ: giao trong giờ hành chính"></textarea>
+                    </div>
+                </div>
+
+                <div class="khung-trang">
+                    <h2 class="h6 mb-3">2. Hình thức thanh toán</h2>
+
+                    <div class="form-check mb-2">
+                        <input class="form-check-input" type="radio" name="hinhThucThanhToan"
+                               id="tt-cod" value="0" checked />
+                        <label class="form-check-label" for="tt-cod">
+                            <strong>Thanh toán khi nhận hàng (COD)</strong>
+                            <div class="text-muted small">Đơn vào ngay trạng thái Chờ xác nhận, trả tiền cho người giao hàng.</div>
+                        </label>
+                    </div>
+
+                    <div class="form-check">
+                        <input class="form-check-input" type="radio" name="hinhThucThanhToan"
+                               id="tt-vnpay" value="1" />
+                        <label class="form-check-label" for="tt-vnpay">
+                            <strong>Thanh toán trực tuyến qua VNPay</strong>
+                            <div class="text-muted small">
+                                Đơn ở trạng thái Chờ thanh toán và tự hủy sau
+                                @QuyTacNghiepVu.SoPhutHetHanThanhToan phút nếu chưa thanh toán (BR04).
+                            </div>
+                        </label>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-lg-5">
+                <div class="khung-trang">
+                    <h2 class="h6 mb-3">Đơn hàng của bạn</h2>
+
+                    <table class="table table-sm align-middle">
+                        <tbody>
+                            @foreach (var d in _gio.Dong)
+                            {
+                                <tr>
+                                    <td>
+                                        @d.TenSach
+                                        <div class="text-muted small">@d.SoLuong × @d.DonGia.ToString("#,##0") đ</div>
+                                    </td>
+                                    <td class="text-end">@d.ThanhTien.ToString("#,##0") đ</td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+
+                    <div class="d-flex justify-content-between mb-2">
+                        <span>Tạm tính</span><strong>@_gio.TamTinh.ToString("#,##0") đ</strong>
+                    </div>
+                    <div class="d-flex justify-content-between mb-2">
+                        <span>Phí vận chuyển</span>
+                        <strong>@(_phiVanChuyen == 0 ? "Miễn phí" : $"{_phiVanChuyen:#,##0} đ")</strong>
+                    </div>
+                    <hr />
+                    <div class="d-flex justify-content-between mb-3">
+                        <span class="fw-semibold">Tổng cộng</span>
+                        <span class="gia">@((_gio.TamTinh + _phiVanChuyen).ToString("#,##0")) đ</span>
+                    </div>
+
+                    <button class="btn btn-primary w-100 btn-lg" type="submit">Đặt hàng</button>
+                    <a class="btn btn-link w-100 mt-1" href="/gio-hang">← Quay lại giỏ hàng</a>
+                </div>
+            </div>
+        </div>
+    </form>
+}
+
+@code {
+    [CascadingParameter] private HttpContext? HttpCtx { get; set; }
+    [SupplyParameterFromQuery] private string? Loi { get; set; }
+
+    private GioHangDto _gio = new();
+    private string _hoTenMacDinh = string.Empty;
+    private string _dienThoaiMacDinh = string.Empty;
+    private string _diaChiMacDinh = string.Empty;
+
+    private decimal _phiVanChuyen => QuyTacNghiepVu.TinhPhiVanChuyen(_gio.TamTinh);
+
+    protected override async Task OnInitializedAsync()
+    {
+        if (HttpCtx is null) return;
+
+        var maKH = TaiKhoanEndpoints.LayMaKhachHang(HttpCtx.User);
+        if (maKH is null) return;
+
+        _gio = await GioHangService.LayGioHangAsync(maKH.Value);
+
+        // Dien san dia chi giao hang mac dinh cua khach hang
+        var diaChi = await TaiKhoanService.LayDiaChiMacDinhAsync(maKH.Value);
+
+        _hoTenMacDinh = diaChi?.HoTenNguoiNhan ?? TaiKhoanEndpoints.LayHoTen(HttpCtx.User);
+        _dienThoaiMacDinh = diaChi?.SoDienThoai ?? string.Empty;
+        _diaChiMacDinh = diaChi?.DiaChiDayDu ?? string.Empty;
+    }
+}

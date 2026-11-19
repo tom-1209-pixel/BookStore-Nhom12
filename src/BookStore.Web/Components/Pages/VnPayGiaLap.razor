@@ -1,0 +1,71 @@
+@page "/vnpay-gia-lap"
+@inject NavigationManager Nav
+
+@* Cong thanh toan gia lap. Chi dung khi chua cau hinh TmnCode / HashSecret cua VNPay sandbox.
+   Tham so nhan vao da duoc ky HMAC-SHA512; khi nguoi dung chon ket qua, may chu ky lai ket qua
+   va chuyen ve /thanh-toan/vnpay-tra-ve dung nhu cong VNPay that. *@
+
+<PageTitle>Cổng thanh toán VNPay (giả lập)</PageTitle>
+
+<div class="row justify-content-center">
+    <div class="col-md-8 col-lg-6">
+        <div class="khung-trang">
+            <div class="d-flex align-items-center justify-content-between mb-3">
+                <h1 class="h5 mb-0">Cổng thanh toán VNPay</h1>
+                <span class="badge bg-warning text-dark">Môi trường giả lập</span>
+            </div>
+
+            @if (_thamSo.Count == 0)
+            {
+                <div class="alert alert-danger mb-0">Không có yêu cầu thanh toán hợp lệ.</div>
+            }
+            else
+            {
+                <table class="table table-sm mb-3">
+                    <tbody>
+                        <tr><th class="w-50">Nội dung</th><td>@_thamSo.GetValueOrDefault("vnp_OrderInfo")</td></tr>
+                        <tr><th>Mã giao dịch tham chiếu</th><td>@_thamSo.GetValueOrDefault("vnp_TxnRef")</td></tr>
+                        <tr><th>Số tiền</th><td class="gia">@_soTien.ToString("#,##0") đ</td></tr>
+                        <tr><th>Ngân hàng</th><td>NCB – Ngân hàng Quốc Dân (thẻ thử nghiệm)</td></tr>
+                    </tbody>
+                </table>
+
+                <form method="post" action="/vnpay-gia-lap/xac-nhan">
+                    <AntiforgeryToken />
+                    @foreach (var p in _thamSo)
+                    {
+                        <input type="hidden" name="@p.Key" value="@p.Value" />
+                    }
+                    <div class="d-flex gap-2">
+                        <button class="btn btn-primary flex-fill" name="ketQua" value="thanhcong" type="submit">
+                            Xác nhận thanh toán
+                        </button>
+                        <button class="btn btn-outline-danger flex-fill" name="ketQua" value="huy" type="submit">
+                            Hủy giao dịch
+                        </button>
+                    </div>
+                </form>
+
+                <p class="small text-muted mt-3 mb-0">
+                    Hệ thống chưa được cấu hình mã TmnCode và khóa HashSecret của VNPay sandbox nên dùng cổng
+                    giả lập nội bộ. Yêu cầu và kết quả vẫn được ký và kiểm tra chữ ký HMAC-SHA512 theo đúng đặc
+                    tả VNPay 2.1.0; khi điền khóa thật vào cấu hình, khách hàng sẽ được chuyển sang cổng VNPay.
+                </p>
+            }
+        </div>
+    </div>
+</div>
+
+@code {
+    private Dictionary<string, string> _thamSo = new();
+    private decimal _soTien;
+
+    protected override void OnInitialized()
+    {
+        var uri = new Uri(Nav.Uri);
+        var q = Microsoft.AspNetCore.WebUtilities.QueryHelpers.ParseQuery(uri.Query);
+        _thamSo = q.Where(x => x.Key.StartsWith("vnp_", StringComparison.Ordinal))
+                   .ToDictionary(x => x.Key, x => x.Value.ToString());
+        if (long.TryParse(_thamSo.GetValueOrDefault("vnp_Amount"), out var xu)) _soTien = xu / 100m;
+    }
+}

@@ -1,0 +1,149 @@
+﻿@page "/ket-qua-dat-hang/{MaDonHang:int}"
+@using Microsoft.AspNetCore.Authorization
+@attribute [Authorize]
+@inject IDonHangService DonHangService
+
+<PageTitle>Kết quả đặt hàng</PageTitle>
+
+<BangThongBao ThongBao="@ThongBao" Loi="@Loi" />
+
+@if (_don is null)
+{
+    <div class="khung-trang text-center py-5">
+        <div style="font-size:2.5rem">⚠️</div>
+        <p class="fw-semibold mb-1">Không tìm thấy đơn hàng.</p>
+        <a class="btn btn-primary mt-2" href="/tai-khoan/don-hang">Xem đơn hàng của tôi</a>
+    </div>
+}
+else
+{
+    <div class="khung-trang text-center mb-3">
+        @if (_don.TrangThai == TrangThaiDonHang.DaHuy)
+        {
+            <div style="font-size:3rem">❌</div>
+            <h1 class="h4 text-danger">Đơn hàng đã bị hủy</h1>
+        }
+        else if (_don.TrangThai == TrangThaiDonHang.ChoThanhToan)
+        {
+            <div style="font-size:3rem">⏳</div>
+            <h1 class="h4">Đơn hàng đang chờ thanh toán</h1>
+            <p class="text-muted mb-0">
+                Vui lòng hoàn tất thanh toán qua VNPay trong @QuyTacNghiepVu.SoPhutHetHanThanhToan phút,
+                sau thời gian này đơn sẽ tự động hủy và số lượng tồn được hoàn lại.
+            </p>
+            <a class="btn btn-primary mt-3" href="@($"/thanh-toan/vnpay/{_don.MaDonHang}")">Thanh toán ngay qua VNPay</a>
+        }
+        else
+        {
+            <div style="font-size:3rem">✅</div>
+            <h1 class="h4 text-success">Đặt hàng thành công</h1>
+            <p class="text-muted mb-0">
+                Cảm ơn bạn đã mua sách. Nhà sách sẽ liên hệ xác nhận đơn trong thời gian sớm nhất.
+            </p>
+        }
+
+        <p class="mt-3 mb-0">
+            Mã đơn hàng: <strong>#@_don.MaDonHang</strong> &middot;
+            Trạng thái: <span class="badge bg-primary">@_don.TenTrangThai</span>
+        </p>
+    </div>
+
+    <div class="row g-3">
+        <div class="col-lg-7">
+            <div class="khung-trang">
+                <h2 class="h6 mb-3">Sách đã đặt</h2>
+                <table class="table table-sm align-middle mb-0">
+                    <thead>
+                        <tr>
+                            <th>Sách</th>
+                            <th class="text-center">SL</th>
+                            <th class="text-end">Đơn giá</th>
+                            <th class="text-end">Thành tiền</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var d in _don.Dong)
+                        {
+                            <tr>
+                                <td>@d.TenSach</td>
+                                <td class="text-center">@d.SoLuong</td>
+                                <td class="text-end">@d.DonGia.ToString("#,##0") đ</td>
+                                <td class="text-end">@d.ThanhTien.ToString("#,##0") đ</td>
+                            </tr>
+                        }
+                    </tbody>
+                    <tfoot>
+                        <tr>
+                            <td colspan="3" class="text-end">Tạm tính</td>
+                            <td class="text-end">@_don.TamTinh.ToString("#,##0") đ</td>
+                        </tr>
+                        <tr>
+                            <td colspan="3" class="text-end">Phí vận chuyển</td>
+                            <td class="text-end">@(_don.PhiVanChuyen == 0 ? "Miễn phí" : $"{_don.PhiVanChuyen:#,##0} đ")</td>
+                        </tr>
+                        <tr>
+                            <td colspan="3" class="text-end fw-semibold">Tổng cộng</td>
+                            <td class="text-end"><span class="gia">@_don.TongTien.ToString("#,##0") đ</span></td>
+                        </tr>
+                    </tfoot>
+                </table>
+            </div>
+        </div>
+
+        <div class="col-lg-5">
+            <div class="khung-trang mb-3">
+                <h2 class="h6 mb-3">Thông tin giao hàng</h2>
+                <p class="mb-1"><strong>@_don.HoTenNguoiNhan</strong></p>
+                <p class="mb-1">@_don.SoDienThoaiNhan</p>
+                <p class="mb-1">@_don.DiaChiGiao</p>
+                <p class="mb-1 text-muted small">@_don.TenHinhThucThanhToan</p>
+                @if (!string.IsNullOrWhiteSpace(_don.GhiChu))
+                {
+                    <p class="mb-0 text-muted small">Ghi chú: @_don.GhiChu</p>
+                }
+            </div>
+
+            <div class="khung-trang">
+                <h2 class="h6 mb-3">Lịch sử đơn hàng</h2>
+                <ul class="moc-lich-su mb-0 ps-0">
+                    @foreach (var l in _don.LichSu)
+                    {
+                        <li>
+                            <div class="fw-semibold small">@l.TrangThaiMoi</div>
+                            <div class="text-muted small">
+                                @l.ThoiDiem.ToString("dd/MM/yyyy HH:mm") &middot; @l.NguoiThucHien
+                            </div>
+                            @if (!string.IsNullOrWhiteSpace(l.GhiChu))
+                            {
+                                <div class="text-muted small fst-italic">@l.GhiChu</div>
+                            }
+                        </li>
+                    }
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <div class="mt-3 d-flex gap-2">
+        <a class="btn btn-outline-primary" href="/sach">Tiếp tục mua sách</a>
+        <a class="btn btn-primary" href="/tai-khoan/don-hang">Đơn hàng của tôi</a>
+    </div>
+}
+
+@code {
+    [Parameter] public int MaDonHang { get; set; }
+    [CascadingParameter] private HttpContext? HttpCtx { get; set; }
+    [SupplyParameterFromQuery] private string? ThongBao { get; set; }
+    [SupplyParameterFromQuery] private string? Loi { get; set; }
+
+    private DonHangDto? _don;
+
+    protected override async Task OnParametersSetAsync()
+    {
+        if (HttpCtx is null) return;
+        var maKH = TaiKhoanEndpoints.LayMaKhachHang(HttpCtx.User);
+        if (maKH is null) return;
+
+        _don = await DonHangService.LayChiTietAsync(MaDonHang, maKH.Value);
+    }
+}

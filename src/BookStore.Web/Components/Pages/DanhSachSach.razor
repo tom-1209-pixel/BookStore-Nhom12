@@ -1,0 +1,156 @@
+﻿@page "/sach"
+@inject ISachService SachService
+
+<PageTitle>@TieuDe</PageTitle>
+
+<BangThongBao ThongBao="@ThongBao" Loi="@Loi" />
+
+<div class="row g-3">
+    <div class="col-lg-3">
+        <div class="khung-trang o-loc">
+            <h2 class="h6 mb-3">Bộ lọc</h2>
+            <form method="get" action="/sach">
+                <input type="hidden" name="tuKhoa" value="@TuKhoa" />
+
+                <div class="mb-3">
+                    <label class="form-label" for="loc-loai">Danh mục</label>
+                    <select class="form-select form-select-sm" id="loc-loai" name="maLoaiSach">
+                        <option value="">Tất cả danh mục</option>
+                        @foreach (var l in _danhMuc)
+                        {
+                            <option value="@l.MaLoaiSach" selected="@(MaLoaiSach == l.MaLoaiSach)">
+                                @l.TenLoaiSach (@l.SoSach)
+                            </option>
+                        }
+                    </select>
+                </div>
+
+                <div class="row g-2 mb-3">
+                    <div class="col-6">
+                        <label class="form-label" for="loc-gia-tu">Giá từ</label>
+                        <input class="form-control form-control-sm" id="loc-gia-tu" type="number" min="0"
+                               step="1000" name="giaTu" value="@GiaTu" />
+                    </div>
+                    <div class="col-6">
+                        <label class="form-label" for="loc-gia-den">Đến</label>
+                        <input class="form-control form-control-sm" id="loc-gia-den" type="number" min="0"
+                               step="1000" name="giaDen" value="@GiaDen" />
+                    </div>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label" for="loc-sap-xep">Sắp xếp</label>
+                    <select class="form-select form-select-sm" id="loc-sap-xep" name="sapXep">
+                        <option value="" selected="@(string.IsNullOrEmpty(SapXep))">Mới nhất</option>
+                        <option value="gia-tang" selected="@(SapXep == "gia-tang")">Giá tăng dần</option>
+                        <option value="gia-giam" selected="@(SapXep == "gia-giam")">Giá giảm dần</option>
+                        <option value="ten" selected="@(SapXep == "ten")">Tên A → Z</option>
+                    </select>
+                </div>
+
+                <button class="btn btn-primary btn-sm w-100" type="submit">Áp dụng</button>
+                <a class="btn btn-link btn-sm w-100 mt-1" href="/sach">Xóa bộ lọc</a>
+            </form>
+        </div>
+    </div>
+
+    <div class="col-lg-9">
+        <div class="khung-trang mb-3 d-flex flex-wrap align-items-center justify-content-between gap-2">
+            <div>
+                <h1 class="h5 mb-1">@TieuDe</h1>
+                <div class="text-muted small">
+                    Tìm thấy <strong>@_ketQua.TongSoDong</strong> đầu sách
+                    @if (!string.IsNullOrWhiteSpace(TuKhoa))
+                    {
+                        <text> cho từ khóa “@TuKhoa”</text>
+                    }
+                </div>
+            </div>
+            <div class="text-muted small">Trang @_ketQua.Trang / @Math.Max(1, _ketQua.TongSoTrang)</div>
+        </div>
+
+        @if (_ketQua.DanhSach.Count == 0)
+        {
+            <div class="khung-trang text-center py-5">
+                <div style="font-size:2.5rem">🔍</div>
+                <p class="mb-1 fw-semibold">Không tìm thấy sách phù hợp</p>
+                <p class="text-muted small mb-0">Thử bớt điều kiện lọc hoặc dùng từ khóa khác.</p>
+            </div>
+        }
+        else
+        {
+            <div class="row g-3">
+                @foreach (var s in _ketQua.DanhSach)
+                {
+                    <div class="col-6 col-md-4">
+                        <TheSach Sach="s" DuongDanTiep="@DuongDanHienTai" />
+                    </div>
+                }
+            </div>
+
+            @if (_ketQua.TongSoTrang > 1)
+            {
+                <nav class="mt-4">
+                    <ul class="pagination justify-content-center">
+                        @for (var i = 1; i <= _ketQua.TongSoTrang; i++)
+                        {
+                            var p = i;
+                            <li class="page-item @(p == _ketQua.Trang ? "active" : "")">
+                                <a class="page-link" href="@DuongDanTrang(p)">@p</a>
+                            </li>
+                        }
+                    </ul>
+                </nav>
+            }
+        }
+    </div>
+</div>
+
+@code {
+    [SupplyParameterFromQuery] private string? TuKhoa { get; set; }
+    [SupplyParameterFromQuery] private int? MaLoaiSach { get; set; }
+    [SupplyParameterFromQuery] private decimal? GiaTu { get; set; }
+    [SupplyParameterFromQuery] private decimal? GiaDen { get; set; }
+    [SupplyParameterFromQuery] private string? SapXep { get; set; }
+    [SupplyParameterFromQuery] private int? Trang { get; set; }
+    [SupplyParameterFromQuery] private string? ThongBao { get; set; }
+    [SupplyParameterFromQuery] private string? Loi { get; set; }
+
+    private TrangKetQua<SachDto> _ketQua = new();
+    private List<LoaiSachDto> _danhMuc = new();
+
+    private string TieuDe => MaLoaiSach.HasValue
+        ? _danhMuc.FirstOrDefault(l => l.MaLoaiSach == MaLoaiSach)?.TenLoaiSach ?? "Danh sách sách"
+        : string.IsNullOrWhiteSpace(TuKhoa) ? "Tất cả sách" : "Kết quả tìm kiếm";
+
+    private string DuongDanHienTai => DuongDanTrang(_ketQua.Trang);
+
+    protected override async Task OnParametersSetAsync()
+    {
+        _danhMuc = (await SachService.LayDanhMucAsync()).Where(l => l.TrangThai).ToList();
+
+        _ketQua = await SachService.TimAsync(new TimSachDto
+        {
+            TuKhoa = TuKhoa,
+            MaLoaiSach = MaLoaiSach,
+            GiaTu = GiaTu,
+            GiaDen = GiaDen,
+            SapXep = SapXep,
+            Trang = Trang ?? 1,
+            SoDongMoiTrang = 12,
+            ChiSachDangBan = true
+        });
+    }
+
+    private string DuongDanTrang(int trang)
+    {
+        var tham = new List<string>();
+        if (!string.IsNullOrWhiteSpace(TuKhoa)) tham.Add($"tuKhoa={Uri.EscapeDataString(TuKhoa)}");
+        if (MaLoaiSach.HasValue) tham.Add($"maLoaiSach={MaLoaiSach}");
+        if (GiaTu.HasValue) tham.Add($"giaTu={GiaTu}");
+        if (GiaDen.HasValue) tham.Add($"giaDen={GiaDen}");
+        if (!string.IsNullOrWhiteSpace(SapXep)) tham.Add($"sapXep={SapXep}");
+        if (trang > 1) tham.Add($"trang={trang}");
+        return "/sach" + (tham.Count == 0 ? "" : "?" + string.Join("&", tham));
+    }
+}

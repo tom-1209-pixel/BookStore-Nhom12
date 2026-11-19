@@ -1,0 +1,40 @@
+@page "/dat-lai-mat-khau"
+
+<PageTitle>Đặt lại mật khẩu</PageTitle>
+
+<div class="row justify-content-center">
+    <div class="col-md-6 col-lg-5">
+        <div class="khung-trang">
+            <h1 class="h5 mb-3">Đặt lại mật khẩu</h1>
+
+            <BangThongBao Loi="@Loi" />
+
+            @if (string.IsNullOrWhiteSpace(Token))
+            {
+                <div class="alert alert-warning">Liên kết không hợp lệ. Vui lòng yêu cầu lại từ trang Quên mật khẩu.</div>
+                <a class="btn btn-primary w-100" href="/quen-mat-khau">Quên mật khẩu</a>
+            }
+            else
+            {
+                <form method="post" action="/tai-khoan/dat-lai-mat-khau">
+                    <AntiforgeryToken />
+                    <input type="hidden" name="token" value="@Token" />
+                    <div class="mb-3">
+                        <label class="form-label" for="mk-moi">Mật khẩu mới</label>
+                        <input class="form-control" id="mk-moi" name="matKhauMoi" type="password" required minlength="6" />
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label" for="mk-xn">Nhập lại mật khẩu mới</label>
+                        <input class="form-control" id="mk-xn" name="xacNhanMatKhau" type="password" required minlength="6" />
+                    </div>
+                    <button class="btn btn-primary w-100" type="submit">Đặt lại mật khẩu</button>
+                </form>
+            }
+        </div>
+    </div>
+</div>
+
+@code {
+    [SupplyParameterFromQuery] private string? Token { get; set; }
+    [SupplyParameterFromQuery] private string? Loi { get; set; }
+}
