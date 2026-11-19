@@ -1,0 +1,155 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Page
+    x:Class="BookStore.Admin.Views.TrangKhachHang"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:models="using:BookStore.Admin.Models">
+
+    <Grid Padding="18,14" RowSpacing="10">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+
+        <TextBlock Grid.Row="0" Text="Quản lý khách hàng" Style="{StaticResource TitleTextBlockStyle}" />
+
+        <Grid Grid.Row="1" ColumnSpacing="8">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="190" />
+                <ColumnDefinition Width="Auto" />
+            </Grid.ColumnDefinitions>
+            <TextBox Grid.Column="0" PlaceholderText="Tìm theo họ tên, email, tên đăng nhập, số điện thoại"
+                     Text="{x:Bind ViewModel.TuKhoa, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                     KeyDown="OTuKhoa_KeyDown" />
+            <ComboBox Grid.Column="1" HorizontalAlignment="Stretch"
+                      ItemsSource="{x:Bind ViewModel.CacBoLoc}"
+                      SelectedItem="{x:Bind ViewModel.BoLoc, Mode=TwoWay}" />
+            <Button Grid.Column="2" Content="Tìm" Style="{StaticResource AccentButtonStyle}"
+                    Command="{x:Bind ViewModel.NapCommand}" />
+        </Grid>
+
+        <Grid Grid.Row="2" ColumnSpacing="16">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="3*" />
+                <ColumnDefinition Width="2*" />
+            </Grid.ColumnDefinitions>
+
+            <Border Grid.Column="0"
+                    Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
+                    BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
+                    BorderThickness="1" CornerRadius="8">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="*" />
+                    </Grid.RowDefinitions>
+
+                    <ProgressBar Grid.Row="0" IsIndeterminate="True"
+                                 Visibility="{x:Bind ViewModel.DangTai, Mode=OneWay, Converter={StaticResource BoolSangVisibility}}" />
+
+                    <Grid Grid.Row="1" Padding="14,10" ColumnSpacing="8"
+                          Background="{ThemeResource LayerFillColorDefaultBrush}">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="40" />
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="110" />
+                            <ColumnDefinition Width="60" />
+                            <ColumnDefinition Width="90" />
+                        </Grid.ColumnDefinitions>
+                        <TextBlock Grid.Column="0" Text="Mã" FontWeight="SemiBold" />
+                        <TextBlock Grid.Column="1" Text="Họ tên" FontWeight="SemiBold" />
+                        <TextBlock Grid.Column="2" Text="Số điện thoại" FontWeight="SemiBold" />
+                        <TextBlock Grid.Column="3" Text="Số đơn" FontWeight="SemiBold" HorizontalAlignment="Right" />
+                        <TextBlock Grid.Column="4" Text="Trạng thái" FontWeight="SemiBold" />
+                    </Grid>
+
+                    <ListView Grid.Row="2"
+                              ItemsSource="{x:Bind ViewModel.DanhSach}"
+                              ItemContainerStyle="{StaticResource DongDanhSach}"
+                              SelectedItem="{x:Bind ViewModel.KhachDangChon, Mode=TwoWay}"
+                              SelectionMode="Single">
+                        <ListView.ItemTemplate>
+                            <DataTemplate x:DataType="models:KhachHang">
+                                <Grid Padding="4,8" ColumnSpacing="8">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="40" />
+                                        <ColumnDefinition Width="*" />
+                                        <ColumnDefinition Width="110" />
+                                        <ColumnDefinition Width="60" />
+                                        <ColumnDefinition Width="90" />
+                                    </Grid.ColumnDefinitions>
+                                    <TextBlock Grid.Column="0" Text="{x:Bind MaKhachHang}" />
+                                    <StackPanel Grid.Column="1">
+                                        <TextBlock Text="{x:Bind HoTen}" TextTrimming="CharacterEllipsis" />
+                                        <TextBlock Text="{x:Bind Email}" TextTrimming="CharacterEllipsis"
+                                                   Style="{StaticResource CaptionTextBlockStyle}"
+                                                   Foreground="{ThemeResource TextFillColorSecondaryBrush}" />
+                                    </StackPanel>
+                                    <TextBlock Grid.Column="2" Text="{x:Bind SoDienThoai}" />
+                                    <TextBlock Grid.Column="3" Text="{x:Bind SoDonHang}" HorizontalAlignment="Right" />
+                                    <TextBlock Grid.Column="4" Text="{x:Bind TenTrangThai}" FontSize="12" />
+                                </Grid>
+                            </DataTemplate>
+                        </ListView.ItemTemplate>
+                    </ListView>
+                </Grid>
+            </Border>
+
+            <Border Grid.Column="1"
+                    Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
+                    BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
+                    BorderThickness="1" CornerRadius="8" Padding="18">
+                <ScrollViewer>
+                    <StackPanel Spacing="10">
+                        <TextBlock Text="Thông tin khách hàng" Style="{StaticResource SubtitleTextBlockStyle}" />
+
+                        <InfoBar IsOpen="{x:Bind ViewModel.CoThongBao, Mode=OneWay}" IsClosable="True"
+                                 Message="{x:Bind ViewModel.ThongBao, Mode=OneWay}" />
+
+                        <TextBlock Text="Chọn một khách hàng trong danh sách để xem chi tiết."
+                                   Foreground="{ThemeResource TextFillColorSecondaryBrush}" TextWrapping="Wrap"
+                                   Visibility="{x:Bind ViewModel.CoChiTiet, Mode=OneWay, Converter={StaticResource BoolSangVisibility}, ConverterParameter=nguoc}" />
+
+                        <StackPanel Spacing="8" Visibility="{x:Bind ViewModel.CoChiTiet, Mode=OneWay, Converter={StaticResource BoolSangVisibility}}">
+                            <TextBlock Text="Họ tên" Style="{StaticResource CaptionTextBlockStyle}" Foreground="{ThemeResource TextFillColorSecondaryBrush}" />
+                            <TextBlock Text="{x:Bind ViewModel.ChiTiet.HoTen, Mode=OneWay}" Style="{StaticResource BodyStrongTextBlockStyle}" />
+                            <TextBlock Text="Tên đăng nhập · Email" Style="{StaticResource CaptionTextBlockStyle}" Foreground="{ThemeResource TextFillColorSecondaryBrush}" />
+                            <TextBlock TextWrapping="Wrap">
+                                <Run Text="{x:Bind ViewModel.ChiTiet.TenDangNhap, Mode=OneWay}" /><Run Text=" · " /><Run Text="{x:Bind ViewModel.ChiTiet.Email, Mode=OneWay}" />
+                            </TextBlock>
+                            <TextBlock Text="Số điện thoại" Style="{StaticResource CaptionTextBlockStyle}" Foreground="{ThemeResource TextFillColorSecondaryBrush}" />
+                            <TextBlock Text="{x:Bind ViewModel.ChiTiet.SoDienThoai, Mode=OneWay}" />
+                            <TextBlock Text="Địa chỉ giao hàng mặc định" Style="{StaticResource CaptionTextBlockStyle}" Foreground="{ThemeResource TextFillColorSecondaryBrush}" />
+                            <TextBlock Text="{x:Bind ViewModel.ChiTiet.DiaChiMacDinh, Mode=OneWay}" TextWrapping="Wrap" />
+                            <TextBlock Text="Ngày đăng ký" Style="{StaticResource CaptionTextBlockStyle}" Foreground="{ThemeResource TextFillColorSecondaryBrush}" />
+                            <TextBlock Text="{x:Bind ViewModel.ChiTiet.NgayDangKyHienThi, Mode=OneWay}" />
+                            <TextBlock Text="Số đơn hàng · Tổng chi tiêu (đơn hoàn thành)" Style="{StaticResource CaptionTextBlockStyle}" Foreground="{ThemeResource TextFillColorSecondaryBrush}" />
+                            <TextBlock>
+                                <Run Text="{x:Bind ViewModel.ChiTiet.SoDonHang, Mode=OneWay}" /><Run Text=" đơn · " /><Run Text="{x:Bind ViewModel.ChiTiet.TongChiTieuHienThi, Mode=OneWay}" />
+                            </TextBlock>
+                            <TextBlock Text="Trạng thái tài khoản" Style="{StaticResource CaptionTextBlockStyle}" Foreground="{ThemeResource TextFillColorSecondaryBrush}" />
+                            <TextBlock Text="{x:Bind ViewModel.ChiTiet.TenTrangThai, Mode=OneWay}" Style="{StaticResource BodyStrongTextBlockStyle}" />
+
+                            <TextBox Header="Lý do khóa (bắt buộc khi khóa)" Margin="0,6,0,0"
+                                     Text="{x:Bind ViewModel.LyDo, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                            <StackPanel Orientation="Horizontal" Spacing="8">
+                                <Button Content="Khóa tài khoản"
+                                        IsEnabled="{x:Bind ViewModel.ChoPhepKhoa, Mode=OneWay}"
+                                        Command="{x:Bind ViewModel.KhoaCommand}" />
+                                <Button Content="Mở khóa" Style="{StaticResource AccentButtonStyle}"
+                                        IsEnabled="{x:Bind ViewModel.ChoPhepMoKhoa, Mode=OneWay}"
+                                        Command="{x:Bind ViewModel.MoKhoaCommand}" />
+                            </StackPanel>
+                            <TextBlock Style="{StaticResource CaptionTextBlockStyle}" TextWrapping="Wrap"
+                                       Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                                       Text="Tài khoản bị khóa không đăng nhập được trang Web; các đơn hàng cũ vẫn được giữ nguyên." />
+                        </StackPanel>
+                    </StackPanel>
+                </ScrollViewer>
+            </Border>
+        </Grid>
+    </Grid>
+</Page>

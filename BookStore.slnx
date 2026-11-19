@@ -1,9 +1,12 @@
 <Solution>
   <Folder Name="/src/">
-    <Project Path="src/BookStore.Domain/BookStore.Domain.csproj" />
-    <Project Path="src/BookStore.Data/BookStore.Data.csproj" />
-    <Project Path="src/BookStore.Services/BookStore.Services.csproj" />
+    <Project Path="src/BookStore.Admin/BookStore.Admin.csproj">
+      <Platform Project="x64" />
+    </Project>
     <Project Path="src/BookStore.Api/BookStore.Api.csproj" />
+    <Project Path="src/BookStore.Data/BookStore.Data.csproj" />
+    <Project Path="src/BookStore.Domain/BookStore.Domain.csproj" />
+    <Project Path="src/BookStore.Services/BookStore.Services.csproj" />
     <Project Path="src/BookStore.Web/BookStore.Web.csproj" />
   </Folder>
 </Solution>
