@@ -7,6 +7,8 @@
     <Project Path="src/BookStore.Data/BookStore.Data.csproj" />
     <Project Path="src/BookStore.Domain/BookStore.Domain.csproj" />
     <Project Path="src/BookStore.Services/BookStore.Services.csproj" />
+    <Project Path="src/BookStore.Tests/BookStore.Tests.csproj" />
+    <Project Path="src/BookStore.UiTests/BookStore.UiTests.csproj" />
     <Project Path="src/BookStore.Web/BookStore.Web.csproj" />
   </Folder>
 </Solution>
