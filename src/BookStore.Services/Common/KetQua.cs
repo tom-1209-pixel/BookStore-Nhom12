@@ -9,7 +9,7 @@ public class KetQua
     public bool ThanhCong { get; init; }
     public string ThongBao { get; init; } = string.Empty;
 
-    /// <summary>Ma loi nghiep vu, vi du BR01, de ghi log va doi chieu bao cao.</summary>
+    /// <summary>Ma loi nghiep vu, vi du BR02, de ghi log va doi chieu bao cao.</summary>
     public string? MaLoi { get; init; }
 
     public static KetQua Dung(string thongBao = "Thành công")

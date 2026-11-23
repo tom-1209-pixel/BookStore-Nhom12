@@ -10,7 +10,7 @@ using Microsoft.Extensions.Logging;
 namespace BookStore.Services.Implementations;
 
 /// <summary>
-/// Nghiep vu don hang. Day la noi cai dat cac quy tac BR01-BR05, BR09, BR10
+/// Nghiep vu don hang. Day la noi cai dat cac quy tac BR02-BR07, BR10
 /// va so do trang thai don hang (Hinh 3.3 trong bao cao).
 /// </summary>
 public class DonHangService : IDonHangService
@@ -55,7 +55,7 @@ public class DonHangService : IDonHangService
         if (gio is null || gio.CTGioHangs.Count == 0)
             return KetQua<DonHangDto>.Loi("Giỏ hàng đang trống.");
 
-        // BR01: tru ton kho ngay khi tao don, trong cung mot transaction voi viec ghi don.
+        // BR03: tru ton kho ngay khi tao don, trong cung mot transaction voi viec ghi don.
         // Chuoi ket noi bat EnableRetryOnFailure nen transaction thu cong phai nam
         // trong mot execution strategy, neu khong EF Core se bao loi.
         var strategy = _db.Database.CreateExecutionStrategy();
@@ -91,13 +91,13 @@ public class DonHangService : IDonHangService
                     return KetQua<DonHangDto>.Loi("Giỏ hàng chứa sách không còn tồn tại.");
 
                 if (sach.TrangThai == TrangThaiSach.NgungKinhDoanh)
-                    return KetQua<DonHangDto>.Loi($"Sách \"{sach.TenSach}\" đã ngừng kinh doanh.", "BR07");
+                    return KetQua<DonHangDto>.Loi($"Sách \"{sach.TenSach}\" đã ngừng kinh doanh.", "BR09");
 
                 if (ct.SoLuong > sach.SoLuongTon)
                     return KetQua<DonHangDto>.Loi(
-                        $"Sách \"{sach.TenSach}\" chỉ còn {sach.SoLuongTon} quyển, không đủ số lượng đặt.", "BR01");
+                        $"Sách \"{sach.TenSach}\" chỉ còn {sach.SoLuongTon} quyển, không đủ số lượng đặt.", "BR02");
 
-                // BR02: don gia duoc sao luu tai thoi diem dat hang.
+                // BR04: don gia duoc sao luu tai thoi diem dat hang.
                 don.CTDonHangs.Add(new CTDonHang
                 {
                     MaSach = sach.MaSach,
@@ -107,11 +107,11 @@ public class DonHangService : IDonHangService
                 });
 
                 tamTinh += sach.GiaBan * ct.SoLuong;
-                sach.SoLuongTon -= ct.SoLuong;   // BR01
+                sach.SoLuongTon -= ct.SoLuong;   // BR03
             }
 
             don.TamTinh = tamTinh;
-            don.PhiVanChuyen = QuyTacNghiepVu.TinhPhiVanChuyen(tamTinh);   // BR10
+            don.PhiVanChuyen = QuyTacNghiepVu.TinhPhiVanChuyen(tamTinh);   // BR07
             don.TongTien = don.TamTinh + don.PhiVanChuyen;
 
             _db.DonHang.Add(don);
@@ -175,7 +175,7 @@ public class DonHangService : IDonHangService
         var q = _db.DonHang
             .Include(d => d.KhachHang)
             .Include(d => d.QuanLy)
-            .Include(d => d.CTDonHangs)
+            .Include(d => d.CTDonHangs).ThenInclude(ct => ct.Sach)
             .Include(d => d.LichSuDonHangs)
             .AsNoTracking()
             .Where(d => d.MaDonHang == maDonHang);
@@ -231,7 +231,7 @@ public class DonHangService : IDonHangService
     {
         var ds = await _db.DonHang
             .Include(d => d.KhachHang)
-            .Include(d => d.CTDonHangs)
+            .Include(d => d.CTDonHangs).ThenInclude(ct => ct.Sach)
             .Where(d => d.MaKhachHang == maKhachHang)
             .OrderByDescending(d => d.MaDonHang)
             .AsNoTracking()
@@ -335,7 +335,7 @@ public class DonHangService : IDonHangService
         });
     }
 
-    /// <summary>BR05: khach hang chi huy duoc don o trang thai Cho thanh toan hoac Cho xac nhan.</summary>
+    /// <summary>BR06: khach hang chi huy duoc don o trang thai Cho thanh toan hoac Cho xac nhan.</summary>
     public async Task<KetQua> KhachHuyDonAsync(int maDonHang, int maKhachHang, string? lyDo)
     {
         var don = await _db.DonHang.AsNoTracking()
@@ -345,13 +345,13 @@ public class DonHangService : IDonHangService
 
         if (don.TrangThai is not (TrangThaiDonHang.ChoThanhToan or TrangThaiDonHang.ChoXacNhan))
             return KetQua.Loi(
-                "Đơn hàng đã được xác nhận nên không thể tự hủy. Vui lòng liên hệ nhà sách.", "BR05");
+                "Đơn hàng đã được xác nhận nên không thể tự hủy. Vui lòng liên hệ nhà sách.", "BR06");
 
         return await ChuyenTrangThaiAsync(maDonHang, TrangThaiDonHang.DaHuy,
             "Khách hàng", null, lyDo ?? "Khách hàng tự hủy đơn");
     }
 
-    /// <summary>BR04: don VNPay chua thanh toan sau 30 phut thi tu dong huy va hoan ton kho.</summary>
+    /// <summary>BR05: don VNPay chua thanh toan sau 30 phut thi tu dong huy va hoan ton kho.</summary>
     public async Task<int> HuyDonQuaHanAsync()
     {
         var moc = DateTime.Now.AddMinutes(-QuyTacNghiepVu.SoPhutHetHanThanhToan);
@@ -365,7 +365,7 @@ public class DonHangService : IDonHangService
         foreach (var ma in dsMa)
         {
             var kq = await ChuyenTrangThaiAsync(ma, TrangThaiDonHang.DaHuy, "Hệ thống", null,
-                $"Tự động hủy: quá {QuyTacNghiepVu.SoPhutHetHanThanhToan} phút chưa thanh toán (BR04)");
+                $"Tự động hủy: quá {QuyTacNghiepVu.SoPhutHetHanThanhToan} phút chưa thanh toán");
             if (kq.ThanhCong) dem++;
         }
 
@@ -413,6 +413,7 @@ public class DonHangService : IDonHangService
         {
             MaSach = ct.MaSach,
             TenSach = ct.TenSach,
+            AnhBia = ct.Sach?.AnhBia,
             SoLuong = ct.SoLuong,
             DonGia = ct.DonGia
         }).ToList(),

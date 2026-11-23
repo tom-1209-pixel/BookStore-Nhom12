@@ -184,15 +184,138 @@ public class TaiKhoanService : ITaiKhoanService
             .Where(d => d.MaKhachHang == maKhachHang)
             .OrderByDescending(d => d.LaMacDinh)
             .ThenByDescending(d => d.MaDiaChi)
-            .Select(d => new DiaChiGiaoHangDto
+            .Select(ChieuDiaChi)
+            .FirstOrDefaultAsync();
+
+    private static readonly System.Linq.Expressions.Expression<Func<DiaChiGiaoHang, DiaChiGiaoHangDto>> ChieuDiaChi =
+        d => new DiaChiGiaoHangDto
+        {
+            MaDiaChi = d.MaDiaChi,
+            HoTenNguoiNhan = d.HoTenNguoiNhan,
+            SoDienThoai = d.SoDienThoai,
+            DiaChiChiTiet = d.DiaChiChiTiet,
+            PhuongXa = d.PhuongXa,
+            QuanHuyen = d.QuanHuyen,
+            TinhThanh = d.TinhThanh,
+            DiaChiDayDu = d.DiaChiChiTiet + ", " + d.PhuongXa + ", " + d.QuanHuyen + ", " + d.TinhThanh,
+            LaMacDinh = d.LaMacDinh
+        };
+
+    // ---------------- Tai khoan cua toi ----------------
+
+    public const int SoDiaChiToiDa = 10;
+
+    private static bool LaSoDienThoai(string? s)
+        => !string.IsNullOrWhiteSpace(s) && System.Text.RegularExpressions.Regex.IsMatch(s.Trim(), @"^0\d{9,10}$");
+
+    public async Task<HoSoKhachHangDto?> LayHoSoAsync(int maKhachHang)
+        => await _db.KhachHang.AsNoTracking()
+            .Where(k => k.MaKhachHang == maKhachHang)
+            .Select(k => new HoSoKhachHangDto
             {
-                MaDiaChi = d.MaDiaChi,
-                HoTenNguoiNhan = d.HoTenNguoiNhan,
-                SoDienThoai = d.SoDienThoai,
-                DiaChiDayDu = d.DiaChiChiTiet + ", " + d.PhuongXa + ", " + d.QuanHuyen + ", " + d.TinhThanh,
-                LaMacDinh = d.LaMacDinh
+                TenDangNhap = k.TaiKhoan!.TenDangNhap,
+                Email = k.TaiKhoan.Email,
+                HoTen = k.HoTen,
+                SoDienThoai = k.TaiKhoan.SoDienThoai,
+                NgaySinh = k.NgaySinh,
+                GioiTinh = k.GioiTinh,
+                NgayDangKy = k.NgayDangKy
             })
             .FirstOrDefaultAsync();
+
+    public async Task<KetQua> CapNhatHoSoAsync(int maKhachHang, HoSoKhachHangDto dto)
+    {
+        var hoTen = dto.HoTen?.Trim() ?? string.Empty;
+        if (hoTen.Length == 0) return KetQua.Loi("Vui lòng nhập họ tên.");
+        if (hoTen.Length > 100) return KetQua.Loi("Họ tên tối đa 100 ký tự.");
+        if (!string.IsNullOrWhiteSpace(dto.SoDienThoai) && !LaSoDienThoai(dto.SoDienThoai))
+            return KetQua.Loi("Số điện thoại phải gồm 10–11 chữ số và bắt đầu bằng 0.");
+        if (dto.NgaySinh.HasValue && (dto.NgaySinh.Value.Date >= DateTime.Today || dto.NgaySinh.Value.Year < 1900))
+            return KetQua.Loi("Ngày sinh không hợp lệ.");
+        if (dto.GioiTinh is not (null or 0 or 1)) return KetQua.Loi("Giới tính không hợp lệ.");
+
+        var kh = await _db.KhachHang.Include(k => k.TaiKhoan).FirstOrDefaultAsync(k => k.MaKhachHang == maKhachHang);
+        if (kh is null) return KetQua.Loi("Không tìm thấy khách hàng.");
+
+        kh.HoTen = hoTen;
+        kh.NgaySinh = dto.NgaySinh?.Date;
+        kh.GioiTinh = dto.GioiTinh;
+        kh.TaiKhoan!.SoDienThoai = string.IsNullOrWhiteSpace(dto.SoDienThoai) ? null : dto.SoDienThoai.Trim();
+        await _db.SaveChangesAsync();
+        return KetQua.Dung("Đã cập nhật thông tin cá nhân.");
+    }
+
+    public async Task<List<DiaChiGiaoHangDto>> LayDanhSachDiaChiAsync(int maKhachHang)
+        => await _db.DiaChiGiaoHang.AsNoTracking()
+            .Where(d => d.MaKhachHang == maKhachHang)
+            .OrderByDescending(d => d.LaMacDinh).ThenBy(d => d.MaDiaChi)
+            .Select(ChieuDiaChi)
+            .ToListAsync();
+
+    public async Task<KetQua> LuuDiaChiAsync(int maKhachHang, DiaChiGiaoHangDto dto)
+    {
+        string T(string? s) => s?.Trim() ?? string.Empty;
+        if (T(dto.HoTenNguoiNhan).Length == 0 || T(dto.DiaChiChiTiet).Length == 0 || T(dto.PhuongXa).Length == 0
+            || T(dto.QuanHuyen).Length == 0 || T(dto.TinhThanh).Length == 0)
+            return KetQua.Loi("Vui lòng nhập đầy đủ người nhận và địa chỉ.");
+        if (!LaSoDienThoai(dto.SoDienThoai))
+            return KetQua.Loi("Số điện thoại phải gồm 10–11 chữ số và bắt đầu bằng 0.");
+
+        var ds = await _db.DiaChiGiaoHang.Where(d => d.MaKhachHang == maKhachHang).ToListAsync();
+        DiaChiGiaoHang dc;
+        if (dto.MaDiaChi == 0)
+        {
+            if (ds.Count >= SoDiaChiToiDa) return KetQua.Loi($"Mỗi tài khoản lưu tối đa {SoDiaChiToiDa} địa chỉ.");
+            dc = new DiaChiGiaoHang { MaKhachHang = maKhachHang };
+            _db.DiaChiGiaoHang.Add(dc);
+        }
+        else
+        {
+            // Chi sua duoc dia chi cua chinh minh
+            dc = ds.FirstOrDefault(d => d.MaDiaChi == dto.MaDiaChi)!;
+            if (dc is null) return KetQua.Loi("Không tìm thấy địa chỉ.");
+        }
+
+        dc.HoTenNguoiNhan = T(dto.HoTenNguoiNhan);
+        dc.SoDienThoai = T(dto.SoDienThoai);
+        dc.DiaChiChiTiet = T(dto.DiaChiChiTiet);
+        dc.PhuongXa = T(dto.PhuongXa);
+        dc.QuanHuyen = T(dto.QuanHuyen);
+        dc.TinhThanh = T(dto.TinhThanh);
+
+        // Dia chi dau tien luon la mac dinh; chon mac dinh thi bo mac dinh o dia chi khac
+        var conMacDinhKhac = ds.Any(d => d != dc && d.LaMacDinh);
+        var lamMacDinh = dto.LaMacDinh || !conMacDinhKhac;
+        if (lamMacDinh)
+            foreach (var d in ds) d.LaMacDinh = false;
+        dc.LaMacDinh = lamMacDinh;
+
+        await _db.SaveChangesAsync();
+        return KetQua.Dung(dto.MaDiaChi == 0 ? "Đã thêm địa chỉ giao hàng." : "Đã cập nhật địa chỉ giao hàng.");
+    }
+
+    public async Task<KetQua> XoaDiaChiAsync(int maKhachHang, int maDiaChi)
+    {
+        var ds = await _db.DiaChiGiaoHang.Where(d => d.MaKhachHang == maKhachHang).ToListAsync();
+        var dc = ds.FirstOrDefault(d => d.MaDiaChi == maDiaChi);
+        if (dc is null) return KetQua.Loi("Không tìm thấy địa chỉ.");
+
+        _db.DiaChiGiaoHang.Remove(dc);
+        // Xoa dia chi mac dinh thi dia chi con lai dau tien tro thanh mac dinh
+        if (dc.LaMacDinh && ds.FirstOrDefault(d => d != dc) is { } thayThe)
+            thayThe.LaMacDinh = true;
+        await _db.SaveChangesAsync();
+        return KetQua.Dung("Đã xóa địa chỉ giao hàng.");
+    }
+
+    public async Task<KetQua> DatDiaChiMacDinhAsync(int maKhachHang, int maDiaChi)
+    {
+        var ds = await _db.DiaChiGiaoHang.Where(d => d.MaKhachHang == maKhachHang).ToListAsync();
+        if (ds.All(d => d.MaDiaChi != maDiaChi)) return KetQua.Loi("Không tìm thấy địa chỉ.");
+        foreach (var d in ds) d.LaMacDinh = d.MaDiaChi == maDiaChi;
+        await _db.SaveChangesAsync();
+        return KetQua.Dung("Đã đặt địa chỉ mặc định.");
+    }
 
     /// <summary>
     /// Quen mat khau (use case mo rong cua Dang nhap trang Web). Token ngau nhien 32 byte

@@ -37,6 +37,8 @@ public class SachLuuDto
     public int? NamXuatBan { get; set; }
     public int? SoTrang { get; set; }
     public decimal GiaBan { get; set; }
+    /// <summary>Chỉ để tương thích với client cũ: dịch vụ sách bỏ qua giá trị này.
+    /// Tồn kho đổi qua phiếu nhập hoàn thành và đơn hàng.</summary>
     public int SoLuongTon { get; set; }
     public int NguongCanhBao { get; set; } = 5;
     public string? MoTa { get; set; }

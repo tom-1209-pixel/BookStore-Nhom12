@@ -93,7 +93,7 @@ public class KhachHangDto
     public string TenTrangThai => TrangThai == TrangThaiTaiKhoan.HoatDong ? "Hoạt động" : "Bị khóa";
     public int SoDonHang { get; set; }
 
-    /// <summary>Tong tien cac don Hoan thanh cua khach (BR09).</summary>
+    /// <summary>Tong tien cac don Hoan thanh cua khach (BR10).</summary>
     public decimal TongChiTieu { get; set; }
     public string? DiaChiMacDinh { get; set; }
 }

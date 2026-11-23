@@ -9,7 +9,7 @@ public class PhieuNhap
     public int MaQuanLy { get; set; }
     public DateTime NgayLap { get; set; } = DateTime.Now;
 
-    /// <summary>Thoi diem xac nhan Hoan thanh; chi luc nay ton kho moi duoc cong (BR06).</summary>
+    /// <summary>Thoi diem xac nhan Hoan thanh; chi luc nay ton kho moi duoc cong (BR08).</summary>
     public DateTime? NgayHoanThanh { get; set; }
     public decimal TongTien { get; set; }
     public TrangThaiPhieuNhap TrangThai { get; set; } = TrangThaiPhieuNhap.Nhap;
