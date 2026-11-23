@@ -1,4 +1,5 @@
 using BookStore.Domain.Enums;
+using BookStore.Services.Common;
 using BookStore.Services.Dtos;
 using BookStore.Services.Interfaces;
 using Microsoft.AspNetCore.Authorization;
@@ -47,7 +48,7 @@ public class SachController : ControllerBase
         return kq.ThanhCong ? Ok(new { thongBao = kq.ThongBao }) : BadRequest(new { thongBao = kq.ThongBao });
     }
 
-    /// <summary>Xoa sach. Theo BR07, sach da phat sinh giao dich chi bi ngung kinh doanh.</summary>
+    /// <summary>Xoa sach. Theo BR09, sach da phat sinh giao dich chi bi ngung kinh doanh.</summary>
     [HttpDelete("{maSach:int}")]
     [Authorize(Roles = TenVaiTro.QuanLy)]
     public async Task<IActionResult> Xoa(int maSach)
@@ -58,4 +59,37 @@ public class SachController : ControllerBase
 
     [HttpGet("danhmuc")]
     public async Task<ActionResult<List<LoaiSachDto>>> DanhMuc() => Ok(await _sach.LayDanhMucAsync());
+
+    /// <summary>
+    /// Tai anh bia len (JPEG, PNG, WebP, toi da 5 MB). Tra ve duong dan de gan vao truong anhBia
+    /// khi them / sua sach. Anh duoc luu vao thu muc dung chung ma trang Web cung doc.
+    /// </summary>
+    [HttpPost("anhbia")]
+    [Consumes("multipart/form-data")]
+    [RequestSizeLimit(AnhBia.DungLuongToiDa + 64 * 1024)]
+    public async Task<IActionResult> TaiAnhBia(IFormFile tep,
+        [FromServices] IConfiguration cauHinh, [FromServices] IWebHostEnvironment moiTruong)
+    {
+        if (tep is null || tep.Length == 0)
+            return BadRequest(new { thongBao = "Chưa chọn tệp ảnh." });
+        if (tep.Length > AnhBia.DungLuongToiDa)
+            return BadRequest(new { thongBao = "Ảnh quá lớn, tối đa 5 MB." });
+
+        var duoi = Path.GetExtension(tep.FileName).ToLowerInvariant();
+        if (!AnhBia.DuoiChoPhep.Contains(duoi))
+            return BadRequest(new { thongBao = "Chỉ nhận ảnh JPG, PNG hoặc WebP." });
+
+        await using var luong = new MemoryStream();
+        await tep.CopyToAsync(luong);
+        var duLieu = luong.ToArray();
+        if (!AnhBia.LaAnhHopLe(duLieu, duoi))
+            return BadRequest(new { thongBao = "Tệp không phải ảnh hợp lệ." });
+
+        // Ten tep do he thong dat, khong dung ten goc cua nguoi dung
+        var tenTep = $"{Guid.NewGuid():N}{(duoi == ".jpeg" ? ".jpg" : duoi)}";
+        var thuMuc = AnhBia.LayThuMuc(cauHinh, moiTruong.ContentRootPath);
+        await System.IO.File.WriteAllBytesAsync(Path.Combine(thuMuc, tenTep), duLieu);
+
+        return Ok(new { duongDan = $"{AnhBia.DuongDanUrl}/{tenTep}", thongBao = "Đã tải ảnh lên." });
+    }
 }
