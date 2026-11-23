@@ -105,8 +105,14 @@ Desktop.ini
 $RECYCLE.BIN/
 .DS_Store
 
+# ---------- Claude Code (cuc bo) ----------
+.claude/settings.local.json
 *.docx.new
 
 # ---------- Goi nop (sinh lai duoc tu cac file trong repo) ----------
 CK_GD1_*.zip
 CK_GD2_*.zip
+
+# Anh bia do quan ly tai len luc chay thu; chi giu anh bia mau (ten la ISBN)
+src/AnhBia/*
+!src/AnhBia/97*.png

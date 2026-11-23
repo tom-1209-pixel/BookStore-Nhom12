@@ -1,0 +1,9 @@
+**/bin/
+**/obj/
+**/.vs/
+**/*.user
+**/TestResults/
+# Chi build Api va Web trong container; khong can ung dung Desktop va cac project test
+BookStore.Admin/
+BookStore.Tests/
+BookStore.UiTests/
