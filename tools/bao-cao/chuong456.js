@@ -46,22 +46,24 @@ module.exports = (h) => {
 
     H3("4.1.2. Kiểu kiến trúc được chọn"),
     P("Hệ thống được xây dựng theo kiểu kiến trúc đơn khối phân lớp (layered monolith): toàn bộ hệ " +
-      "thống là một solution .NET 10 duy nhất, bên trong chia thành bảy project xếp theo ba tầng. " +
+      "thống là một solution .NET 10 duy nhất, bên trong chia thành sáu project ứng dụng và thư viện " +
+      "xếp theo ba tầng, kèm hai project kiểm thử. " +
       "Project ở tầng trên được phép tham chiếu project ở tầng dưới, không có chiều ngược lại. " +
       "Nhờ ràng buộc một chiều này, tầng nghiệp vụ không biết gì về giao diện, nên cùng một tầng " +
       "nghiệp vụ phục vụ được cả trang Web lẫn ứng dụng quản trị."),
-    figure("kt_tongquan", "Kiến trúc phân lớp của hệ thống và quan hệ phụ thuộc giữa bảy project"),
+    figure("kt_tongquan", "Kiến trúc phân lớp của hệ thống và quan hệ phụ thuộc giữa các project"),
 
     P("Vai trò của từng project được trình bày trong Bảng 4.1."),
     t3("Project", "Loại", "Trách nhiệm", [
       ["BookStore.Domain", "Thư viện lớp", "19 lớp thực thể tương ứng 19 bảng và các kiểu liệt kê trạng thái. Không phụ thuộc bất kỳ project nào khác."],
       ["BookStore.Data", "Thư viện lớp", "BookStoreDbContext, cấu hình ánh xạ bằng Fluent API, Migrations và lớp sinh dữ liệu khởi tạo."],
-      ["BookStore.Services", "Thư viện lớp", "Toàn bộ nghiệp vụ và quy tắc BR01–BR10, các DTO, các giao diện IDonHangService, ISachService, IGioHangService, ITaiKhoanService, IBaoCaoService."],
-      ["BookStore.Api", "ASP.NET Core Web API", "Mở nghiệp vụ ra ngoài dưới dạng REST cho ứng dụng Desktop, xác thực bằng JWT và phân quyền theo Role."],
-      ["BookStore.Web", "Blazor Web App", "Giao diện khách hàng. Gọi thẳng BookStore.Services qua Dependency Injection, không đi qua Web API."],
+      ["BookStore.Services", "Thư viện lớp", "Toàn bộ nghiệp vụ và quy tắc BR01–BR10, các DTO và mười một dịch vụ (đơn hàng, sách, giỏ hàng, tài khoản, danh mục, kho, khách hàng, báo cáo, thanh toán, email, xuất Excel) cùng giao diện tương ứng."],
+      ["BookStore.Api", "ASP.NET Core Web API", "Mở nghiệp vụ ra ngoài dưới dạng REST cho ứng dụng Desktop, xác thực bằng JWT và phân quyền theo Role; nhận ảnh bìa tải lên."],
+      ["BookStore.Web", "Blazor Web App", "Giao diện khách hàng và cổng thanh toán giả lập. Gọi thẳng BookStore.Services qua Dependency Injection, không đi qua Web API."],
       ["BookStore.Admin", "WinUI 3 (Windows App SDK)", "Ứng dụng quản trị. Chỉ nói chuyện với BookStore.Api bằng HttpClient, không tham chiếu Services và không biết chuỗi kết nối."],
       ["BookStore.Tests", "xUnit", "Kiểm thử tầng nghiệp vụ trên cơ sở dữ liệu SQLite nằm trong bộ nhớ."],
-    ], "Vai trò của bảy project trong solution", 2600, 2400),
+      ["BookStore.UiTests", "xUnit + Playwright", "Kiểm thử giao diện trang Web trên trình duyệt Microsoft Edge thật, dùng cơ sở dữ liệu riêng."],
+    ], "Vai trò của các project trong solution", 2600, 2400),
 
     H3("4.1.3. Hai lối vào tầng nghiệp vụ"),
     P("Điểm cần giải thích rõ trong kiến trúc này là vì sao trang Web gọi thẳng tầng nghiệp vụ còn " +
@@ -102,8 +104,8 @@ module.exports = (h) => {
       "một tiến trình, một kho dữ liệu hoặc một thư viện có ranh giới triển khai riêng."),
     figure("c4_l2_container", "C4 mức 2 – Sơ đồ container"),
     t3("Container", "Công nghệ", "Trách nhiệm", [
-      ["Trang Web bán sách", "Blazor Web App (Interactive Server), Bootstrap 5", "Toàn bộ giao diện khách hàng: trang chủ, tìm kiếm, chi tiết sách, giỏ hàng, đặt hàng, đơn hàng của tôi."],
-      ["Ứng dụng quản trị", "WinUI 3, MVVM, CommunityToolkit.Mvvm", "Giao diện quản lý: tổng quan, xử lý đơn hàng, quản lý sách."],
+      ["Trang Web bán sách", "Blazor Web App (static SSR + Interactive Server), Bootstrap 5", "Toàn bộ giao diện khách hàng: trang chủ, tìm kiếm, chi tiết sách, giỏ hàng, đặt hàng, thanh toán, đơn hàng của tôi, quên mật khẩu."],
+      ["Ứng dụng quản trị", "WinUI 3, MVVM, CommunityToolkit.Mvvm", "Giao diện quản lý: tổng quan, đơn hàng, sách, danh mục, kho và nhập hàng, khách hàng, báo cáo."],
       ["Web API", "ASP.NET Core Web API, JWT, Swagger", "Cửa ngõ duy nhất của ứng dụng Desktop vào hệ thống. Xác thực, phân quyền theo Role, chuyển tiếp xuống tầng nghiệp vụ."],
       ["Thư viện nghiệp vụ", ".NET class library", "Nơi duy nhất cài đặt BR01–BR10. Được cả trang Web và Web API nạp vào cùng tiến trình qua DI."],
       ["Cơ sở dữ liệu", "SQL Server 2025", "19 bảng quan hệ, giữ toàn bộ dữ liệu lâu dài của hệ thống."],
@@ -111,15 +113,22 @@ module.exports = (h) => {
 
     H3("4.2.3. Mức 3 – Các thành phần bên trong tầng nghiệp vụ"),
     P("Container đáng quan tâm nhất là thư viện nghiệp vụ, vì đó là nơi tập trung toàn bộ quy tắc. " +
-      "Thư viện này được chia thành năm lớp dịch vụ theo đúng các phân hệ đã phân tích ở mục 3.2.2, " +
-      "kèm ba nhóm lớp dùng chung."),
+      "Thư viện này được chia thành mười một lớp dịch vụ: tám lớp ứng với các phân hệ đã phân tích ở " +
+      "mục 3.2.2 và ba lớp tích hợp với hệ thống ngoài (thanh toán, email, xuất Excel), kèm ba nhóm " +
+      "lớp dùng chung."),
     figure("c4_l3_component", "C4 mức 3 – Các thành phần bên trong BookStore.Services"),
     t3("Thành phần", "Giao diện", "Nhiệm vụ chính", [
       ["TaiKhoanService", "ITaiKhoanService", "Đăng nhập cho cả hai loại ứng dụng, đăng ký khách hàng, đổi mật khẩu, đếm số lần đăng nhập sai và tạm khóa tài khoản."],
-      ["SachService", "ISachService", "Tìm kiếm có lọc và phân trang, thêm, sửa, xóa sách; áp dụng BR07 khi sách đã phát sinh giao dịch."],
+      ["SachService", "ISachService", "Tìm kiếm có lọc và phân trang, thêm, sửa, xóa sách; áp dụng BR09 khi sách đã phát sinh giao dịch."],
       ["GioHangService", "IGioHangService", "Thêm, sửa số lượng, xóa dòng giỏ hàng; kiểm tra tồn kho ngay khi khách thêm sách."],
       ["DonHangService", "IDonHangService", "Đặt hàng trong một giao dịch, chuyển trạng thái theo sơ đồ, hủy đơn và hoàn tồn kho, tự hủy đơn quá hạn thanh toán."],
-      ["BaoCaoService", "IBaoCaoService", "Số liệu tổng quan cho dashboard, doanh thu theo khoảng ngày, danh sách sách bán chạy."],
+      ["DanhMucService", "IDanhMucService", "Thêm, sửa, xóa loại sách, tác giả, nhà xuất bản, nhà cung cấp; chặn xóa mục đang được sử dụng."],
+      ["KhoService", "IKhoService", "Tồn kho và ngưỡng cảnh báo từng sách; lập, sửa, hoàn thành, xóa phiếu nhập (BR08)."],
+      ["KhachHangService", "IKhachHangService", "Tra cứu khách hàng kèm số đơn và tổng chi tiêu; khóa, mở khóa tài khoản."],
+      ["BaoCaoService", "IBaoCaoService", "Số liệu tổng quan cho dashboard, doanh thu theo ngày, sách bán chạy, đơn theo trạng thái, nhập – xuất – tồn (BR10)."],
+      ["ThanhToanService", "IThanhToanService", "Tạo yêu cầu thanh toán VNPay có chữ ký HMAC-SHA512, kiểm tra kết quả trả về, sinh kết quả cho cổng giả lập."],
+      ["EmailService", "IEmailService", "Gửi email qua SMTP bằng MailKit; chưa cấu hình SMTP thì ghi thư ra tập tin .eml."],
+      ["XuatExcelService", "IXuatExcelService", "Xuất báo cáo doanh thu và nhập – xuất – tồn ra tập tin Excel bằng ClosedXML."],
       ["QuyTacNghiepVu", "lớp tĩnh", "Giữ các hằng số nghiệp vụ: phí vận chuyển, ngưỡng miễn phí, số phút hết hạn thanh toán, số lần đăng nhập sai tối đa."],
       ["KetQua và KetQua<T>", "lớp dùng chung", "Kiểu trả về thống nhất gồm cờ thành công, thông báo tiếng Việt và mã quy tắc bị vi phạm."],
       ["Các lớp DTO", "lớp dùng chung", "Dữ liệu trao đổi giữa tầng nghiệp vụ và tầng giao diện, tránh để thực thể của EF Core lọt ra ngoài."],
@@ -142,7 +151,7 @@ module.exports = (h) => {
       "một khai báo thay vì dò lại toàn bộ hàm."),
     bulletL("Giá bán được sao lưu vào chi tiết đơn. ",
       "Lớp CTDonHang có hai trường TenSach và DonGia tuy đã có khóa ngoại tới bảng Sach. Đây là dữ " +
-      "liệu lịch sử tại thời điểm đặt hàng theo BR02, không phải dư thừa vi phạm chuẩn 3NF."),
+      "liệu lịch sử tại thời điểm đặt hàng theo BR04, không phải dư thừa vi phạm chuẩn 3NF."),
     bulletL("Hằng số nghiệp vụ tách khỏi thuật toán. ",
       "Phí vận chuyển và ngưỡng miễn phí nằm trong lớp tĩnh QuyTacNghiepVu, nhờ đó lớp kiểm thử " +
       "cũng đọc được cùng hằng số và không phải chép lại con số vào trong kịch bản kiểm thử."),
@@ -173,6 +182,7 @@ module.exports = (h) => {
       ["POST", "/api/sach", "Thêm sách mới", "Quản lý"],
       ["PUT", "/api/sach/{maSach}", "Cập nhật sách", "Quản lý"],
       ["DELETE", "/api/sach/{maSach}", "Xóa sách, hoặc ngừng kinh doanh nếu đã có giao dịch", "Quản lý"],
+      ["POST", "/api/sach/anhbia", "Tải ảnh bìa lên (JPG, PNG, WebP, tối đa 5 MB), trả về đường dẫn ảnh", "Quản lý"],
       ["GET", "/api/sach/danhmuc", "Danh sách loại sách kèm số đầu sách", "Quản lý"],
       ["GET", "/api/donhang", "Danh sách đơn hàng có lọc theo trạng thái, ngày, từ khóa", "Quản lý"],
       ["GET", "/api/donhang/{maDonHang}", "Chi tiết đơn kèm các dòng hàng và lịch sử xử lý", "Quản lý"],
@@ -188,7 +198,7 @@ module.exports = (h) => {
       ["GET", "/api/kho/phieunhap/{ma}", "Chi tiết phiếu nhập kèm các dòng sách", "Quản lý"],
       ["POST", "/api/kho/phieunhap", "Lập phiếu nhập ở trạng thái Chờ nhập", "Quản lý"],
       ["PUT", "/api/kho/phieunhap/{ma}", "Sửa phiếu nhập chưa hoàn thành", "Quản lý"],
-      ["POST", "/api/kho/phieunhap/{ma}/hoanthanh", "Hoàn thành phiếu nhập và cộng tồn kho (BR06)", "Quản lý"],
+      ["POST", "/api/kho/phieunhap/{ma}/hoanthanh", "Hoàn thành phiếu nhập và cộng tồn kho (BR08)", "Quản lý"],
       ["DELETE", "/api/kho/phieunhap/{ma}", "Xóa phiếu nhập chưa hoàn thành", "Quản lý"],
       ["GET", "/api/khachhang", "Tra cứu khách hàng theo từ khóa và trạng thái tài khoản", "Quản lý"],
       ["GET", "/api/khachhang/{ma}", "Thông tin khách hàng kèm số đơn và tổng chi tiêu", "Quản lý"],
@@ -209,7 +219,7 @@ module.exports = (h) => {
       "không có trình duyệt nên dùng token JWT: sau khi đăng nhập, token được giữ trong bộ nhớ của " +
       "tiến trình và được lớp ApiClient tự gắn vào tiêu đề Authorization của mọi lời gọi."),
     P("Dù khác cơ chế, cả hai đều tra cùng bảng TaiKhoan và bảng VaiTro. Nhờ vậy việc khóa một tài " +
-      "khoản có hiệu lực tức thì ở cả hai phía. Ba vai trò trong hệ thống được phân tách như sau:"),
+      "khoản có hiệu lực tức thì ở cả hai phía. Hai vai trò trong hệ thống được phân tách như sau:"),
     bulletL("KHÁCH HÀNG: ", "chỉ đăng nhập được trang Web. Nếu nhập tài khoản này vào ứng dụng quản trị, " +
       "tầng nghiệp vụ trả về thông báo từ chối ngay cả khi mật khẩu đúng."),
     bulletL("QUẢN LÝ: ", "đăng nhập ứng dụng quản trị, xử lý đơn hàng, quản lý sách, kho và xem báo cáo doanh thu."),
@@ -248,7 +258,7 @@ module.exports = (h) => {
       ["Kiểu tiền tệ", "Mọi cột tiền dùng decimal(18,2) thay vì float, tránh sai số khi cộng dồn thành tiền."],
       ["Kiểu trạng thái", "Các cột trạng thái dùng TINYINT và được ánh xạ sang kiểu liệt kê trong C#, nhờ đó mã nguồn viết TrangThaiDonHang.DangGiao thay vì con số 3."],
       ["Ràng buộc kiểm tra", "Năm ràng buộc CHECK ở mức cơ sở dữ liệu: giá bán và số lượng tồn không âm, số lượng trong chi tiết đơn, chi tiết phiếu nhập và dòng giỏ hàng phải lớn hơn 0."],
-      ["Ràng buộc duy nhất", "Tên đăng nhập và email trong bảng TaiKhoan; mỗi tài khoản chỉ gắn với một khách hàng hoặc một quản lý; mỗi khách hàng chỉ có một giỏ hàng."],
+      ["Ràng buộc duy nhất", "Tên đăng nhập và email trong bảng TaiKhoan, tên vai trò trong bảng VaiTro; mỗi tài khoản chỉ gắn với một khách hàng hoặc một quản lý; mỗi khách hàng chỉ có một giỏ hàng."],
       ["Chỉ mục", "Thêm chỉ mục trên Sach.TenSach để phục vụ tìm kiếm, trên DonHang.NgayDat và DonHang.TrangThai để phục vụ lọc đơn và thống kê."],
       ["Hành vi xóa", "Chi tiết đơn, lịch sử và thanh toán xóa theo đơn (Cascade). Ngược lại, không cho xóa sách, loại sách hay khách hàng khi còn bản ghi tham chiếu (Restrict), nhằm giữ toàn vẹn dữ liệu lịch sử."],
     ], "Quy ước ánh xạ giữa lớp C# và bảng cơ sở dữ liệu", 2800),
@@ -261,9 +271,10 @@ module.exports = (h) => {
       "đôi dữ liệu."),
     P("Dữ liệu khởi tạo gồm hai vai trò, hai tài khoản mẫu (một quản lý, một khách " +
       "hàng), một hồ sơ quản lý, một hồ sơ khách hàng kèm địa chỉ giao hàng, sáu loại sách, bốn " +
-      "nhà xuất bản, sáu tác giả, hai nhà cung cấp và mười hai quyển sách. Mật khẩu của các tài " +
-      "khoản mẫu được băm bằng lớp PasswordHasher của ASP.NET Core Identity chứ không lưu dạng " +
-      "chữ thường."),
+      "nhà xuất bản, tám tác giả, hai nhà cung cấp và mười hai quyển sách kèm ảnh bìa minh họa. Mật " +
+      "khẩu của các tài khoản mẫu được băm bằng lớp PasswordHasher của ASP.NET Core Identity chứ " +
+      "không lưu dạng chữ thường. Mỗi lần khởi động, SeedData còn gắn ảnh bìa mẫu cho những sách mẫu " +
+      "chưa có ảnh, nhờ vậy cơ sở dữ liệu tạo từ trước vẫn được bổ sung ảnh mà không phải tạo lại."),
 
     H3("4.4.4. Giao dịch và toàn vẹn dữ liệu"),
     P("Hai thao tác trong hệ thống đụng tới nhiều bảng cùng lúc và không được phép hoàn thành một " +
@@ -280,6 +291,17 @@ module.exports = (h) => {
       "sung cho nhau: tầng nghiệp vụ cho thông báo dễ hiểu bằng tiếng Việt, còn cơ sở dữ liệu là " +
       "chốt chặn cuối cùng kể cả khi có ai đó sửa dữ liệu trực tiếp."),
 
+    H3("4.4.5. Lưu trữ ảnh bìa"),
+    P("Ảnh bìa không lưu trong cơ sở dữ liệu mà lưu thành tập tin trong một thư mục dùng chung giữa " +
+      "Web API và trang Web; cột Sach.AnhBia chỉ giữ đường dẫn tương đối dạng /anh-bia/ten-tep.png. " +
+      "Quản lý chọn ảnh trên ứng dụng quản trị, ảnh được gửi lên điểm cuối POST /api/sach/anhbia; " +
+      "Web API kiểm tra đuôi tệp, dung lượng tối đa 5 MB và đọc mấy byte đầu của tệp để chắc đó đúng " +
+      "là ảnh JPEG, PNG hoặc WebP, rồi lưu với tên do hệ thống tự sinh để tránh trùng và tránh tên tệp " +
+      "độc hại. Ảnh chỉ được gắn vào sách khi quản lý bấm Lưu. Cả Web API và trang Web cùng phục vụ " +
+      "thư mục này ở đường dẫn /anh-bia, nên ứng dụng quản trị xem trước được ảnh và khách hàng thấy " +
+      "ảnh ngay sau khi lưu. Vị trí thư mục đặt bằng khóa cấu hình AnhBia:ThuMuc; khi chạy bằng " +
+      "Docker, thư mục này là một volume gắn vào cả hai container."),
+
     // ---------------------------------------------------------- 4.5
     H2("4.5. Thiết kế thích ứng – ghi nhật ký và xử lý lỗi"),
 
@@ -288,7 +310,7 @@ module.exports = (h) => {
       "ứng xử riêng."),
     t3("Nhóm", "Ví dụ", "Cách xử lý", [
       ["Lỗi nhập liệu", "Bỏ trống địa chỉ giao hàng, mật khẩu xác nhận không khớp, giá bán âm", "Kiểm tra ngay tại biểu mẫu và kiểm tra lại ở tầng nghiệp vụ; trả về KetQua.Loi kèm thông báo; không ghi log."],
-      ["Lỗi nghiệp vụ", "Đặt nhiều hơn tồn kho (BR01), khách hủy đơn đã xác nhận (BR05), chuyển trạng thái sai sơ đồ", "Trả về KetQua.Loi kèm mã quy tắc; ghi log mức Cảnh báo để còn truy lại được."],
+      ["Lỗi nghiệp vụ", "Đặt nhiều hơn tồn kho (BR02), khách hủy đơn đã xác nhận (BR06), chuyển trạng thái sai sơ đồ", "Trả về KetQua.Loi kèm mã quy tắc; ghi log mức Cảnh báo để còn truy lại được."],
       ["Sự cố kỹ thuật", "Mất kết nối cơ sở dữ liệu, Web API không chạy, lỗi lập trình ngoài dự kiến", "Ghi log mức Lỗi kèm toàn bộ ngăn xếp và mã truy vết; hiển thị cho người dùng một thông báo chung, không lộ chi tiết kỹ thuật."],
     ], "Phân loại tình huống bất thường và cách xử lý", 2200, 3200),
 
@@ -335,9 +357,10 @@ module.exports = (h) => {
       "Mọi thất bại trong lúc tạo đơn hoặc chuyển trạng thái đều kéo theo rollback, nên không bao " +
       "giờ có chuyện tồn kho bị trừ mà đơn hàng không được tạo."),
     bulletL("Tự dọn đơn treo. ",
-      "Theo BR04, các đơn chọn thanh toán VNPay mà quá 30 phút chưa thanh toán sẽ bị hủy và hoàn " +
-      "lại tồn kho. Việc này được gói trong phương thức HuyDonQuaHanAsync và mở ra một điểm cuối " +
-      "Web API để quản lý kích hoạt."),
+      "Theo BR05, các đơn chọn thanh toán VNPay mà quá 30 phút chưa thanh toán sẽ bị hủy và hoàn " +
+      "lại tồn kho. Việc này được gói trong phương thức HuyDonQuaHanAsync, được tác vụ nền " +
+      "HuyDonQuaHanNen của trang Web gọi mỗi phút; Web API cũng có một điểm cuối để quản lý kích " +
+      "hoạt khi cần."),
     bulletL("Chống dò mật khẩu. ",
       "Sau năm lần đăng nhập sai liên tiếp, tài khoản bị tạm khóa 15 phút. Thông báo trả về không " +
       "cho biết sai tên đăng nhập hay sai mật khẩu, nhằm không giúp người dò đoán được tài khoản nào có thật."),
@@ -352,6 +375,11 @@ module.exports = (h) => {
       "Windows App SDK được chép kèm trong thư mục xuất bản. Nhờ vậy, máy của quản lý chỉ cần " +
       "chép thư mục về và chạy tập tin BookStore.Admin.exe, không phải cài thêm runtime, đây là " +
       "điểm thuận lợi khi demo trên máy của giảng viên."),
+    P("Phần máy chủ còn được đóng gói bằng Docker: tệp docker-compose.yml khai báo ba dịch vụ là SQL " +
+      "Server 2022, trang Web và Web API, cùng hai volume cho dữ liệu SQL Server và thư mục ảnh bìa. " +
+      "Trang Web khởi động trước để tạo cơ sở dữ liệu và nạp dữ liệu mẫu, Web API chờ trang Web sẵn " +
+      "sàng rồi mới chạy. Chỉ với lệnh docker compose up --build, một máy đã cài Docker Desktop có " +
+      "đủ phần máy chủ mà không phải cài SQL Server hay .NET SDK."),
   ];
 
   // ================================================================ CHƯƠNG 5
@@ -374,43 +402,51 @@ module.exports = (h) => {
       ["Thư viện MVVM", "CommunityToolkit.Mvvm 8.4.0"],
       ["Xác thực", "Microsoft.AspNetCore.Authentication.JwtBearer 10.0.12 cho Web API; cookie authentication và lớp PasswordHasher của ASP.NET Core Identity cho trang Web"],
       ["Tài liệu API", "Swashbuckle.AspNetCore 9.0.6 (giao diện Swagger UI)"],
-      ["Kiểm thử", "xUnit, chạy trên SQLite in-memory qua Microsoft.EntityFrameworkCore.Sqlite 10.0.12"],
+      ["Tích hợp", "MailKit 4.14.1 (gửi email), ClosedXML 0.105.1 (xuất Excel), QRCoder 1.9.0 (mã QR trên cổng thanh toán)"],
+      ["Kiểm thử", "xUnit 2.9.3 chạy trên SQLite in-memory (Microsoft.EntityFrameworkCore.Sqlite 10.0.12); Microsoft.Playwright 1.55.0 điều khiển Microsoft Edge"],
       ["Giao diện Web", "Bootstrap 5 kèm tệp định kiểu riêng của nhóm"],
+      ["Đóng gói", "Docker Desktop, tệp docker-compose.yml với SQL Server 2022"],
       ["Hệ điều hành phát triển", "Windows 11"],
     ], "Môi trường và thư viện sử dụng", 3400),
 
-    P("So với công nghệ đã khảo sát ở Chương 2, chỉ có một thay đổi: báo cáo giai đoạn 1 dự kiến " +
-      "dùng .NET 8, nhưng máy cài đặt chỉ có .NET 10 nên toàn bộ solution được nâng lên nền tảng " +
-      "này. Đây là thay đổi về phiên bản, không ảnh hưởng tới kiến trúc hay cách tổ chức mã nguồn."),
+    P("Các phiên bản trên khớp với công nghệ đã lựa chọn ở Chương 2; toàn bộ solution nhắm nền " +
+      "tảng .NET 10."),
 
     H3("5.1.2. Khối lượng mã nguồn"),
-    P("Bảng 5.2 thống kê số tệp mã nguồn và số dòng của từng project, không tính tệp sinh tự động " +
-      "trong thư mục Migrations, obj và bin."),
+    P("Bảng 5.2 thống kê số tệp mã nguồn (C#, Razor, XAML, CSS) và số dòng của từng project, không " +
+      "tính tệp sinh tự động trong thư mục Migrations, obj, bin và thư viện Bootstrap."),
     t3("Project", "Số tệp", "Số dòng", [
       ["BookStore.Domain", "21", "363"],
-      ["BookStore.Data", "3", "460"],
-      ["BookStore.Services", "20", "3.065"],
-      ["BookStore.Api", "8", "645"],
-      ["BookStore.Web", "27", "2.007"],
-      ["BookStore.Admin", "33", "3.653"],
-      ["BookStore.Tests", "8", "1.076"],
-      ["Tổng cộng", "120", "11.269"],
+      ["BookStore.Data", "3", "488"],
+      ["BookStore.Services", "21", "3.285"],
+      ["BookStore.Api", "8", "688"],
+      ["BookStore.Web", "34", "3.063"],
+      ["BookStore.Admin", "33", "3.777"],
+      ["BookStore.Tests", "9", "1.200"],
+      ["BookStore.UiTests", "6", "637"],
+      ["Tổng cộng", "135", "13.501"],
     ], "Khối lượng mã nguồn theo từng project", 4000, 2000),
 
     H3("5.1.3. Cài đặt và chạy hệ thống"),
     P("Các bước để chạy hệ thống trên một máy mới:"),
     bullet("Bước 1. Cài .NET SDK 10 và SQL Server, bảo đảm dịch vụ SQL Server đang chạy."),
-    bullet("Bước 2. Mở thư mục mã nguồn, chạy lệnh dotnet build để khôi phục gói và biên dịch cả bảy project."),
+    bullet("Bước 2. Mở thư mục mã nguồn, chạy lệnh dotnet build để khôi phục gói và biên dịch cả tám project."),
     bullet("Bước 3. Chỉnh chuỗi kết nối trong tệp appsettings.json của BookStore.Api và BookStore.Web nếu tên máy chủ cơ sở dữ liệu khác localhost."),
     bullet("Bước 4. Chạy BookStore.Api. Lần chạy đầu tiên, lớp SeedData sẽ tự tạo cơ sở dữ liệu QuanLyBanSachTrucTuyen gồm 19 bảng và nạp dữ liệu mẫu."),
     bullet("Bước 5. Chạy BookStore.Web rồi mở trình duyệt vào địa chỉ của trang Web để dùng phần dành cho khách hàng."),
     bullet("Bước 6. Chạy BookStore.Admin.exe để mở ứng dụng quản trị. Ứng dụng cần Web API đang chạy vì mọi dữ liệu đều lấy qua đó."),
+    P("Thay cho bước 1 đến bước 5, máy đã cài Docker Desktop có thể chạy lệnh docker compose up " +
+      "--build ở thư mục gốc để dựng SQL Server, Web API và trang Web cùng lúc; ứng dụng quản trị " +
+      "vẫn chạy trực tiếp trên Windows và trỏ tới Web API ở cổng 5171."),
     P("Hai tài khoản mẫu dùng để thử nghiệm, cả hai có mật khẩu 123456: quanly (vai trò QUẢN LÝ) " +
       "và khachhang (vai trò KHÁCH HÀNG). Tài khoản đầu chỉ dùng " +
       "được trên ứng dụng quản trị, tài khoản thứ hai chỉ dùng được trên trang Web."),
     P("Thanh toán VNPay và gửi email chạy được ngay mà không cần cấu hình gì thêm. Khi chưa có mã " +
       "TmnCode và khóa HashSecret của VNPay sandbox, khách hàng được chuyển sang cổng thanh toán giả " +
-      "lập của hệ thống; khi chưa có máy chủ SMTP, email được ghi ra tập tin .eml trong thư mục " +
+      "lập của hệ thống. Cổng này dùng bộ thẻ thử giống VNPay sandbox: chọn ngân hàng NCB, số thẻ " +
+      "9704198526191432198, tên chủ thẻ NGUYEN VAN A, ngày phát hành 07/15, mã OTP 123456 để thanh " +
+      "toán thành công; thẻ 9704195798459170488 (cùng tên và ngày) mô phỏng tài khoản không đủ số " +
+      "dư. Khi chưa có máy chủ SMTP, email được ghi ra tập tin .eml trong thư mục " +
       "EmailGuiDi để xem lại nội dung. Muốn dùng dịch vụ thật, chỉ cần khai báo các khóa bằng lệnh " +
       "dotnet user-secrets (mục VnPay:TmnCode, VnPay:HashSecret, Email:MayChuSmtp, Email:TenDangNhap, " +
       "Email:MatKhau) mà không phải sửa mã nguồn; các khóa này nằm ngoài thư mục dự án nên không bị " +
@@ -425,14 +461,14 @@ module.exports = (h) => {
       "ra trên ứng dụng quản trị:"),
     t3("Bước", "Nơi thực hiện", "Nội dung và quy tắc áp dụng", [
       ["1", "Trang Web", "Khách hàng đăng nhập. Tài khoản quản lý bị từ chối ở bước này."],
-      ["2", "Trang Web", "Khách tìm sách theo từ khóa hoặc lọc theo danh mục và khoảng giá, xem chi tiết rồi thêm vào giỏ. Hệ thống kiểm tra số lượng tồn ngay khi thêm (BR01)."],
-      ["3", "Trang Web", "Khách mở giỏ hàng, tăng giảm số lượng hoặc xóa dòng. Phí vận chuyển được tính lại tức thì theo BR10 và hiển thị số tiền còn thiếu để được miễn phí."],
-      ["4", "Trang Web", "Khách nhập thông tin người nhận, chọn hình thức thanh toán rồi bấm Đặt hàng. Hệ thống mở một transaction, kiểm tra lại tồn kho, sao lưu đơn giá (BR02), trừ tồn kho (BR01), ghi đơn hàng, chi tiết, bản ghi thanh toán và lịch sử, cuối cùng xóa giỏ hàng. Đơn COD vào trạng thái Chờ xác nhận, đơn VNPay vào trạng thái Chờ thanh toán."],
+      ["2", "Trang Web", "Khách tìm sách theo từ khóa hoặc lọc theo danh mục và khoảng giá, xem chi tiết rồi thêm vào giỏ. Hệ thống kiểm tra số lượng tồn ngay khi thêm (BR02)."],
+      ["3", "Trang Web", "Khách mở giỏ hàng, tăng giảm số lượng hoặc xóa dòng. Phí vận chuyển được tính lại tức thì theo BR07 và hiển thị số tiền còn thiếu để được miễn phí."],
+      ["4", "Trang Web", "Khách nhập thông tin người nhận, chọn hình thức thanh toán rồi bấm Đặt hàng. Hệ thống mở một transaction, kiểm tra lại tồn kho, sao lưu đơn giá (BR04), trừ tồn kho (BR03), ghi đơn hàng, chi tiết, bản ghi thanh toán và lịch sử, cuối cùng xóa giỏ hàng. Đơn COD vào trạng thái Chờ xác nhận, đơn VNPay vào trạng thái Chờ thanh toán."],
       ["5", "Ứng dụng quản trị", "Quản lý đăng nhập, màn hình Tổng quan hiển thị ngay số đơn đang chờ xác nhận."],
       ["6", "Ứng dụng quản trị", "Quản lý mở màn hình Quản lý đơn hàng, lọc theo trạng thái Chờ xác nhận, chọn đơn và xem chi tiết kèm lịch sử."],
       ["7", "Ứng dụng quản trị", "Quản lý bấm Xác nhận. Các nút thao tác chỉ bật khi bước chuyển hợp lệ theo sơ đồ trạng thái; mọi lần chuyển đều ghi thêm một dòng lịch sử."],
-      ["8", "Ứng dụng quản trị", "Quản lý chuyển đơn sang Đang giao, rồi sang Hoàn thành khi giao xong. Ở bước Hoàn thành, bản ghi thanh toán COD chuyển sang trạng thái Thành công và doanh thu được ghi nhận (BR09)."],
-      ["9", "Trang Web", "Khách mở mục Đơn hàng của tôi và thấy trạng thái cùng lịch sử xử lý được cập nhật. Khi đơn đã qua bước xác nhận, nút Hủy đơn không còn hiện ra nữa (BR05)."],
+      ["8", "Ứng dụng quản trị", "Quản lý chuyển đơn sang Đang giao, rồi sang Hoàn thành khi giao xong. Ở bước Hoàn thành, bản ghi thanh toán COD chuyển sang trạng thái Thành công và doanh thu được ghi nhận (BR10)."],
+      ["9", "Trang Web", "Khách mở mục Đơn hàng của tôi và thấy trạng thái cùng lịch sử xử lý được cập nhật. Khi đơn đã qua bước xác nhận, nút Hủy đơn không còn hiện ra nữa (BR06)."],
     ], "Các bước của quy trình đặt hàng và xử lý đơn đã cài đặt", 900, 2800),
 
     P("Nhánh rẽ cũng đã được cài đặt: nếu quản lý hoặc khách hàng hủy đơn, hệ thống hoàn lại đúng " +
@@ -440,11 +476,16 @@ module.exports = (h) => {
       "Trường hợp giao hàng không thành công được ghi nhận bằng chính trạng thái Đã hủy kèm lý do " +
       "trong lịch sử, đúng như đã chốt ở phần phân tích."),
     P("Với hình thức VNPay, sau bước 4 khách được chuyển sang cổng thanh toán. Yêu cầu thanh toán " +
-      "được ký HMAC-SHA512 theo đặc tả VNPay 2.1.0; khi cổng chuyển trình duyệt về, hệ thống kiểm tra " +
+      "được ký HMAC-SHA512 theo đặc tả VNPay 2.1.0. Cổng giả lập mô phỏng các bước của cổng thật: " +
+      "khách chọn quét mã VNPAY-QR (màn hình hiện mã QR, số tiền và thời gian còn lại) hoặc thẻ nội " +
+      "địa (chọn ngân hàng, nhập số thẻ, tên chủ thẻ, ngày phát hành rồi nhập mã OTP; sai quá ba lần " +
+      "thì giao dịch thất bại). Mỗi bước đều gửi kèm tham số đã ký và được máy chủ kiểm tra lại chữ " +
+      "ký; bước OTP còn kèm một chữ ký riêng chứng minh bước nhập thẻ đã qua. Khi cổng chuyển trình " +
+      "duyệt về, hệ thống kiểm tra " +
       "lại chữ ký và số tiền, ghi mã giao dịch vào bảng ThanhToan rồi chuyển đơn từ Chờ thanh toán " +
       "sang Chờ xác nhận, sau đó quy trình tiếp tục từ bước 5. Nếu khách hủy giao dịch, đơn vẫn ở " +
       "Chờ thanh toán và có nút Thanh toán lại; quá 30 phút chưa thanh toán thì tác vụ nền tự hủy " +
-      "đơn và hoàn tồn kho (BR04). Ở mỗi lần đặt hàng và đổi trạng thái, khách hàng nhận một email " +
+      "đơn và hoàn tồn kho (BR05). Ở mỗi lần đặt hàng và đổi trạng thái, khách hàng nhận một email " +
       "thông báo."),
 
     // ---------------------------------------------------------- 5.2
@@ -459,8 +500,8 @@ module.exports = (h) => {
       "được kiểm tra thủ công theo danh sách kịch bản cũng ở mục 5.2.4."),
 
     H3("5.2.2. Kiểm thử mức đơn vị"),
-    P("Project BookStore.Tests dùng xUnit, gồm 58 phương thức kiểm thử, trong đó hai phương thức " +
-      "chạy theo nhiều bộ dữ liệu nên tổng cộng có 63 trường hợp kiểm thử được thực thi. Mỗi lớp " +
+    P("Project BookStore.Tests dùng xUnit, gồm 65 phương thức kiểm thử, trong đó ba phương thức " +
+      "chạy theo nhiều bộ dữ liệu nên tổng cộng có 71 trường hợp kiểm thử được thực thi. Mỗi lớp " +
       "kiểm thử chạy trên một cơ sở dữ liệu SQLite nằm hoàn toàn trong bộ nhớ, được tạo mới và nạp " +
       "dữ liệu mẫu trước mỗi trường hợp, nhờ vậy các trường hợp không ảnh hưởng lẫn nhau và không " +
       "cần cài SQL Server để chạy kiểm thử."),
@@ -468,13 +509,14 @@ module.exports = (h) => {
       ["QuyTacNghiepVuTests", "6", "Công thức tính phí vận chuyển ở các mức dưới, đúng bằng và trên ngưỡng miễn phí; giá trị các hằng số nghiệp vụ."],
       ["DatHangTests", "10", "Trừ tồn kho và tính tổng tiền; miễn phí vận chuyển; từ chối khi vượt tồn kho; giỏ hàng trống; thiếu địa chỉ; trạng thái khởi tạo của đơn COD và đơn VNPay; sao lưu đơn giá; xóa giỏ sau khi đặt; phát sinh bản ghi thanh toán và lịch sử."],
       ["XuLyDonHangTests", "12", "Chuỗi chuyển trạng thái hợp lệ; từ chối bước nhảy cóc; đơn đã hoàn thành không đổi được; hoàn tồn kho khi hủy; ghi nhận giao thất bại; khách hủy đơn đúng và sai thời điểm; hủy đơn quá hạn thanh toán; doanh thu chỉ tính đơn hoàn thành; ghi nhận thanh toán COD."],
-      ["TaiKhoanVaSachTests", "15", "Đăng nhập đúng và sai mật khẩu; chặn khách hàng vào ứng dụng quản trị và chặn quản lý vào trang Web; tạm khóa sau nhiều lần sai; đăng ký trùng tên, sai xác nhận mật khẩu, đăng ký hợp lệ và băm mật khẩu; kiểm tra dữ liệu khi thêm sách; xóa sách chưa và đã có giao dịch; tìm kiếm theo từ khóa, lọc theo giá và ẩn sách ngừng kinh doanh."],
-      ["KhoVaDanhMucTests", "10", "Lập phiếu nhập chưa cộng tồn; hoàn thành phiếu thì cộng tồn đúng một lần và không sửa, xóa được nữa (BR06); dữ liệu phiếu không hợp lệ; xóa phiếu chưa hoàn thành; cảnh báo theo ngưỡng riêng của từng sách; thêm, sửa, xóa danh mục và chặn xóa khi đang được dùng; khóa và mở khóa tài khoản khách hàng; tra cứu khách hàng kèm số đơn, chi tiêu."],
+      ["TaiKhoanVaSachTests", "17", "Đăng nhập đúng và sai mật khẩu; chặn khách hàng vào ứng dụng quản trị và chặn quản lý vào trang Web; tạm khóa sau nhiều lần sai; đăng ký trùng tên, sai xác nhận mật khẩu, đăng ký hợp lệ và băm mật khẩu; kiểm tra dữ liệu khi thêm sách; xóa sách chưa và đã có giao dịch; tìm kiếm theo từ khóa, lọc theo giá và ẩn sách ngừng kinh doanh. Tồn kho sách chỉ đổi qua phiếu nhập và đơn hàng: sách mới luôn bắt đầu từ 0, cập nhật sách không làm đổi tồn."],
+      ["KhoVaDanhMucTests", "10", "Lập phiếu nhập chưa cộng tồn; hoàn thành phiếu thì cộng tồn đúng một lần và không sửa, xóa được nữa (BR08); dữ liệu phiếu không hợp lệ; xóa phiếu chưa hoàn thành; cảnh báo theo ngưỡng riêng của từng sách; thêm, sửa, xóa danh mục và chặn xóa khi đang được dùng; khóa và mở khóa tài khoản khách hàng; tra cứu khách hàng kèm số đơn, chi tiêu."],
+      ["TaiKhoanCuaToiTests", "6", "Cập nhật thông tin cá nhân hợp lệ và không hợp lệ; thêm địa chỉ và chọn mặc định thì chỉ còn một địa chỉ mặc định; xóa địa chỉ mặc định thì địa chỉ còn lại thay thế; không sửa, xóa được địa chỉ của khách hàng khác."],
       ["ThanhToanVaBaoCaoTests", "10", "Chữ ký VNPay đúng đặc tả và phát hiện dữ liệu bị sửa; thanh toán thành công chuyển đơn sang Chờ xác nhận và chỉ ghi nhận một lần; khách hủy giao dịch rồi thanh toán lại; đơn COD không tạo được yêu cầu thanh toán; email khi đặt hàng và đổi trạng thái; quên mật khẩu với token dùng một lần; báo cáo nhập – xuất – tồn; báo cáo doanh thu và tập tin Excel đọc lại được."],
-      ["Tổng cộng", "63", "Toàn bộ đều đạt"],
+      ["Tổng cộng", "71", "Toàn bộ đều đạt"],
     ], "Các lớp kiểm thử đơn vị và phạm vi kiểm thử", 3000, 1500),
 
-    P("Kết quả chạy lệnh dotnet test: 63 trường hợp, 63 đạt, 0 thất bại, thời gian khoảng 8 giây. " +
+    P("Kết quả chạy lệnh dotnet test: 71 trường hợp, 71 đạt, 0 thất bại, thời gian khoảng 5 giây. " +
       "Mười quy tắc nghiệp vụ BR01–BR10 đều có ít nhất một trường hợp kiểm thử tương ứng."),
 
     H3("5.2.3. Kiểm thử giao diện Web tự động"),
@@ -482,10 +524,10 @@ module.exports = (h) => {
       "để thao tác trên trang Web như một khách hàng. Trước khi chạy, bộ kiểm thử tự tạo một cơ sở dữ liệu " +
       "riêng (không đụng vào dữ liệu demo), khởi động trang Web trên cổng 5199 bằng một tiến trình riêng và " +
       "xóa cơ sở dữ liệu này khi kết thúc. Mỗi test dùng một phiên trình duyệt mới và một khách hàng đăng ký " +
-      "mới nên các test không ảnh hưởng nhau. Gồm 24 trường hợp, chạy khoảng 14 giây:"),
+      "mới nên các test không ảnh hưởng nhau. Gồm 27 trường hợp, chạy khoảng 20 giây:"),
     bullet("Trang sách (5): trang chủ, tìm kiếm có và không có kết quả, chi tiết sách, lọc theo giá."),
-    bullet("Tài khoản (8): đăng nhập sai và đúng, đăng xuất, tài khoản Quản lý bị từ chối trên Web, đăng ký trùng tên và hợp lệ, hai trang yêu cầu đăng nhập, thông báo quên mật khẩu không lộ email có tồn tại hay không."),
-    bullet("Giỏ hàng và đặt hàng (7): thêm vào giỏ khi chưa đăng nhập bị chuyển sang đăng nhập (BR01), tổng tiền khi đổi số lượng, miễn phí vận chuyển từ 300.000đ, đặt hàng COD và trừ tồn kho (BR02), thanh toán VNPay giả lập thành công và bị hủy, giỏ trống không đặt được."),
+    bullet("Tài khoản (9): cập nhật thông tin cá nhân và thêm địa chỉ giao hàng rồi thấy địa chỉ được điền sẵn ở trang thanh toán, đăng nhập sai và đúng, đăng xuất, tài khoản Quản lý bị từ chối trên Web, đăng ký trùng tên và hợp lệ, hai trang yêu cầu đăng nhập, thông báo quên mật khẩu không lộ email có tồn tại hay không."),
+    bullet("Giỏ hàng và đặt hàng (9): thêm vào giỏ khi chưa đăng nhập bị chuyển sang đăng nhập (BR01), tổng tiền khi đổi số lượng, miễn phí vận chuyển từ 300.000đ (BR07), đặt hàng COD và trừ tồn kho (BR03), thanh toán VNPay giả lập bằng thẻ ATM và OTP (kể cả nhập sai OTP), bằng mã VNPAY-QR, nhập sai thông tin thẻ bị từ chối, hủy giao dịch thì đơn vẫn chờ thanh toán, giỏ trống không đặt được."),
     bullet("Responsive (4): khung điện thoại 375 px không cuộn ngang ở ba trang, vẫn tìm kiếm và mở chi tiết sách được."),
     P("Bộ kiểm thử đã phát hiện một lỗi thật ngay lần chạy đầu: trang Web chưa nạp JavaScript của Bootstrap " +
       "nên menu người dùng (Đơn hàng của tôi, Đăng xuất) không mở được. Lỗi đã được sửa trong tệp App.razor."),
@@ -510,18 +552,22 @@ module.exports = (h) => {
       ["13", "Khách mở Đơn hàng của tôi", "Thấy đúng trạng thái và lịch sử; đơn đã xác nhận không còn nút Hủy đơn", "Đạt"],
       ["14", "Gọi điểm cuối Web API khi không có token", "Máy chủ trả mã 401", "Đạt"],
       ["15", "Xóa sách đã phát sinh đơn hàng", "Không xóa, chuyển sang trạng thái Ngừng kinh doanh và sách biến mất khỏi trang Web", "Đạt"],
-      ["16", "Đặt hàng bằng VNPay khi chưa cấu hình khóa sandbox", "Chuyển sang cổng giả lập với đúng số tiền; xác nhận thanh toán thì quay về trang kết quả, đơn ở Chờ xác nhận và có mã giao dịch", "Đạt"],
+      ["16", "Đặt hàng bằng VNPay khi chưa cấu hình khóa sandbox, thanh toán bằng thẻ ATM thử và OTP", "Chuyển sang cổng giả lập với đúng số tiền; qua bước nhập thẻ và OTP thì quay về trang kết quả, đơn ở Chờ xác nhận và có mã giao dịch", "Đạt"],
       ["17", "Quên mật khẩu với email đã đăng ký", "Email chứa liên kết được ghi ra tập tin; đặt lại mật khẩu thành công; dùng lại liên kết lần hai bị từ chối", "Đạt"],
       ["18", "Lập phiếu nhập rồi bấm Hoàn thành", "Tồn kho của sách tăng đúng số lượng nhập, báo cáo nhập – xuất – tồn khớp", "Đạt"],
-      ["19", "Xóa phiếu nhập đã hoàn thành", "Bị từ chối theo BR06", "Đạt"],
+      ["19", "Xóa phiếu nhập đã hoàn thành", "Bị từ chối theo BR08", "Đạt"],
       ["20", "Thêm rồi xóa một tác giả chưa gán cho sách", "Thêm và xóa thành công", "Đạt"],
       ["21", "Xuất báo cáo nhập – xuất – tồn ra Excel", "Tải về tập tin .xlsx mở được bằng Excel", "Đạt"],
       ["22", "Xem báo cáo với ngày bắt đầu sau ngày kết thúc", "Bị từ chối kèm thông báo", "Đạt"],
+      ["23", "Mở cổng thanh toán giả lập, chọn quét mã VNPAY-QR", "Hiện mã QR, số tiền và thời gian còn lại đếm ngược tới lúc đơn hết hạn", "Đạt"],
+      ["24", "Gọi điểm cuối tải ảnh bìa với ảnh PNG thật, với tệp văn bản đổi đuôi .png và khi không có token", "Ảnh thật được lưu và trả về đường dẫn; tệp giả bị từ chối; không có token trả mã 401", "Đạt"],
+      ["25", "Mở trang danh sách, chi tiết sách, giỏ hàng sau khi sách có ảnh bìa", "Ảnh bìa hiển thị ở cả ba trang; sách chưa có ảnh hiện bìa mặc định mang tên sách", "Đạt"],
+      ["26", "Khách cập nhật thông tin cá nhân, thêm hai địa chỉ và đặt địa chỉ thứ hai làm mặc định", "Thông tin được lưu; chỉ một địa chỉ mang nhãn Mặc định; trang thanh toán điền sẵn địa chỉ mặc định", "Đạt"],
     ], [700, 3000, CONTENT_W - 5100, 1400], "Kết quả kiểm thử mức hệ thống"),
 
     H3("5.2.5. Lỗi phát hiện trong quá trình kiểm thử"),
-    P("Quá trình kiểm thử giúp phát hiện và sửa ba lỗi đáng chú ý, đều thuộc loại khó nhận ra nếu " +
-      "chỉ đọc mã nguồn:"),
+    P("Quá trình kiểm thử giúp phát hiện và sửa các lỗi đáng chú ý sau, đều thuộc loại khó nhận ra " +
+      "nếu chỉ đọc mã nguồn:"),
     bulletL("Sai thứ tự middleware trên trang Web. ",
       "Ban đầu middleware chống giả mạo biểu mẫu được đặt trước middleware xác thực, nên token sinh " +
       "cho người đã đăng nhập lại bị đối chiếu với người dùng ẩn danh và mọi biểu mẫu đều trả về " +
@@ -533,6 +579,11 @@ module.exports = (h) => {
     bulletL("Transaction xung đột với cơ chế thử lại của EF Core. ",
       "Chuỗi kết nối bật EnableRetryOnFailure khiến EF Core từ chối transaction mở thủ công. Sửa " +
       "bằng cách bọc transaction trong execution strategy như đã trình bày ở mục 4.4.4."),
+    bulletL("Phím Enter ở bước OTP hủy giao dịch. ",
+      "Khi chạy thử cổng thanh toán giả lập, nhập OTP rồi nhấn Enter lại hủy giao dịch, vì trình " +
+      "duyệt gửi biểu mẫu bằng nút submit đứng đầu, mà nút Hủy giao dịch nằm trước nút Xác nhận. " +
+      "Sửa bằng cách đặt nút Xác nhận lên trước trong mã HTML (vẫn hiển thị bên phải nhờ CSS) và " +
+      "bổ sung kiểm thử Playwright nhấn Enter ở ô OTP."),
     bulletL("Thư mục Documents không tồn tại. ",
       "Trên máy cài đặt, thư mục Documents bị OneDrive chuyển sang một đường dẫn không có thật nên " +
       "việc ghi email dự phòng thất bại. Nhờ thiết kế thích ứng, lỗi này chỉ được ghi log, đơn hàng " +
@@ -543,17 +594,20 @@ module.exports = (h) => {
     H2("5.3. Kết quả đạt được"),
 
     H3("5.3.1. Giao diện trang Web dành cho khách hàng"),
-    P("Trang Web được dựng bằng Blazor Web App ở chế độ Interactive Server, giao diện dùng Bootstrap " +
-      "5 nên tự co giãn theo chiều rộng màn hình. Các hình dưới đây là ảnh chụp màn hình thật của " +
-      "hệ thống đang chạy."),
+    P("Trang Web được dựng bằng Blazor Web App: các trang render tĩnh ở máy chủ, riêng giỏ hàng chạy " +
+      "ở chế độ Interactive Server; giao diện dùng Bootstrap 5 nên tự co giãn theo chiều rộng màn " +
+      "hình. Các hình dưới đây là ảnh chụp màn hình thật của hệ thống đang chạy."),
     figureOpt("kq_w01_trangchu", "Trang chủ với danh mục và danh sách sách mới cập nhật"),
-    figureOpt("kq_w02_timkiem", "Trang kết quả tìm kiếm kèm bộ lọc theo danh mục, khoảng giá và sắp xếp"),
+    figureOpt("kq_w02_timkiem", "Trang danh sách sách kèm ảnh bìa và bộ lọc theo danh mục, khoảng giá, sắp xếp"),
     figureOpt("kq_w03_chitietsach", "Trang chi tiết sách và chức năng thêm vào giỏ hàng"),
-    figureOpt("kq_w04_giohang", "Giỏ hàng – cập nhật số lượng không tải lại trang, tính phí vận chuyển theo BR10"),
+    figureOpt("kq_w04_giohang", "Giỏ hàng – cập nhật số lượng không tải lại trang, tính phí vận chuyển theo BR07"),
     figureOpt("kq_w05_thanhtoan", "Trang thanh toán với địa chỉ giao hàng được điền sẵn và hai hình thức thanh toán"),
     figureOpt("kq_w06_ketqua", "Trang kết quả đặt hàng kèm lịch sử xử lý đơn"),
-    figureOpt("kq_w07_donhangcuatoi", "Mục Đơn hàng của tôi – đơn đã xác nhận không còn nút hủy theo BR05"),
+    figureOpt("kq_w07_donhangcuatoi", "Mục Đơn hàng của tôi – đơn chưa được xác nhận còn hủy được theo BR06"),
     figureOpt("kq_w08_dangnhap", "Màn hình đăng nhập của khách hàng"),
+    figureOpt("kq_w11_taikhoan", "Mục Tài khoản của tôi – thông tin cá nhân và sổ địa chỉ giao hàng"),
+    figureOpt("kq_w09_vnpay_qr", "Cổng thanh toán giả lập – thanh toán bằng mã VNPAY-QR"),
+    figureOpt("kq_w10_vnpay_the", "Cổng thanh toán giả lập – thanh toán bằng thẻ nội địa"),
 
     H3("5.3.2. Giao diện ứng dụng quản trị"),
     P("Ứng dụng quản trị dùng WinUI 3 theo mẫu MVVM: mỗi màn hình gồm một tệp XAML mô tả giao diện " +
@@ -573,9 +627,11 @@ module.exports = (h) => {
       "xử lý, ô ghi chú và bốn nút chuyển trạng thái. Bốn nút này chỉ bật khi bước chuyển hợp lệ, " +
       "nên quản lý không thể bấm nhầm. Nút In hóa đơn sinh hóa đơn bán hàng và mở hộp thoại in."),
     bulletL("Màn hình Quản lý sách. ",
-      "Danh sách sách kèm ô tìm kiếm ở bên trái, biểu mẫu thêm hoặc sửa ở bên phải. Chọn một dòng " +
-      "trong danh sách thì biểu mẫu tự điền; biểu mẫu cho chọn loại sách, nhà xuất bản, nhiều tác " +
-      "giả và ngưỡng cảnh báo. Nút Xóa chỉ bật khi đang sửa một quyển sách có sẵn."),
+      "Danh sách sách kèm ảnh bìa thu nhỏ và ô tìm kiếm ở bên trái, biểu mẫu thêm hoặc sửa ở bên " +
+      "phải. Chọn một dòng trong danh sách thì biểu mẫu tự điền; biểu mẫu cho chọn ảnh bìa từ máy " +
+      "(xem trước ngay sau khi tải lên), loại sách, nhà xuất bản, nhiều tác giả và ngưỡng cảnh báo. " +
+      "Ô số lượng tồn chỉ để xem vì tồn kho chỉ thay đổi qua phiếu nhập và đơn hàng. Nút Xóa chỉ bật " +
+      "khi đang sửa một quyển sách có sẵn."),
     bulletL("Màn hình Danh mục. ",
       "Một màn hình dùng chung cho bốn danh mục: loại sách, tác giả, nhà xuất bản, nhà cung cấp. " +
       "Biểu mẫu tự hiện đúng các trường của danh mục đang chọn; mục đang được sách hoặc phiếu nhập " +
@@ -591,14 +647,14 @@ module.exports = (h) => {
     figureOpt("kq_d01_dangnhap", "Màn hình đăng nhập của ứng dụng quản trị"),
     figureOpt("kq_d02_tongquan", "Màn hình Tổng quan của ứng dụng quản trị"),
     figureOpt("kq_d03_donhang", "Màn hình Quản lý đơn hàng – chi tiết đơn và các nút chuyển trạng thái"),
-    figureOpt("kq_d04_sach", "Màn hình Quản lý sách – danh sách và biểu mẫu thêm, sửa"),
+    figureOpt("kq_d04_sach", "Màn hình Quản lý sách – danh sách và biểu mẫu thêm, sửa kèm ảnh bìa"),
     figureOpt("kq_d05_danhmuc", "Màn hình Danh mục – loại sách, tác giả, nhà xuất bản, nhà cung cấp"),
-    figureOpt("kq_d06_kho", "Màn hình Kho và nhập hàng – phiếu nhập đã hoàn thành không sửa, xóa được (BR06)"),
+    figureOpt("kq_d06_kho", "Màn hình Kho và nhập hàng – phiếu nhập đã hoàn thành không sửa, xóa được (BR08)"),
     figureOpt("kq_d07_khachhang", "Màn hình Quản lý khách hàng"),
     figureOpt("kq_d08_baocao", "Màn hình Báo cáo thống kê – doanh thu theo ngày, sách bán chạy, đơn theo trạng thái"),
 
     H3("5.3.3. Web API"),
-    P("Web API cung cấp 35 điểm cuối như đã liệt kê ở Bảng 4.6, kèm giao diện Swagger UI để tra cứu " +
+    P("Web API cung cấp 36 điểm cuối như đã liệt kê ở Bảng 4.6, kèm giao diện Swagger UI để tra cứu " +
       "và thử trực tiếp. Giao diện này cũng là công cụ hữu ích khi kiểm thử, vì cho phép gọi từng " +
       "điểm cuối mà không cần mở ứng dụng Desktop."),
     figureOpt("kq_api_swagger", "Giao diện Swagger UI của Web API"),
@@ -611,7 +667,7 @@ module.exports = (h) => {
       ["Hai thành phần dùng chung một cơ sở dữ liệu SQL Server", "Đạt. Cùng một cơ sở dữ liệu QuanLyBanSachTrucTuyen; đơn khách đặt trên Web hiện ngay trong ứng dụng quản trị."],
       ["Cơ sở dữ liệu đạt chuẩn 3NF, có khóa chính và khóa ngoại hợp lý", "Đạt. 19 bảng, đã kiểm tra 1NF, 2NF, 3NF ở mục 3.3; khóa ngoại và ràng buộc kiểm tra được khai báo đầy đủ."],
       ["Hệ thống chạy và demo được", "Đạt. Cả ba ứng dụng chạy được, quy trình đặt hàng và xử lý đơn hoàn chỉnh từ đầu đến cuối."],
-      ["Điểm sáng tạo: WinUI 3, Blazor, EF Core, Web API, DI, Unit Test, dashboard, xuất báo cáo", "Đạt: WinUI 3, Blazor, EF Core Code First, Web API có JWT và Swagger, Dependency Injection ở cả ba ứng dụng, 63 trường hợp kiểm thử đơn vị, 24 trường hợp kiểm thử giao diện Web bằng Playwright, màn hình dashboard và báo cáo, xuất báo cáo ra Excel bằng ClosedXML; thêm thanh toán VNPay và gửi email bằng MailKit."],
+      ["Điểm sáng tạo: WinUI 3, Blazor, EF Core, Web API, DI, Unit Test, dashboard, xuất báo cáo", "Đạt: WinUI 3, Blazor, EF Core Code First, Web API có JWT và Swagger, Dependency Injection ở cả ba ứng dụng, 71 trường hợp kiểm thử đơn vị, 27 trường hợp kiểm thử giao diện Web bằng Playwright, màn hình dashboard và báo cáo, xuất báo cáo ra Excel bằng ClosedXML; thêm thanh toán VNPay (cổng giả lập có mã QR, thẻ và OTP), gửi email bằng MailKit, ảnh bìa sách và đóng gói Docker."],
     ], [4200, CONTENT_W - 4200], "Đối chiếu kết quả với yêu cầu của đề bài"),
 
     H3("5.3.5. Bình luận"),
@@ -630,12 +686,11 @@ module.exports = (h) => {
       "máy chủ VNPay gửi sang (IPN) vì cơ chế này đòi hỏi máy chủ có địa chỉ công khai trên Internet. " +
       "Tương tự, email mới được kiểm thử ở chế độ ghi ra tập tin; gửi qua SMTP thật cần tài khoản " +
       "và mật khẩu ứng dụng của nhà cung cấp email."),
-    P("Một hạn chế nữa nằm ở phần xác thực của trang Web. Báo cáo giai đoạn 1 dự kiến dùng ASP.NET " +
-      "Core Identity với bộ lưu trữ tùy biến trỏ vào bảng TaiKhoan. Khi cài đặt, nhóm nhận thấy " +
-      "việc hiện thực đầy đủ các giao diện IUserStore và IRoleStore tốn nhiều công hơn giá trị thu " +
-      "được, nên chuyển sang dùng cookie authentication của ASP.NET Core kết hợp lớp PasswordHasher " +
-      "của Identity để băm mật khẩu. Kết quả về mặt bảo mật mật khẩu là tương đương, nhưng hệ thống " +
-      "chưa có sẵn các tính năng kèm theo của Identity như xác thực hai lớp hay xác nhận email."),
+    P("Một hạn chế nữa nằm ở phần xác thực của trang Web. Nhóm dùng cookie authentication của " +
+      "ASP.NET Core kết hợp lớp PasswordHasher của Identity thay vì ASP.NET Core Identity đầy đủ, vì " +
+      "hiện thực các giao diện IUserStore và IRoleStore trên bảng TaiKhoan tốn nhiều công hơn giá trị " +
+      "thu được trong phạm vi đồ án. Về mặt bảo mật mật khẩu là tương đương, nhưng hệ thống chưa có " +
+      "sẵn các tính năng kèm theo của Identity như xác thực hai lớp hay xác nhận email."),
     P("Cuối cùng, ứng dụng quản trị WinUI 3 chưa có kiểm thử giao diện tự động và vẫn được kiểm tra thủ công. " +
       "Nếu dự án tiếp tục phát triển, đây là mảng cần bổ sung, vì số màn hình sẽ tăng nhanh hơn khả năng kiểm tra bằng tay."),
   ];
@@ -646,8 +701,8 @@ module.exports = (h) => {
 
     H2("6.1. Kết luận"),
     P("Đồ án đã đi trọn một vòng từ khảo sát, phân tích, thiết kế tới cài đặt và kiểm thử một hệ " +
-      "thống quản lý và bán sách trực tuyến. Sản phẩm cuối cùng là một solution .NET 10 gồm bảy " +
-      "project với khoảng 11.300 dòng mã do nhóm tự viết, chạy trên cơ sở dữ liệu SQL Server với 19 " +
+      "thống quản lý và bán sách trực tuyến. Sản phẩm cuối cùng là một solution .NET 10 gồm tám " +
+      "project (kể cả hai project kiểm thử) với khoảng 13.500 dòng mã do nhóm tự viết, chạy trên cơ sở dữ liệu SQL Server với 19 " +
       "bảng đã chuẩn hóa tới dạng chuẩn 3."),
     P("Hệ thống đáp ứng các yêu cầu bắt buộc của đề bài: có đủ hai thành phần là ứng dụng quản trị " +
       "trên Windows và trang Web cho khách hàng, cả hai dùng chung một cơ sở dữ liệu, chạy và demo " +
@@ -655,11 +710,12 @@ module.exports = (h) => {
       "liền mạch từ lúc khách tìm sách trên trang Web cho tới khi quản lý hoàn tất đơn trên ứng " +
       "dụng quản trị và doanh thu được ghi nhận. Toàn bộ các phân hệ đã phân tích ở Chương 3 đều đã " +
       "có mã nguồn: danh mục, kho và phiếu nhập, khách hàng, báo cáo, in hóa đơn, xuất Excel, thanh " +
-      "toán VNPay và gửi email."),
+      "toán VNPay, gửi email và ảnh bìa sách."),
     P("Về mặt kỹ thuật, nhóm đã vận dụng được các công nghệ nằm trong nhóm điểm sáng tạo mà đề bài " +
       "khuyến khích: WinUI 3 với mẫu MVVM, Blazor, Entity Framework Core theo hướng Code First, " +
-      "Web API có xác thực JWT và tài liệu Swagger, Dependency Injection ở cả ba ứng dụng, 63 " +
-      "trường hợp kiểm thử đơn vị với xUnit, màn hình dashboard và xuất báo cáo ra Excel."),
+      "Web API có xác thực JWT và tài liệu Swagger, Dependency Injection ở cả ba ứng dụng, 71 " +
+      "trường hợp kiểm thử đơn vị với xUnit, 27 trường hợp kiểm thử giao diện Web với Playwright, " +
+      "màn hình dashboard và xuất báo cáo ra Excel."),
 
     H2("6.2. Những điều rút ra được"),
     bulletL("Kiến trúc chỉ chứng minh được giá trị khi bắt đầu viết mã. ",
@@ -680,15 +736,15 @@ module.exports = (h) => {
     H2("6.3. Hạn chế của đề tài"),
     bullet("Thanh toán VNPay mới kiểm thử với cổng giả lập, chưa chạy với mã merchant sandbox thật; chưa xử lý thông báo IPN từ máy chủ VNPay và chưa có chức năng hoàn tiền."),
     bullet("Email mới kiểm thử ở chế độ ghi ra tập tin, chưa gửi qua máy chủ SMTP thật; email được gửi ngay trong yêu cầu nên nếu máy chủ SMTP chậm, thao tác của người dùng cũng chậm theo."),
-    bullet("Báo cáo nhập – xuất – tồn suy ngược từ tồn kho hiện tại; nếu quản lý sửa trực tiếp số lượng tồn trong màn hình Quản lý sách thì báo cáo của các kỳ trước sẽ lệch tương ứng."),
-    bullet("Ứng dụng quản trị chưa có kiểm thử giao diện tự động (trang Web đã có 24 test Playwright) và chưa đo được khả năng chịu tải của hệ thống."),
-    bullet("Hệ thống mới chạy trên môi trường máy cá nhân, chưa triển khai lên máy chủ thật và chưa cấu hình chứng chỉ HTTPS chính thức."),
+    bullet("Báo cáo nhập – xuất – tồn suy ngược từ tồn kho hiện tại. Để kết quả không lệch, tồn kho không sửa tay được: sách mới bắt đầu từ 0 và mọi thay đổi đi qua phiếu nhập hoàn thành, đơn hàng hoặc hủy đơn. Hệ quả là chưa có cách ghi nhận hao hụt hay kiểm kê thực tế."),
+    bullet("Ứng dụng quản trị chưa có kiểm thử giao diện tự động (trang Web đã có 27 test Playwright) và chưa đo được khả năng chịu tải của hệ thống."),
+    bullet("Hệ thống mới chạy trên môi trường máy cá nhân, chưa triển khai lên máy chủ thật và chưa cấu hình chứng chỉ HTTPS chính thức. Ảnh bìa lưu ở thư mục tập tin trên máy chủ, chưa dùng dịch vụ lưu trữ riêng; ảnh không còn được sách nào dùng chưa được tự dọn."),
 
     H2("6.4. Hướng phát triển"),
     P("Nếu đề tài được tiếp tục, nhóm dự kiến phát triển theo bốn hướng, xếp theo thứ tự ưu tiên."),
     t3("Thứ tự", "Hướng phát triển", "Nội dung cụ thể", [
       ["1", "Đưa thanh toán và email vào môi trường thật", "Đăng ký mã merchant VNPay sandbox, bổ sung xử lý IPN và đối soát giao dịch, chức năng hoàn tiền; cấu hình máy chủ SMTP thật và chuyển việc gửi email sang hàng đợi chạy nền để không làm chậm thao tác."],
-      ["2", "Đóng gói và triển khai", "Đóng gói trang Web, Web API và SQL Server bằng Docker để chạy được trên máy mới bằng một lệnh; triển khai lên máy chủ có chứng chỉ HTTPS; ghi nhận biến động tồn kho thành bảng riêng để báo cáo nhập – xuất – tồn chính xác cả khi sửa tồn thủ công."],
+      ["2", "Đóng gói và triển khai", "Triển khai lên máy chủ có chứng chỉ HTTPS (hệ thống đã đóng gói Docker để chạy bằng một lệnh nhưng mới thử ở máy cá nhân); ghi nhận biến động tồn kho thành bảng riêng, thêm phiếu kiểm kê để xử lý hao hụt và để báo cáo nhập – xuất – tồn chính xác theo từng giao dịch."],
       ["3", "Nâng chất lượng và trải nghiệm", "Bổ sung kiểm thử tự động cho giao diện ứng dụng quản trị; thêm biểu đồ doanh thu trên dashboard bằng LiveCharts2; thêm bộ nhớ đệm cho danh mục và trang chủ; bổ sung phân trang phía máy chủ cho các danh sách dài trong ứng dụng quản trị."],
       ["4", "Mở rộng phạm vi nghiệp vụ", "Đưa trở lại hai chức năng đã tạm gác là khuyến mãi và đánh giá sách; thêm gợi ý sách theo lịch sử mua hàng; hỗ trợ nhiều kho hàng; xây dựng ứng dụng di động dùng chung Web API hiện có."],
     ], "Hướng phát triển của đề tài", 1100, 3400),

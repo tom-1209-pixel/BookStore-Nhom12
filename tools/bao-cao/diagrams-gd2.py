@@ -81,19 +81,19 @@ print("Dang ve hinh Chuong 4...")
 # ---------------------------------------------------------------- Hinh 4.1 Kien truc phan lop
 fig, ax = new(9.4, 7.0, (0, 14), (0, 10.6))
 
-rbox(ax, 3.6, 9.5, 5.6, 1.1, "BookStore.Web", "Blazor Web App (Interactive Server)\nGiao diện khách hàng", fc=GRN)
+rbox(ax, 3.6, 9.5, 5.6, 1.1, "BookStore.Web", "Blazor Web App (SSR + Interactive Server)\nGiao diện khách hàng", fc=GRN)
 rbox(ax, 10.2, 9.5, 5.6, 1.1, "BookStore.Admin", "WinUI 3 + MVVM\nỨng dụng quản trị Desktop", fc=GRN)
 
 rbox(ax, 10.2, 7.5, 5.6, 1.0, "BookStore.Api", "ASP.NET Core Web API\nXác thực JWT theo Role", fc=YEL)
 
-rbox(ax, 6.9, 5.5, 9.0, 1.1, "BookStore.Services", "Nghiệp vụ, kiểm tra ràng buộc BR01–BR10, DTO\nIOrderService, IBookService, ICartService…", fc=BLUE)
+rbox(ax, 6.9, 5.5, 9.0, 1.1, "BookStore.Services", "Nghiệp vụ, kiểm tra ràng buộc BR01–BR10, DTO\nIDonHangService, ISachService, IKhoService…", fc=BLUE)
 
 rbox(ax, 6.9, 3.5, 9.0, 1.0, "BookStore.Data", "EF Core 10 Code First – BookStoreDbContext, Migrations", fc=BLUE)
 
 rbox(ax, 6.9, 1.8, 9.0, 0.9, "BookStore.Domain", "19 lớp thực thể và các enum trạng thái", fc=BLUE)
 
 rbox(ax, 12.6, 1.8, 2.2, 0.9, "SQL Server", "19 bảng", fc=GRAY)
-rbox(ax, 1.2, 1.8, 2.2, 0.9, "BookStore.Tests", "xUnit", fc=PINK)
+rbox(ax, 1.3, 1.8, 2.4, 0.9, "Tests, UiTests", "xUnit, Playwright", fc=PINK)
 
 arrow(ax, (3.6, 8.95), (5.2, 6.05), "gọi trực tiếp\nqua DI")
 arrow(ax, (10.2, 8.95), (10.2, 8.0), "HTTPS / JSON")
@@ -145,13 +145,13 @@ actor(ax, 1.6, 3.4, "Quản lý")
 
 nhom(ax, 3.4, 0.9, 11.6, 10.4, "Hệ thống quản lý và bán sách trực tuyến")
 
-rbox(ax, 5.9, 8.9, 3.9, 1.4, "Trang Web bán sách", "[Container: Blazor Server]\nTrang chủ, tìm kiếm, giỏ hàng,\nđặt hàng, đơn của tôi", fc=GRN)
-rbox(ax, 9.9, 8.9, 3.0, 1.4, "Ứng dụng quản trị", "[Container: WinUI 3]\nDashboard, đơn hàng,\nquản lý sách", fc=GRN)
+rbox(ax, 5.9, 8.9, 3.9, 1.4, "Trang Web bán sách", "[Container: Blazor Server]\nTìm kiếm, giỏ hàng, đặt hàng,\nthanh toán, đơn của tôi", fc=GRN)
+rbox(ax, 9.9, 8.9, 3.0, 1.4, "Ứng dụng quản trị", "[Container: WinUI 3]\nĐơn hàng, sách, kho,\nkhách hàng, báo cáo", fc=GRN)
 rbox(ax, 9.9, 6.2, 3.0, 1.2, "Web API", "[Container: ASP.NET Core]\nREST + JWT", fc=YEL)
 rbox(ax, 7.5, 4.0, 6.0, 1.2, "Thư viện nghiệp vụ", "[Container: .NET class library]\nBookStore.Services – nơi duy nhất cài đặt BR01–BR10", fc=BLUE)
 rbox(ax, 7.5, 1.8, 6.0, 1.0, "Cơ sở dữ liệu", "[Container: SQL Server 2025] – 19 bảng", fc=GRAY)
 
-rbox(ax, 13.1, 8.9, 2.2, 1.0, "Cổng VNPay", "[Hệ thống ngoài]", fc="#EDEDED")
+rbox(ax, 13.1, 10.3, 2.2, 0.9, "Cổng VNPay", "[Hệ thống ngoài]", fc="#EDEDED")
 
 arrow(ax, (2.3, 8.6), (3.9, 8.9), "HTTPS")
 arrow(ax, (2.3, 3.8), (8.4, 8.4), "Mở ứng dụng")
@@ -159,48 +159,55 @@ arrow(ax, (5.9, 8.2), (6.4, 4.7), "gọi trực tiếp qua DI")
 arrow(ax, (9.9, 8.2), (9.9, 6.85), "JSON/HTTPS\nkèm token JWT")
 arrow(ax, (9.9, 5.6), (8.8, 4.65), "gọi qua DI")
 arrow(ax, (7.5, 3.4), (7.5, 2.35), "EF Core / TDS")
-arrow(ax, (7.9, 9.5), (12.0, 9.1), "Chuyển hướng\nthanh toán")
+arrow(ax, (6.9, 9.6), (12.0, 10.3), "Chuyển hướng thanh toán", fs=7.5)
 save(fig, "c4_l2_container")
 
 # ---------------------------------------------------------------- Hinh 4.4 C4 muc 3 - Component
-fig, ax = new(10.4, 6.6, (0, 15), (0, 9.6))
+fig, ax = new(10.4, 7.2, (0, 15), (0, 10.4))
 
-rbox(ax, 4.0, 8.8, 6.4, 0.9, "BookStore.Web (Blazor)", "Trang Razor + endpoint nhận form", fc=GRN, fs=8)
-rbox(ax, 11.4, 8.8, 6.4, 0.9, "BookStore.Api", "DonHangController, SachController, BaoCaoController", fc=YEL, fs=8)
+rbox(ax, 4.0, 9.6, 6.4, 0.9, "BookStore.Web (Blazor)", "Trang Razor + endpoint nhận form, cổng thanh toán giả lập", fc=GRN, fs=8)
+rbox(ax, 11.4, 9.6, 6.4, 0.9, "BookStore.Api", "SachController, DonHangController, QuanTriController, XacThucController", fc=YEL, fs=8)
 
-nhom(ax, 0.4, 1.0, 14.6, 7.9, "BookStore.Services – các thành phần bên trong")
+nhom(ax, 0.4, 0.8, 14.6, 8.7, "BookStore.Services – các thành phần bên trong")
 
-cot = [(2.4, "TaiKhoanService", "Đăng nhập, đăng ký,\nkhóa tài khoản"),
-       (5.2, "SachService", "Tìm kiếm, CRUD sách,\nBR07"),
-       (8.0, "GioHangService", "Thêm, sửa, xóa\ndòng giỏ hàng"),
-       (10.8, "DonHangService", "Đặt hàng, sơ đồ trạng thái\nBR01–BR05, BR10"),
-       (13.4, "BaoCaoService", "Dashboard,\ndoanh thu (BR09)")]
+# Hang 1: dich vu ban hang va bao cao
+cot = [(2.4, "TaiKhoanService", "Đăng nhập, đăng ký,\nkhóa, quên mật khẩu"),
+       (5.2, "SachService", "Tìm kiếm, CRUD sách,\nBR09"),
+       (8.0, "GioHangService", "Thêm, sửa, xóa\ndòng giỏ (BR01, BR02)"),
+       (10.8, "DonHangService", "Đặt hàng, sơ đồ trạng thái\nBR02–BR07"),
+       (13.4, "BaoCaoService", "Dashboard, doanh thu,\nnhập–xuất–tồn (BR10)")]
 for x, ten, mo in cot:
-    rbox(ax, x, 6.6, 2.5, 1.3, ten, mo, fs=7.4, subfs=6.2,
+    rbox(ax, x, 7.4, 2.5, 1.2, ten, mo, fs=7.4, subfs=6.0,
          fc="#CBDDF2" if ten == "DonHangService" else BLUE)
 
-rbox(ax, 3.2, 4.2, 3.6, 0.9, "QuyTacNghiepVu", "hằng số BR04, BR10", fc=YEL, fs=7.6, subfs=6.2)
-rbox(ax, 7.5, 4.2, 3.6, 0.9, "KetQua / KetQua<T>", "kiểu trả về chung", fc=YEL, fs=7.6, subfs=6.2)
-rbox(ax, 11.8, 4.2, 3.6, 0.9, "Các lớp DTO", "dữ liệu trao đổi giữa các tầng", fc=YEL, fs=7.6, subfs=6.2)
+# Hang 2: phan he quan tri va tich hop he thong ngoai
+cot2 = [(1.85, "DanhMucService", "Loại sách, tác giả,\nNXB, nhà cung cấp"),
+        (4.15, "KhoService", "Tồn kho, phiếu nhập\n(BR08)"),
+        (6.45, "KhachHangService", "Tra cứu, khóa\nkhách hàng"),
+        (8.75, "ThanhToanService", "VNPay, ký\nHMAC-SHA512"),
+        (11.05, "EmailService", "MailKit / tệp .eml"),
+        (13.35, "XuatExcelService", "ClosedXML")]
+for x, ten, mo in cot2:
+    rbox(ax, x, 5.6, 2.15, 1.1, ten, mo, fs=7.0, subfs=6.0,
+         fc="#E4EEF8" if ten in ("ThanhToanService", "EmailService", "XuatExcelService") else BLUE)
 
-rbox(ax, 7.5, 2.0, 7.0, 0.9, "BookStoreDbContext", "BookStore.Data – EF Core 10", fc=GRAY, fs=8, subfs=6.4)
+rbox(ax, 3.2, 3.7, 3.6, 0.9, "QuyTacNghiepVu", "hằng số BR05, BR07", fc=YEL, fs=7.6, subfs=6.2)
+rbox(ax, 7.5, 3.7, 3.6, 0.9, "KetQua / KetQua<T>", "kiểu trả về chung", fc=YEL, fs=7.6, subfs=6.2)
+rbox(ax, 11.8, 3.7, 3.6, 0.9, "Các lớp DTO", "dữ liệu trao đổi giữa các tầng", fc=YEL, fs=7.6, subfs=6.2)
 
-# Trang Web goi thang 4 dich vu, Web API goi 4 dich vu
+rbox(ax, 7.5, 1.7, 7.0, 0.9, "BookStoreDbContext", "BookStore.Data – EF Core 10", fc=GRAY, fs=8, subfs=6.4)
+
+# Trang Web goi cac dich vu ban hang, Web API goi cac dich vu quan tri
 for x in (2.4, 5.2, 8.0, 10.8):
-    arrow(ax, (4.0, 8.35), (x, 7.3), rad=0.0, lw=0.9)
-for x in (5.2, 10.8, 13.4, 2.4):
-    arrow(ax, (11.4, 8.35), (x, 7.3), rad=0.0, lw=0.9, color="#8A6D1F")
+    arrow(ax, (4.0, 9.15), (x, 8.0), rad=0.0, lw=0.9)
+for x in (5.2, 10.8, 13.4):
+    arrow(ax, (11.4, 9.15), (x, 8.0), rad=0.0, lw=0.9, color="#8A6D1F")
 
 # Moi dich vu deu dung DbContext
-for x, _, _ in cot:
-    arrow(ax, (x, 5.9), (7.5 + (x - 7.9) * 0.22, 2.5), rad=0.0, lw=0.8, color="#777")
+arrow(ax, (7.5, 3.25), (7.5, 2.15), "mọi dịch vụ truy cập dữ liệu qua DbContext", fs=6.6, rad=0.0, lw=0.8, color="#777")
 
-arrow(ax, (10.0, 6.0), (4.3, 4.7), "dùng hằng số", fs=6.8, lw=0.9)
-arrow(ax, (10.8, 5.9), (8.3, 4.7), lw=0.9)
-arrow(ax, (11.6, 5.9), (11.8, 4.7), lw=0.9)
-
-ax.text(0.6, 9.3, "Mũi tên đen: trang Web gọi trực tiếp qua DI    ·    Mũi tên vàng: Web API gọi qua DI",
-        fontsize=6.8, color="#555", style="italic")
+ax.text(0.6, 10.15, "Mũi tên đen: trang Web gọi trực tiếp qua DI    ·    Mũi tên vàng: Web API gọi qua DI (Api còn gọi các dịch vụ ở hàng dưới)",
+        fontsize=6.6, color="#555", style="italic")
 save(fig, "c4_l3_component")
 
 # ---------------------------------------------------------------- Hinh 4.5 C4 muc 4 - Code
@@ -247,7 +254,7 @@ cls(ax, 11.4, 8.3, 5.4, "DonHang",
 
 cls(ax, 11.4, 4.9, 5.4, "CTDonHang",
     ["+ MaSach : int", "+ TenSach : string", "+ SoLuong : int",
-     "+ DonGia : decimal   // BR02"], ["+ ThanhTien : decimal"], fc=GRN)
+     "+ DonGia : decimal   // BR04"], ["+ ThanhTien : decimal"], fc=GRN)
 
 cls(ax, 11.4, 2.0, 5.4, "«enumeration» TrangThaiDonHang",
     ["ChoThanhToan = 0", "ChoXacNhan = 1", "DaXacNhan = 2",
@@ -255,7 +262,7 @@ cls(ax, 11.4, 2.0, 5.4, "«enumeration» TrangThaiDonHang",
 
 cls(ax, 3.4, 1.3, 6.0, "QuyTacNghiepVu  «static»",
     ["+ PhiVanChuyen = 25.000", "+ NguongMienPhiVanChuyen = 300.000"],
-    ["+ TinhPhiVanChuyen(tamTinh) : decimal   // BR10"], fc=YEL)
+    ["+ TinhPhiVanChuyen(tamTinh) : decimal   // BR07"], fc=YEL)
 
 ax.annotate("", xy=(3.4, 6.65), xytext=(3.4, 5.75),
             arrowprops=dict(arrowstyle="-|>", color="black", lw=1.1, linestyle="--",
@@ -319,8 +326,8 @@ sequence("seq_dathang",
           (2, 3, "BeginTransactionAsync()", "call"),
           (2, 3, "đọc giỏ hàng và danh sách sách", "call"),
           (3, 4, "SELECT GioHang, CTGioHang, Sach", "call"),
-          (2, 2, "BR01: kiểm tra tồn kho từng dòng", "self"),
-          (2, 2, "BR02: sao lưu đơn giá; BR10: tính phí vận chuyển", "self"),
+          (2, 2, "BR02: kiểm tra tồn kho từng dòng", "self"),
+          (2, 2, "BR04: sao lưu đơn giá; BR07: tính phí vận chuyển", "self"),
           (2, 3, "thêm DonHang, CTDonHang, ThanhToan, LichSuDonHang", "call"),
           (2, 3, "trừ SoLuongTon, xóa dòng giỏ hàng", "call"),
           (3, 4, "INSERT / UPDATE trong cùng transaction", "call"),

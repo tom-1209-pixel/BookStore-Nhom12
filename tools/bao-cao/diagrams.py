@@ -415,10 +415,10 @@ ax.text(8.25, 9.4, "Máy tính Windows tại nhà sách", fontsize=8, color=EDGE
 rbox(ax, 10.9, 8.3, 4.6, 1.1, "BookStore.Admin – WinUI 3\n(MVVM, Quản lý)", fc=BLUE, fs=9, bold=True)
 ax.add_patch(Rectangle((0.3, 0.3), 13.4, 6.5, fc="#FAFAFA", ec="#666", ls="--"))
 ax.text(0.45, 6.55, "Máy chủ", fontsize=8, color="#444")
-rbox(ax, 3.1, 5.6, 4.6, 1.0, "BookStore.Web\nBlazor Web App + Identity", fc="#FFF2CC", fs=9, bold=True)
+rbox(ax, 3.1, 5.6, 4.6, 1.0, "BookStore.Web\nBlazor Web App + Cookie", fc="#FFF2CC", fs=9, bold=True)
 rbox(ax, 10.9, 5.6, 4.6, 1.0, "BookStore.Api\nASP.NET Core Web API + JWT", fc=BLUE, fs=9, bold=True)
 rbox(ax, 7, 3.8, 9.0, 0.9, "BookStore.Services – tầng nghiệp vụ (validation, quy tắc nghiệp vụ, DI)", fc=GRN, fs=9, bold=True)
-rbox(ax, 7, 2.55, 9.0, 0.8, "BookStore.Data – EF Core 8 (DbContext, Migrations)   |   BookStore.Domain – Entity", fc=GRN, fs=8.6)
+rbox(ax, 7, 2.55, 9.0, 0.8, "BookStore.Data – EF Core 10 (DbContext, Migrations)   |   BookStore.Domain – Entity", fc=GRN, fs=8.6)
 rbox(ax, 7, 1.15, 4.2, 0.9, "Microsoft SQL Server\n(CSDL dùng chung)", fc="#E8E8E8", fs=9, bold=True)
 arrow(ax, (3.1, 7.75), (3.1, 6.1), "HTTPS / SignalR", fs=7.5)
 arrow(ax, (10.9, 7.75), (10.9, 6.1), "HTTPS / JSON (JWT)", fs=7.5)
@@ -426,7 +426,7 @@ arrow(ax, (3.1, 5.1), (4.2, 4.25))
 arrow(ax, (10.9, 5.1), (9.8, 4.25))
 arrow(ax, (7, 3.35), (7, 2.95))
 arrow(ax, (7, 2.15), (7, 1.6))
-rbox(ax, 12.4, 1.15, 2.2, 0.8, "BookStore.Tests\n(xUnit)", fc="white", fs=8)
+rbox(ax, 12.4, 1.15, 2.2, 0.8, "BookStore.Tests\nBookStore.UiTests", fc="white", fs=8)
 arrow(ax, (12.4, 1.55), (11.3, 3.35), None, ls="--")
 save(fig, "kientruc")
 
@@ -516,23 +516,26 @@ def schema_figure(fname, ent, edges, xlim, ylim, w, fs, hfs, line=0.33, hdr=0.55
 
 # ---------------------------------------------------------------- Conceptual ERD
 ERD_ENT = {
-    "VaiTro": (0, 19.275, ["MaVaiTro*", "TenVaiTro"]),
-    "TaiKhoan": (0, 14.705, ["MaTaiKhoan*", "TenDangNhap", "Email", "MatKhauHash", "TrangThai",
-                             "SoLanDangNhapSai", "ThoiDiemHetKhoa", "TokenDatLaiMatKhau", "HanToken",
-                             "NgayTao"]),
-    "KhachHang": (0, 9.565, ["MaKH*", "HoTen", "SoDienThoai", "NgaySinh", "GioiTinh"]),
-    "DiaChiGiaoHang": (0, 5.375, ["MaDiaChi*", "TenNguoiNhan", "SoDienThoai", "DiaChi", "MacDinh"]),
+    "VaiTro": (0, 19.275, ["MaVaiTro*", "TenVaiTro", "MoTa"]),
+    "TaiKhoan": (0, 14.705, ["MaTaiKhoan*", "TenDangNhap", "MatKhauHash", "Email", "SoDienThoai",
+                             "TrangThai", "NgayTao", "SoLanDangNhapSai", "ThoiDiemHetKhoa",
+                             "TokenDatLaiMatKhau", "HanToken"]),
+    "KhachHang": (0, 9.565, ["MaKhachHang*", "HoTen", "NgaySinh", "GioiTinh", "NgayDangKy"]),
+    "DiaChiGiaoHang": (0, 5.375, ["MaDiaChi*", "HoTenNguoiNhan", "SoDienThoai", "DiaChiChiTiet",
+                                  "PhuongXa", "QuanHuyen", "TinhThanh", "LaMacDinh"]),
     "GioHang": (0, 1.755, ["MaGioHang*", "NgayCapNhat"]),
-    "QuanLy": (5.0, 18.705, ["MaQL*", "HoTen", "SoDienThoai", "ChucVu", "NgayVaoLam"]),
-    "DonHang": (5.0, 13.375, ["MaDH*", "NgayDat", "TenNguoiNhan", "SoDienThoaiNhan", "DiaChiGiao",
-                              "TamTinh", "PhiVanChuyen", "TongTien", "PhuongThucTT", "TrangThai",
+    "QuanLy": (5.0, 18.705, ["MaQuanLy*", "HoTen", "SoDienThoai", "DiaChi", "ChucVu", "NgayVaoLam"]),
+    "DonHang": (5.0, 13.375, ["MaDonHang*", "NgayDat", "TrangThai", "HoTenNguoiNhan", "SoDienThoaiNhan",
+                              "DiaChiGiao", "TamTinh", "PhiVanChuyen", "TongTien", "HinhThucThanhToan",
                               "GhiChu"]),
-    "ThanhToan": (5.0, 7.855, ["MaTT*", "SoTien", "PhuongThuc", "MaGiaoDich", "TrangThai", "ThoiGian"]),
-    "Sach": (5.0, 2.525, ["MaSach*", "TenSach", "NamXuatBan", "SoTrang", "GiaBan", "SoLuongTon",
-                          "NguongCanhBao", "MoTa", "AnhBia", "TrangThai"]),
+    "ThanhToan": (5.0, 8.4, ["MaThanhToan*", "PhuongThuc", "SoTien", "TrangThai", "MaGiaoDich",
+                               "ThoiDiem", "NoiDung"]),
+    "Sach": (5.0, 3.75, ["MaSach*", "ISBN", "TenSach", "NamXuatBan", "SoTrang", "GiaBan", "SoLuongTon",
+                          "NguongCanhBao", "MoTa", "AnhBia", "TrangThai", "NgayTao"]),
     "NhaCungCap": (10.0, 18.705, ["MaNCC*", "TenNCC", "DiaChi", "SoDienThoai", "Email"]),
-    "PhieuNhap": (10.0, 14.515, ["MaPN*", "NgayLap", "NgayHoanThanh", "TongTien", "TrangThai"]),
-    "LoaiSach": (10.0, 7.4, ["MaLoai*", "TenLoai", "MoTa"]),
+    "PhieuNhap": (10.0, 14.515, ["MaPhieuNhap*", "NgayLap", "NgayHoanThanh", "TongTien", "TrangThai",
+                                 "GhiChu"]),
+    "LoaiSach": (10.0, 7.4, ["MaLoaiSach*", "TenLoaiSach", "MoTa", "TrangThai"]),
     "NhaXuatBan": (10.0, 4.0, ["MaNXB*", "TenNXB", "DiaChi", "SoDienThoai"]),
     "TacGia": (10.0, 0.8, ["MaTacGia*", "TenTacGia", "TieuSu"]),
 }
@@ -542,17 +545,17 @@ ERD_REL = [
     ("TaiKhoan", "QuanLy", "R:+1.5", "L:-1.3", "1", "1", "thuộc"),
     ("KhachHang", "DiaChiGiaoHang", "B", "T", "1", "n", "có"),
     ("KhachHang", "GioHang", "L:-0.6", "L:+0.3", "1", "1", "sở hữu", 0.26),
-    ("GioHang", "Sach", "R", "L:-1.5", "n", "n", "chứa\n(SoLuong)"),
+    ("GioHang", "Sach", "R", "L:-1.5", "n", "n", "chứa\n(SoLuong, NgayThem)", 0.0, (-0.2, -1.05)),
     ("KhachHang", "DonHang", "R", "L:-2.0", "1", "n", "đặt"),
     ("QuanLy", "DonHang", "B", "T", "1", "n", "xử lý"),
     ("DonHang", "ThanhToan", "B", "T", "1", "n", "có"),
     ("DonHang", "Sach", "R:-2.0", "R:+2.0", "n", "n", "gồm\n(SoLuong, DonGia)", -0.38, (0, 2.8)),
     ("NhaCungCap", "PhieuNhap", "B", "T", "1", "n", "cung cấp"),
     ("QuanLy", "PhieuNhap", "R", "L:+0.6", "1", "n", "lập"),
-    ("PhieuNhap", "Sach", "B", "T:+1.2", "n", "n", "nhập\n(SoLuong, GiaNhap)", 0.0, (0.45, 0.1)),
+    ("PhieuNhap", "Sach", "B", "T:+1.2", "n", "n", "nhập\n(SoLuong, DonGiaNhap)", 0.0, (0.45, 0.1)),
     ("Sach", "LoaiSach", "R:+1.0", "L", "n", "1", "thuộc"),
     ("Sach", "NhaXuatBan", "R", "L", "n", "1", "xuất bản"),
-    ("Sach", "TacGia", "R:-1.5", "L", "n", "n", "viết bởi"),
+    ("Sach", "TacGia", "R:-1.5", "L", "n", "n", "viết bởi\n(VaiTroTacGia)", 0.0, (-0.35, -0.7)),
 ]
 schema_figure("erd", ERD_ENT, ERD_REL, (-3.1, 12.2), (-0.6, 20.6), w=3.4, fs=10.5, hfs=11.5)
 
@@ -560,22 +563,22 @@ schema_figure("erd", ERD_ENT, ERD_REL, (-3.1, 12.2), (-0.6, 20.6), w=3.4, fs=10.
 DB_ENT = {
     "VaiTro": (0, 18.4, ["MaVaiTro*"]),
     "TaiKhoan": (0, 15.8, ["MaTaiKhoan*", "#MaVaiTro"]),
-    "KhachHang": (0, 12.8, ["MaKH*", "#MaTaiKhoan"]),
-    "DiaChiGiaoHang": (0, 10.1, ["MaDiaChi*", "#MaKH"]),
-    "GioHang": (0, 7.4, ["MaGioHang*", "#MaKH"]),
+    "KhachHang": (0, 12.8, ["MaKhachHang*", "#MaTaiKhoan"]),
+    "DiaChiGiaoHang": (0, 10.1, ["MaDiaChi*", "#MaKhachHang"]),
+    "GioHang": (0, 7.4, ["MaGioHang*", "#MaKhachHang"]),
     "CTGioHang": (0, 4.7, ["#MaGioHang*", "#MaSach*"]),
-    "QuanLy": (4.4, 15.8, ["MaQL*", "#MaTaiKhoan"]),
-    "DonHang": (4.4, 12.8, ["MaDH*", "#MaKH", "#MaQL"]),
-    "LichSuDonHang": (4.4, 10.1, ["MaLichSu*", "#MaDH", "#NguoiThucHien"]),
-    "ThanhToan": (4.4, 8.2, ["MaTT*", "#MaDH"]),
-    "CTDonHang": (4.4, 4.2, ["#MaDH*", "#MaSach*"]),
-    "LoaiSach": (8.8, 12.8, ["MaLoai*"]),
-    "Sach": (8.8, 9.2, ["MaSach*", "#MaLoai", "#MaNXB"]),
+    "QuanLy": (4.4, 15.8, ["MaQuanLy*", "#MaTaiKhoan"]),
+    "DonHang": (4.4, 12.8, ["MaDonHang*", "#MaKhachHang", "#MaQuanLy"]),
+    "LichSuDonHang": (4.4, 10.1, ["MaLichSu*", "#MaDonHang"]),
+    "ThanhToan": (4.4, 8.2, ["MaThanhToan*", "#MaDonHang"]),
+    "CTDonHang": (4.4, 4.2, ["#MaDonHang*", "#MaSach*"]),
+    "LoaiSach": (8.8, 12.8, ["MaLoaiSach*"]),
+    "Sach": (8.8, 9.2, ["MaSach*", "#MaLoaiSach", "#MaNXB"]),
     "Sach_TacGia": (8.8, 5.0, ["#MaSach*", "#MaTacGia*"]),
     "TacGia": (8.8, 2.6, ["MaTacGia*"]),
     "NhaCungCap": (13.2, 15.8, ["MaNCC*"]),
-    "PhieuNhap": (13.2, 12.8, ["MaPN*", "#MaNCC", "#MaQL"]),
-    "CTPhieuNhap": (13.2, 9.2, ["#MaPN*", "#MaSach*"]),
+    "PhieuNhap": (13.2, 12.8, ["MaPhieuNhap*", "#MaNCC", "#MaQuanLy"]),
+    "CTPhieuNhap": (13.2, 9.2, ["#MaPhieuNhap*", "#MaSach*"]),
     "NhaXuatBan": (13.2, 5.6, ["MaNXB*"]),
 }
 DB_FK = [
@@ -586,11 +589,12 @@ DB_FK = [
     ("GioHang", "KhachHang", "L:+0.3", "L:-0.4", "1", "1", None, 0.24),
     ("CTGioHang", "GioHang", "T", "B", "n", "1"),
     ("CTGioHang", "Sach", "R", "B:-1.0", "n", "1"),
+    ("DonHang", "KhachHang", "L", "R", "n", "1"),
+    ("DonHang", "QuanLy", "T", "B", "n", "1"),
     ("CTDonHang", "DonHang", "R:+0.3", "R:-0.5", "n", "1", None, -0.26),
     ("CTDonHang", "Sach", "R:-0.3", "B:-0.3", "n", "1"),
     ("ThanhToan", "DonHang", "L:-0.2", "L:-0.5", "n", "1", None, 0.16),
     ("LichSuDonHang", "DonHang", "T", "B", "n", "1"),
-    ("LichSuDonHang", "TaiKhoan", "L:+0.4", "B:-0.9", "n", "1", None, 0.3),
     ("Sach", "LoaiSach", "T:-0.6", "B", "n", "1"),
     ("Sach", "NhaXuatBan", "R:-0.5", "L", "n", "1"),
     ("Sach_TacGia", "Sach", "T", "B:+0.6", "n", "1"),
