@@ -47,7 +47,7 @@ module.exports = {
       ],
       thayThe: [
         { ma: "2.A", ten: "Thông tin đăng nhập chưa được nhập đầy đủ", buoc: ["Hệ thống thông báo vui lòng nhập đầy đủ tên đăng nhập và mật khẩu.", "Quay lại bước 1 của luồng chính."] },
-        { ma: "4.A", ten: "Tên đăng nhập hoặc mật khẩu không chính xác", buoc: ["Hệ thống thông báo tên đăng nhập hoặc mật khẩu không chính xác; sau 5 lần sai liên tiếp, tài khoản bị tạm khóa 5 phút.", "Quay lại bước 1 của luồng chính."] },
+        { ma: "4.A", ten: "Tên đăng nhập hoặc mật khẩu không chính xác", buoc: ["Hệ thống thông báo tên đăng nhập hoặc mật khẩu không chính xác; sau 5 lần sai liên tiếp, tài khoản bị tạm khóa 15 phút.", "Quay lại bước 1 của luồng chính."] },
         { ma: "5.A", ten: "Tài khoản đã bị khóa", buoc: ["Hệ thống thông báo tài khoản đã bị khóa, vui lòng liên hệ nhà sách.", "Quay lại bước 1 của luồng chính."] },
       ],
       sau: [
@@ -101,7 +101,7 @@ module.exports = {
         "Hệ thống hiển thị giao diện nhập email.",
         "Khách hàng nhập email đã đăng ký và chọn Gửi.",
         "Hệ thống kiểm tra email tồn tại trong cơ sở dữ liệu.",
-        "Hệ thống tạo liên kết đặt lại mật khẩu có thời hạn 15 phút và gửi đến email của Khách hàng.",
+        "Hệ thống tạo liên kết đặt lại mật khẩu có thời hạn 30 phút, chỉ dùng một lần và gửi đến email của Khách hàng.",
         "Khách hàng mở liên kết, nhập mật khẩu mới và xác nhận mật khẩu.",
         "Hệ thống kiểm tra liên kết còn hiệu lực và mật khẩu mới hợp lệ.",
         "Hệ thống cập nhật mật khẩu mới và thông báo đặt lại mật khẩu thành công.",
@@ -261,7 +261,7 @@ module.exports = {
         { ma: "4.A", ten: "Đơn hàng đã được xác nhận", buoc: ["Hệ thống thông báo đơn hàng đã được xác nhận, không thể hủy.", "Hệ thống hiển thị lại trạng thái hiện tại của đơn hàng."] },
       ],
       sau: [
-        { ten: "Trạng thái 1 - Hủy đơn hàng thành công", buoc: ["Đơn hàng chuyển sang trạng thái Đã hủy.", "Số lượng tồn kho được hoàn lại.", "Nếu đơn hàng đã thanh toán trực tuyến, hệ thống ghi nhận yêu cầu hoàn tiền."] },
+        { ten: "Trạng thái 1 - Hủy đơn hàng thành công", buoc: ["Đơn hàng chuyển sang trạng thái Đã hủy.", "Số lượng tồn kho được hoàn lại.", "Nếu đơn hàng đã thanh toán trực tuyến, nhà sách liên hệ hoàn tiền cho Khách hàng ngoài hệ thống."] },
         { ten: "Trạng thái 2 - Hủy đơn hàng không thành công", buoc: ["Trạng thái đơn hàng không thay đổi.", "Hệ thống thông báo lý do không thể hủy."] },
       ],
     },
@@ -300,7 +300,7 @@ module.exports = {
       chinh: [
         "Quản lý chọn chức năng Thêm sách.",
         "Hệ thống hiển thị giao diện Thêm sách.",
-        "Quản lý nhập thông tin sách: tên sách, loại sách, tác giả, nhà xuất bản, năm xuất bản, số trang, giá bán, ngưỡng cảnh báo tồn, mô tả và ảnh bìa.",
+        "Quản lý nhập thông tin sách: tên sách, ISBN, loại sách, tác giả, nhà xuất bản, giá bán, ngưỡng cảnh báo tồn, mô tả và chọn ảnh bìa (JPG, PNG hoặc WebP, tối đa 5 MB).",
         "Hệ thống kiểm tra thông tin sách được nhập là hợp lệ.",
         "Quản lý chọn Lưu.",
         "Hệ thống kiểm tra thông tin sách đáp ứng các ràng buộc dữ liệu (giá bán lớn hơn 0, loại sách, tác giả, nhà xuất bản tồn tại, ảnh bìa đúng định dạng).",
@@ -312,7 +312,7 @@ module.exports = {
         { ma: "6.A", ten: "Thông tin sách không đáp ứng ràng buộc dữ liệu", buoc: ["Hệ thống thông báo không thể thêm sách.", "Quay lại bước 3 của luồng chính."] },
       ],
       sau: [
-        { ten: "Trạng thái 1 - Thêm sách thành công", buoc: ["Thông tin sách được thêm vào cơ sở dữ liệu thành công.", "Sách được hiển thị trên website khi có số lượng tồn lớn hơn 0."] },
+        { ten: "Trạng thái 1 - Thêm sách thành công", buoc: ["Thông tin sách được thêm vào cơ sở dữ liệu thành công.", "Sách được hiển thị trên website ở trạng thái Tạm hết hàng cho đến khi phiếu nhập được hoàn thành."] },
         { ten: "Trạng thái 2 - Thêm sách không thành công", buoc: ["Thông tin sách chưa được thêm vào cơ sở dữ liệu.", "Hệ thống vẫn hiển thị giao diện Thêm sách cùng thông tin đã nhập để Quản lý điều chỉnh."] },
       ],
     },
@@ -397,7 +397,7 @@ module.exports = {
         "Hệ thống gửi email thông báo cho Khách hàng và thông báo cập nhật thành công.",
       ],
       thayThe: [
-        { ma: "3.A", ten: "Giao hàng thất bại", buoc: ["Quản lý chọn Giao thất bại và nhập lý do.", "Hệ thống chuyển đơn hàng sang Đã hủy và hoàn lại số lượng tồn kho."] },
+        { ma: "3.A", ten: "Giao hàng thất bại", buoc: ["Quản lý nhập lý do giao thất bại vào ô ghi chú và chọn Hủy đơn.", "Hệ thống chuyển đơn hàng sang Đã hủy, lưu lý do vào lịch sử và hoàn lại số lượng tồn kho."] },
         { ma: "4.A", ten: "Chuyển trạng thái không hợp lệ", buoc: ["Hệ thống thông báo không thể chuyển sang trạng thái đã chọn.", "Quay lại bước 2 của luồng chính."] },
       ],
       sau: [

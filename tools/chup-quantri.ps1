@@ -141,7 +141,14 @@ if ($muc.Count -ge 2) {
     if ($dong.Count -gt $muc.Count) { Kich-Hoat $dong[$muc.Count]; Start-Sleep -Seconds 2 }
     Chup "kq_d03_donhang"
 }
-if ($muc.Count -ge 3) { Kich-Hoat $muc[2]; Start-Sleep -Seconds 3; Chup "kq_d04_sach" }
+if ($muc.Count -ge 3) {
+    Kich-Hoat $muc[2]
+    Start-Sleep -Seconds 3
+    # Chon quyen sach dau tien de bieu mau hien anh bia
+    $dong = Tim-TatCa (Goc $h) ([Windows.Automation.ControlType]::ListItem)
+    if ($dong.Count -gt $muc.Count) { Kich-Hoat $dong[$muc.Count]; Start-Sleep -Seconds 3 }
+    Chup "kq_d04_sach"
+}
 
 # Cac man hinh bo sung: danh muc, kho va nhap hang, khach hang, bao cao
 $tenAnh = @("kq_d05_danhmuc", "kq_d06_kho", "kq_d07_khachhang", "kq_d08_baocao")
