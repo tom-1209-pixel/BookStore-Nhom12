@@ -15,8 +15,8 @@ Giảng viên giảng dạy: **TS. Đỗ Như Tài**. Nhóm **12**.
 
 Hệ thống gồm hai thành phần dùng chung một cơ sở dữ liệu Microsoft SQL Server:
 
-- **Trang Web bán sách** cho khách hàng – Blazor Web App (Interactive Server), thanh toán COD hoặc VNPay.
-- **Ứng dụng quản trị Desktop** cho Quản lý nhà sách – WinUI 3, gọi Web API (sách, danh mục, đơn hàng, kho và nhập hàng, khách hàng, báo cáo thống kê, xuất Excel).
+- **Trang Web bán sách** cho khách hàng – Blazor Web App (trang render tĩnh, giỏ hàng Interactive Server): tìm kiếm, giỏ hàng, đặt hàng, thanh toán COD hoặc VNPay, tài khoản và sổ địa chỉ, quên mật khẩu.
+- **Ứng dụng quản trị Desktop** cho Quản lý nhà sách – WinUI 3, gọi Web API (sách kèm ảnh bìa, danh mục, đơn hàng, kho và nhập hàng, khách hàng, báo cáo thống kê, xuất Excel).
 
 Có hai vai trò: **Khách hàng** (Web) và **Quản lý** (Desktop). Tài khoản Quản lý không đăng nhập được trên Web.
 
@@ -28,7 +28,7 @@ Có hai vai trò: **Khách hàng** (Web) và **Quản lý** (Desktop). Tài kho�
 - ASP.NET Core Web API + Swagger
 - Entity Framework Core (Code First, Migrations) + Microsoft SQL Server
 - xUnit (tầng Services) và Playwright (giao diện Web)
-- Tích hợp: VNPay (kèm cổng giả lập), MailKit (email), ClosedXML (xuất Excel)
+- Tích hợp: VNPay (kèm cổng giả lập có mã QR, thẻ và OTP), MailKit (email), ClosedXML (xuất Excel), QRCoder
 
 ## Kiến trúc
 
@@ -51,10 +51,26 @@ Solution `BookStore.slnx` gồm các project trong `src/`:
 BaoCao/          Báo cáo đồ án (.docx chia theo chương)
 DacTaUseCase/    Đặc tả chi tiết use case
 src/             Mã nguồn
-tools/           Script sinh báo cáo, sơ đồ, slide
+src/AnhBia/      Ảnh bìa sách (dùng chung giữa Web và Web API)
+tools/           Script sinh báo cáo, sơ đồ, slide, ảnh bìa mẫu
 ```
 
-## Chạy thử
+## Chạy nhanh bằng Docker
+
+Cần Docker Desktop. Một lệnh dựng SQL Server, Web API và trang Web:
+
+```bash
+docker compose up --build
+```
+
+- Trang Web: http://localhost:5159 (tài khoản `khachhang` / `123456`)
+- Web API (Swagger): http://localhost:5171/swagger (đăng nhập `quanly` / `123456`)
+- Ứng dụng quản trị Desktop chạy trên máy (không nằm trong Docker), trỏ tới `http://localhost:5171`.
+
+Lần đầu Docker kéo khoảng 1,5 GB image và CSDL được tạo kèm dữ liệu mẫu. Đổi mật khẩu SA hoặc khóa JWT bằng cách
+sao chép `.env.example` thành `.env`. Dừng và xóa dữ liệu: `docker compose down -v`.
+
+## Chạy thử không dùng Docker
 
 Yêu cầu: Windows 10/11, .NET SDK 10, SQL Server (bản Developer hoặc Express, chạy ở `localhost`).
 
@@ -62,7 +78,7 @@ Yêu cầu: Windows 10/11, .NET SDK 10, SQL Server (bản Developer hoặc Expre
 dotnet build
 dotnet run --project src/BookStore.Api --launch-profile http      # cổng 5171, Swagger ở /swagger
 dotnet run --project src/BookStore.Web --launch-profile http      # cổng 5159
-src/BookStore.Admin/bin/Debug/net10.0-windows10.0.19041.0/win-x64/BookStore.Admin.exe   # cần Web API đang chạy
+dotnet run --project src/BookStore.Admin                          # ứng dụng quản trị, cần Web API đang chạy
 ```
 
 Lần chạy đầu, CSDL `QuanLyBanSachTrucTuyen` được tạo và nạp dữ liệu mẫu.
@@ -81,6 +97,10 @@ dotnet test src/BookStore.UiTests    # cần SQL Server và Microsoft Edge; tắ
 ### VNPay và email (tùy chọn)
 
 Mặc định hệ thống dùng cổng thanh toán giả lập (`/vnpay-gia-lap`) và ghi email ra tập tin `.eml`.
+Thẻ thử của cổng giả lập (giống VNPay sandbox): ngân hàng NCB, số thẻ `9704198526191432198`, tên `NGUYEN VAN A`,
+ngày phát hành `07/15`, OTP `123456`.
+
+Ảnh bìa lưu ở `src/AnhBia` (đổi bằng khóa cấu hình `AnhBia:ThuMuc`; khi chạy Docker là volume `anh-bia`).
 Muốn dùng VNPay sandbox hoặc SMTP thật, đặt khóa bằng user-secrets (không đưa lên GitHub):
 
 ```bash

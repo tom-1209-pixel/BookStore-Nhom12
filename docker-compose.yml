@@ -1,0 +1,67 @@
+# Chay toan bo he thong (SQL Server + Web API + trang Web) bang mot lenh:
+#   docker compose up --build
+# Trang Web:      http://localhost:5159   (khachhang / 123456)
+# Web API:        http://localhost:5171/swagger   (quanly / 123456)
+# Ung dung quan tri Desktop chay tren may (khong nam trong Docker), tro toi http://localhost:5171.
+#
+# Doi mat khau SA / khoa JWT bang cach tao tep .env (xem .env.example).
+
+name: bookstore
+
+services:
+  db:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    environment:
+      ACCEPT_EULA: "Y"
+      MSSQL_SA_PASSWORD: ${MSSQL_SA_PASSWORD:-BookStore@Nhom12_2026}
+    volumes:
+      - dulieu-sql:/var/opt/mssql
+    healthcheck:
+      test: ["CMD-SHELL", "/opt/mssql-tools18/bin/sqlcmd -C -S localhost -U sa -P \"$$MSSQL_SA_PASSWORD\" -Q \"SELECT 1\" || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 20
+      start_period: 20s
+
+  # Web chay truoc: luc khoi dong no tao CSDL, ap migration va nap du lieu mau
+  web:
+    build:
+      context: ./src
+      dockerfile: BookStore.Web/Dockerfile
+    environment:
+      ASPNETCORE_ENVIRONMENT: Development
+      ConnectionStrings__BookStore: "Server=db;Database=QuanLyBanSachTrucTuyen;User Id=sa;Password=${MSSQL_SA_PASSWORD:-BookStore@Nhom12_2026};TrustServerCertificate=True;MultipleActiveResultSets=True"
+    volumes:
+      - anh-bia:/data/anh-bia
+    ports:
+      - "5159:8080"
+    depends_on:
+      db:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "bash -c ':> /dev/tcp/127.0.0.1/8080'"]
+      interval: 5s
+      timeout: 3s
+      retries: 40
+      start_period: 10s
+
+  api:
+    build:
+      context: ./src
+      dockerfile: BookStore.Api/Dockerfile
+    environment:
+      ASPNETCORE_ENVIRONMENT: Development
+      ConnectionStrings__BookStore: "Server=db;Database=QuanLyBanSachTrucTuyen;User Id=sa;Password=${MSSQL_SA_PASSWORD:-BookStore@Nhom12_2026};TrustServerCertificate=True;MultipleActiveResultSets=True"
+      Jwt__KhoaBiMat: ${JWT_KHOA_BI_MAT:-DoAnCSharp_Nhom12_SGU_KhoaBiMatJWT_DungChoMoiTruongHocTap_2026}
+    volumes:
+      - anh-bia:/data/anh-bia
+    ports:
+      - "5171:8080"
+    depends_on:
+      web:
+        condition: service_healthy
+
+volumes:
+  dulieu-sql:
+  # Anh bia dung chung: Api ghi anh tai len, Web doc de hien thi
+  anh-bia:
