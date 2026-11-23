@@ -93,15 +93,56 @@ main { flex: 1; }
 .the-sach:hover { box-shadow: 0 6px 18px rgba(0, 0, 0, .09); transform: translateY(-2px); }
 
 .the-sach .bia {
-    height: 170px;
+    height: 220px;
     border-radius: .4rem;
-    background: linear-gradient(135deg, #e8efe6, #cfe0ce);
+    background: #f3f5f2;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 2.6rem;
+    padding: .6rem 0;
     margin-bottom: .7rem;
 }
+
+/* Anh bia: giu ti le 2:3 cua bia sach */
+.anh-bia {
+    display: block;
+    height: 100%;
+    aspect-ratio: 2 / 3;
+    object-fit: cover;
+    border-radius: .25rem;
+    box-shadow: 0 3px 10px rgba(0, 0, 0, .18);
+}
+
+.anh-bia-trong {
+    background: linear-gradient(160deg, #5b7f5a, #2f4a33);
+    color: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: .6rem;
+    font-weight: 600;
+    font-size: .8rem;
+    line-height: 1.25;
+    overflow: hidden;
+}
+
+.bia-chi-tiet {
+    background: #f3f5f2;
+    border-radius: .6rem;
+    height: 380px;
+    padding: 1.2rem;
+    display: flex;
+    justify-content: center;
+}
+
+.anh-bia.anh-nho {
+    height: 64px;
+    flex-shrink: 0;
+    box-shadow: 0 1px 4px rgba(0, 0, 0, .2);
+}
+
+.anh-bia-trong.anh-nho span { display: none; }
 
 .the-sach .ten {
     font-weight: 600;

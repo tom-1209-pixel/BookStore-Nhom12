@@ -1,0 +1,10 @@
+@* Gui lai cac tham so vnp_* (da ky) qua o an de may chu kiem tra chu ky o buoc tiep theo *@
+
+@foreach (var p in ThamSo)
+{
+    <input type="hidden" name="@p.Key" value="@p.Value" />
+}
+
+@code {
+    [Parameter, EditorRequired] public IReadOnlyDictionary<string, string> ThamSo { get; set; } = default!;
+}

@@ -1,0 +1,18 @@
+@* Anh bia sach; sach chua co anh thi hien bia mac dinh mang ten sach *@
+
+@if (!string.IsNullOrWhiteSpace(DuongDan))
+{
+    <img class="anh-bia @Lop" src="@DuongDan" alt="@TenSach" loading="lazy" />
+}
+else
+{
+    <div class="anh-bia anh-bia-trong @Lop" role="img" aria-label="@TenSach">
+        <span>@TenSach</span>
+    </div>
+}
+
+@code {
+    [Parameter] public string? DuongDan { get; set; }
+    [Parameter] public string TenSach { get; set; } = string.Empty;
+    [Parameter] public string? Lop { get; set; }
+}

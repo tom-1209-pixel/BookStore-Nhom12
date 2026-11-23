@@ -1,0 +1,175 @@
+@page "/tai-khoan"
+@using Microsoft.AspNetCore.Authorization
+@attribute [Authorize]
+@inject ITaiKhoanService TaiKhoanService
+
+@* Man hinh W07 - Tai khoan cua toi: thong tin ca nhan va so dia chi giao hang *@
+
+<PageTitle>Tài khoản của tôi</PageTitle>
+
+<h1 class="h5 mb-3">Tài khoản của tôi</h1>
+
+<BangThongBao ThongBao="@ThongBao" Loi="@Loi" />
+
+@if (_hoSo is null)
+{
+    <div class="khung-trang text-center py-5 text-muted">Không tìm thấy thông tin khách hàng.</div>
+}
+else
+{
+    <div class="row g-3">
+        <div class="col-lg-5">
+            <div class="khung-trang">
+                <h2 class="h6 mb-3">Thông tin cá nhân</h2>
+                <form method="post" action="/tai-khoan/thong-tin">
+                    <AntiforgeryToken />
+                    <div class="row g-2 mb-3">
+                        <div class="col-6">
+                            <label class="form-label">Tên đăng nhập</label>
+                            <input class="form-control" value="@_hoSo.TenDangNhap" disabled />
+                        </div>
+                        <div class="col-6">
+                            <label class="form-label">Email</label>
+                            <input class="form-control" value="@_hoSo.Email" disabled />
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label" for="ho-ten">Họ tên</label>
+                        <input class="form-control" id="ho-ten" name="hoTen" value="@_hoSo.HoTen" maxlength="100" required />
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label" for="sdt">Số điện thoại</label>
+                        <input class="form-control" id="sdt" name="soDienThoai" value="@_hoSo.SoDienThoai" inputmode="tel" maxlength="11" />
+                    </div>
+                    <div class="row g-2 mb-3">
+                        <div class="col-7">
+                            <label class="form-label" for="ngay-sinh">Ngày sinh</label>
+                            <input class="form-control" id="ngay-sinh" name="ngaySinh" type="date"
+                                   value="@(_hoSo.NgaySinh?.ToString("yyyy-MM-dd"))" />
+                        </div>
+                        <div class="col-5">
+                            <label class="form-label" for="gioi-tinh">Giới tính</label>
+                            <select class="form-select" id="gioi-tinh" name="gioiTinh">
+                                <option value="" selected="@(_hoSo.GioiTinh is null)">—</option>
+                                <option value="1" selected="@(_hoSo.GioiTinh == 1)">Nam</option>
+                                <option value="0" selected="@(_hoSo.GioiTinh == 0)">Nữ</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="d-flex justify-content-between align-items-center">
+                        <a href="/tai-khoan/doi-mat-khau">Đổi mật khẩu</a>
+                        <button class="btn btn-primary" type="submit">Lưu thông tin</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <div class="col-lg-7">
+            <div class="khung-trang">
+                <h2 class="h6 mb-3">Sổ địa chỉ giao hàng</h2>
+
+                @if (_diaChi.Count == 0)
+                {
+                    <p class="text-muted">Bạn chưa lưu địa chỉ nào.</p>
+                }
+                @foreach (var d in _diaChi)
+                {
+                    <div class="dia-chi border rounded p-3 mb-2 @(d.LaMacDinh ? "border-success" : "")">
+                        <div class="d-flex justify-content-between gap-2">
+                            <div>
+                                <strong>@d.HoTenNguoiNhan</strong> · @d.SoDienThoai
+                                @if (d.LaMacDinh)
+                                {
+                                    <span class="badge bg-success-subtle text-success-emphasis ms-1">Mặc định</span>
+                                }
+                                <div class="text-muted small">@d.DiaChiDayDu</div>
+                            </div>
+                            <div class="d-flex gap-1 align-items-start flex-shrink-0">
+                                <a class="btn btn-sm btn-outline-secondary" href="@($"/tai-khoan?sua={d.MaDiaChi}#form-dia-chi")">Sửa</a>
+                                @if (!d.LaMacDinh)
+                                {
+                                    <form method="post" action="/tai-khoan/dia-chi/mac-dinh">
+                                        <AntiforgeryToken />
+                                        <input type="hidden" name="maDiaChi" value="@d.MaDiaChi" />
+                                        <button class="btn btn-sm btn-outline-success" type="submit">Đặt mặc định</button>
+                                    </form>
+                                }
+                                <form method="post" action="/tai-khoan/dia-chi/xoa">
+                                    <AntiforgeryToken />
+                                    <input type="hidden" name="maDiaChi" value="@d.MaDiaChi" />
+                                    <button class="btn btn-sm btn-outline-danger" type="submit">Xóa</button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                }
+
+                <h3 class="h6 mt-4 mb-3" id="form-dia-chi">@(_dangSua is null ? "Thêm địa chỉ mới" : "Sửa địa chỉ")</h3>
+                <form method="post" action="/tai-khoan/dia-chi/luu">
+                    <AntiforgeryToken />
+                    <input type="hidden" name="maDiaChi" value="@(_dangSua?.MaDiaChi ?? 0)" />
+                    <div class="row g-2">
+                        <div class="col-md-6">
+                            <label class="form-label" for="dc-ten">Người nhận</label>
+                            <input class="form-control" id="dc-ten" name="hoTenNguoiNhan" value="@_dangSua?.HoTenNguoiNhan" maxlength="100" required />
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label" for="dc-sdt">Số điện thoại</label>
+                            <input class="form-control" id="dc-sdt" name="soDienThoai" value="@_dangSua?.SoDienThoai" inputmode="tel" maxlength="11" required />
+                        </div>
+                        <div class="col-12">
+                            <label class="form-label" for="dc-chi-tiet">Số nhà, tên đường</label>
+                            <input class="form-control" id="dc-chi-tiet" name="diaChiChiTiet" value="@_dangSua?.DiaChiChiTiet" maxlength="255" required />
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label" for="dc-phuong">Phường/xã</label>
+                            <input class="form-control" id="dc-phuong" name="phuongXa" value="@_dangSua?.PhuongXa" maxlength="100" required />
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label" for="dc-quan">Quận/huyện</label>
+                            <input class="form-control" id="dc-quan" name="quanHuyen" value="@_dangSua?.QuanHuyen" maxlength="100" required />
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label" for="dc-tinh">Tỉnh/thành phố</label>
+                            <input class="form-control" id="dc-tinh" name="tinhThanh" value="@_dangSua?.TinhThanh" maxlength="100" required />
+                        </div>
+                    </div>
+                    <div class="form-check mt-3">
+                        <input class="form-check-input" type="checkbox" id="dc-mac-dinh" name="laMacDinh" value="true"
+                               checked="@(_dangSua?.LaMacDinh ?? false)" />
+                        <label class="form-check-label" for="dc-mac-dinh">Đặt làm địa chỉ mặc định</label>
+                    </div>
+                    <div class="d-flex gap-2 mt-3">
+                        <button class="btn btn-primary" type="submit">@(_dangSua is null ? "Thêm địa chỉ" : "Lưu địa chỉ")</button>
+                        @if (_dangSua is not null)
+                        {
+                            <a class="btn btn-outline-secondary" href="/tai-khoan">Hủy sửa</a>
+                        }
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+}
+
+@code {
+    [CascadingParameter] private Task<AuthenticationState>? TrangThaiXacThuc { get; set; }
+    [SupplyParameterFromQuery] private string? ThongBao { get; set; }
+    [SupplyParameterFromQuery] private string? Loi { get; set; }
+    [SupplyParameterFromQuery] private int? Sua { get; set; }
+
+    private HoSoKhachHangDto? _hoSo;
+    private List<DiaChiGiaoHangDto> _diaChi = new();
+    private DiaChiGiaoHangDto? _dangSua;
+
+    protected override async Task OnInitializedAsync()
+    {
+        if (TrangThaiXacThuc is null) return;
+        var maKH = TaiKhoanEndpoints.LayMaKhachHang((await TrangThaiXacThuc).User);
+        if (maKH is null) return;
+
+        _hoSo = await TaiKhoanService.LayHoSoAsync(maKH.Value);
+        _diaChi = await TaiKhoanService.LayDanhSachDiaChiAsync(maKH.Value);
+        _dangSua = Sua is null ? null : _diaChi.FirstOrDefault(d => d.MaDiaChi == Sua);
+    }
+}

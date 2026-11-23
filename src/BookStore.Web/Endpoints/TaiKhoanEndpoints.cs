@@ -94,7 +94,81 @@ public static class TaiKhoanEndpoints
             var tham = kq.ThanhCong ? "thongBao" : "loi";
             return Results.Redirect($"/tai-khoan/doi-mat-khau?{tham}={Uri.EscapeDataString(kq.ThongBao)}");
         });
+
+        // ---------------- Tai khoan cua toi: thong tin ca nhan va so dia chi ----------------
+        app.MapPost("/tai-khoan/thong-tin", async (
+            HttpContext ctx,
+            [FromForm] string? hoTen,
+            [FromForm] string? soDienThoai,
+            [FromForm] string? ngaySinh,
+            [FromForm] string? gioiTinh,
+            ITaiKhoanService taiKhoan) =>
+        {
+            var maKH = LayMaKhachHang(ctx.User);
+            if (maKH is null) return Results.Redirect("/dang-nhap?duongDanTiep=/tai-khoan");
+
+            var kq = await taiKhoan.CapNhatHoSoAsync(maKH.Value, new HoSoKhachHangDto
+            {
+                HoTen = hoTen ?? "",
+                SoDienThoai = soDienThoai,
+                NgaySinh = DateTime.TryParse(ngaySinh, out var ns) ? ns : null,
+                GioiTinh = byte.TryParse(gioiTinh, out var gt) ? gt : null
+            });
+
+            // Doi ho ten thi ghi lai cookie de thanh dieu huong hien ten moi
+            if (kq.ThanhCong && LayMaTaiKhoan(ctx.User) is { } maTK && await taiKhoan.LayNguoiDungAsync(maTK) is { } nd)
+                await GhiCookieAsync(ctx, nd);
+            return VeTrangTaiKhoan(kq);
+        });
+
+        app.MapPost("/tai-khoan/dia-chi/luu", async (
+            HttpContext ctx,
+            [FromForm] int maDiaChi,
+            [FromForm] string? hoTenNguoiNhan,
+            [FromForm] string? soDienThoai,
+            [FromForm] string? diaChiChiTiet,
+            [FromForm] string? phuongXa,
+            [FromForm] string? quanHuyen,
+            [FromForm] string? tinhThanh,
+            [FromForm] string? laMacDinh,
+            ITaiKhoanService taiKhoan) =>
+        {
+            var maKH = LayMaKhachHang(ctx.User);
+            if (maKH is null) return Results.Redirect("/dang-nhap?duongDanTiep=/tai-khoan");
+
+            var kq = await taiKhoan.LuuDiaChiAsync(maKH.Value, new DiaChiGiaoHangDto
+            {
+                MaDiaChi = maDiaChi,
+                HoTenNguoiNhan = hoTenNguoiNhan ?? "",
+                SoDienThoai = soDienThoai ?? "",
+                DiaChiChiTiet = diaChiChiTiet ?? "",
+                PhuongXa = phuongXa ?? "",
+                QuanHuyen = quanHuyen ?? "",
+                TinhThanh = tinhThanh ?? "",
+                LaMacDinh = laMacDinh == "true"
+            });
+            return kq.ThanhCong || maDiaChi == 0
+                ? VeTrangTaiKhoan(kq)
+                : Results.Redirect($"/tai-khoan?sua={maDiaChi}&loi={Uri.EscapeDataString(kq.ThongBao)}");
+        });
+
+        app.MapPost("/tai-khoan/dia-chi/xoa", async (HttpContext ctx, [FromForm] int maDiaChi, ITaiKhoanService taiKhoan) =>
+        {
+            var maKH = LayMaKhachHang(ctx.User);
+            if (maKH is null) return Results.Redirect("/dang-nhap?duongDanTiep=/tai-khoan");
+            return VeTrangTaiKhoan(await taiKhoan.XoaDiaChiAsync(maKH.Value, maDiaChi));
+        });
+
+        app.MapPost("/tai-khoan/dia-chi/mac-dinh", async (HttpContext ctx, [FromForm] int maDiaChi, ITaiKhoanService taiKhoan) =>
+        {
+            var maKH = LayMaKhachHang(ctx.User);
+            if (maKH is null) return Results.Redirect("/dang-nhap?duongDanTiep=/tai-khoan");
+            return VeTrangTaiKhoan(await taiKhoan.DatDiaChiMacDinhAsync(maKH.Value, maDiaChi));
+        });
     }
+
+    private static IResult VeTrangTaiKhoan(BookStore.Services.Common.KetQua kq)
+        => Results.Redirect($"/tai-khoan?{(kq.ThanhCong ? "thongBao" : "loi")}={Uri.EscapeDataString(kq.ThongBao)}");
 
     private static async Task GhiCookieAsync(HttpContext ctx, NguoiDungDto nd)
     {
