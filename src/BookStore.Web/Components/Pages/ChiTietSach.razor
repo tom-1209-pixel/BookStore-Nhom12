@@ -26,8 +26,8 @@ else
     <div class="khung-trang">
         <div class="row g-4">
             <div class="col-md-4">
-                <div class="the-sach" style="border:none; padding:0">
-                    <div class="bia" style="height:300px; font-size:5rem">📖</div>
+                <div class="bia-chi-tiet">
+                    <AnhBiaSach DuongDan="@_sach.AnhBia" TenSach="@_sach.TenSach" />
                 </div>
             </div>
 
@@ -37,7 +37,7 @@ else
                     Tác giả: <strong>@(string.IsNullOrWhiteSpace(_sach.TenTacGia) ? "—" : _sach.TenTacGia)</strong>
                     @if (!string.IsNullOrWhiteSpace(_sach.TenNXB))
                     {
-                        <text> &middot; NXB @_sach.TenNXB</text>
+                        <text> &middot; Nhà xuất bản: @_sach.TenNXB</text>
                     }
                 </p>
 

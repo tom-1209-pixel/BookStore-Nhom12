@@ -1,7 +1,9 @@
 ﻿@* The hien thi mot quyen sach trong luoi san pham *@
 
 <div class="the-sach">
-    <a href="@($"/sach/{Sach.MaSach}")" class="bia text-decoration-none">📖</a>
+    <a href="@($"/sach/{Sach.MaSach}")" class="bia text-decoration-none">
+        <AnhBiaSach DuongDan="@Sach.AnhBia" TenSach="@Sach.TenSach" />
+    </a>
     <a class="ten" href="@($"/sach/{Sach.MaSach}")">@Sach.TenSach</a>
     <div class="tac-gia">@(string.IsNullOrWhiteSpace(Sach.TenTacGia) ? "—" : Sach.TenTacGia)</div>
     <div class="mt-2 d-flex align-items-center justify-content-between">

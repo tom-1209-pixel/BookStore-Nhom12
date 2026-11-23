@@ -1,8 +1,10 @@
 using BookStore.Data;
 using BookStore.Services;
+using BookStore.Services.Common;
 using BookStore.Web.Components;
 using BookStore.Web.Endpoints;
 using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.Extensions.FileProviders;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -34,7 +36,7 @@ builder.Services.AddAuthorization();
 builder.Services.AddCascadingAuthenticationState();
 builder.Services.AddHttpContextAccessor();
 
-// BR04: tac vu nen dinh ky huy cac don VNPay qua han thanh toan
+// BR05: tac vu nen dinh ky huy cac don VNPay qua han thanh toan
 builder.Services.AddHostedService<BookStore.Web.HuyDonQuaHanNen>();
 
 var app = builder.Build();
@@ -62,6 +64,13 @@ app.UseAuthorization();
 app.UseAntiforgery();
 
 app.MapStaticAssets();
+
+// Anh bia sach: thu muc dung chung voi BookStore.Api (noi ung dung quan tri tai anh len)
+app.UseStaticFiles(new StaticFileOptions
+{
+    FileProvider = new PhysicalFileProvider(AnhBia.LayThuMuc(app.Configuration, app.Environment.ContentRootPath)),
+    RequestPath = AnhBia.DuongDanUrl
+});
 
 // Cac endpoint xu ly form: dang nhap, dang ky, dang xuat, gio hang, dat hang
 app.MapTaiKhoanEndpoints();

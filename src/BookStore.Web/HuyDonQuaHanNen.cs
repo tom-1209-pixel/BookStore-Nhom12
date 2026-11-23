@@ -4,7 +4,7 @@ namespace BookStore.Web;
 
 /// <summary>
 /// Tac vu nen chay moi phut: huy cac don VNPay da qua 30 phut ma chua thanh toan va
-/// hoan lai ton kho (BR04). Truoc day phai goi thu cong qua Web API.
+/// hoan lai ton kho (BR05). Truoc day phai goi thu cong qua Web API.
 /// </summary>
 public class HuyDonQuaHanNen : BackgroundService
 {

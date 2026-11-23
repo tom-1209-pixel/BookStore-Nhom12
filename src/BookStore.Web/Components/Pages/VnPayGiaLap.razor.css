@@ -1,0 +1,131 @@
+.vnp-nen {
+    min-height: 100vh;
+    background: #f2f5fa;
+    font-family: "Segoe UI", Roboto, Arial, sans-serif;
+}
+
+.vnp-dau {
+    background: #fff;
+    border-bottom: 1px solid #e3e8f0;
+    padding: .8rem 0;
+}
+
+.vnp-khung {
+    max-width: 1040px;
+    margin: 0 auto;
+    padding-left: 16px;
+    padding-right: 16px;
+}
+
+.vnp-logo {
+    font-weight: 800;
+    font-size: 1.6rem;
+    letter-spacing: .5px;
+    font-style: italic;
+}
+
+.vnp-logo-vn { color: #005baa; }
+.vnp-logo-pay { color: #ed1c24; }
+
+.vnp-ho-tro { color: #5b6b82; font-size: .9rem; }
+
+.vnp-the {
+    background: #fff;
+    border-radius: 12px;
+    box-shadow: 0 2px 12px rgba(16, 42, 84, .07);
+}
+
+.vnp-tieu-de {
+    font-size: 1.15rem;
+    font-weight: 700;
+    color: #0b2a55;
+    margin-bottom: 1.2rem;
+}
+
+.vnp-tien { color: #005baa; }
+
+.vnp-dong {
+    display: flex;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: .55rem 0;
+    border-bottom: 1px dashed #e3e8f0;
+    font-size: .92rem;
+}
+
+.vnp-dong:last-child { border-bottom: 0; }
+
+.vnp-phuong-thuc {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 1rem 1.1rem;
+    border: 1px solid #d6deea;
+    border-radius: 10px;
+    color: #0b2a55;
+    text-decoration: none;
+    transition: border-color .15s, box-shadow .15s;
+}
+
+.vnp-phuong-thuc:hover {
+    border-color: #005baa;
+    box-shadow: 0 0 0 3px rgba(0, 91, 170, .12);
+}
+
+.vnp-phuong-thuc small { display: block; color: #6a7a90; }
+
+.vnp-bieu-tuong {
+    width: 44px;
+    height: 44px;
+    border-radius: 10px;
+    background: #e8f1fb;
+    color: #005baa;
+    font-size: 1.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.vnp-qr {
+    display: inline-block;
+    padding: 12px;
+    border: 2px solid #005baa;
+    border-radius: 12px;
+    background: #fff;
+}
+
+.vnp-qr img { display: block; width: 240px; height: 240px; }
+
+.vnp-huong-dan {
+    max-width: 380px;
+    font-size: .9rem;
+    color: #4a5a70;
+}
+
+.vnp-ngan-hang {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(96px, 1fr));
+    gap: .5rem;
+}
+
+.vnp-ngan-hang label {
+    display: flex;
+    flex-direction: column;
+    padding: .5rem .3rem;
+    font-size: .78rem;
+    line-height: 1.2;
+}
+
+.vnp-ngan-hang label strong { font-size: .95rem; }
+
+.vnp-otp { letter-spacing: .6rem; font-weight: 700; }
+
+.btn-vnp {
+    background: #005baa;
+    border-color: #005baa;
+    color: #fff;
+    font-weight: 600;
+}
+
+.btn-vnp:hover { background: #004a8c; border-color: #004a8c; color: #fff; }

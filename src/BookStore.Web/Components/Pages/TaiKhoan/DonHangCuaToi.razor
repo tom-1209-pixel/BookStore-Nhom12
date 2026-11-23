@@ -37,8 +37,11 @@ else
                     <ul class="list-unstyled mb-0 small">
                         @foreach (var d in don.Dong)
                         {
-                            <li class="d-flex justify-content-between">
-                                <span>@d.TenSach <span class="text-muted">× @d.SoLuong</span></span>
+                            <li class="d-flex justify-content-between align-items-center mb-2">
+                                <span class="d-flex align-items-center gap-2">
+                                    <AnhBiaSach DuongDan="@d.AnhBia" TenSach="@d.TenSach" Lop="anh-nho" />
+                                    <span>@d.TenSach <span class="text-muted">× @d.SoLuong</span></span>
+                                </span>
                                 <span>@d.ThanhTien.ToString("#,##0") đ</span>
                             </li>
                         }
@@ -72,12 +75,6 @@ else
                                placeholder="Lý do hủy (tùy chọn)" maxlength="200" />
                         <button class="btn btn-sm btn-outline-danger" type="submit">Hủy đơn</button>
                     </form>
-                }
-                else if (don.TrangThai is TrangThaiDonHang.DaXacNhan or TrangThaiDonHang.DangGiao)
-                {
-                    <span class="text-muted small align-self-center">
-                        Đơn đã được xác nhận nên không thể tự hủy (BR05).
-                    </span>
                 }
             </div>
         </div>

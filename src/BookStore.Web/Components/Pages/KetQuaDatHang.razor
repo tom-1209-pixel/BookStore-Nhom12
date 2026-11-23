@@ -65,7 +65,12 @@ else
                         @foreach (var d in _don.Dong)
                         {
                             <tr>
-                                <td>@d.TenSach</td>
+                                <td>
+                                    <div class="d-flex align-items-center gap-2">
+                                        <AnhBiaSach DuongDan="@d.AnhBia" TenSach="@d.TenSach" Lop="anh-nho" />
+                                        <span>@d.TenSach</span>
+                                    </div>
+                                </td>
                                 <td class="text-center">@d.SoLuong</td>
                                 <td class="text-end">@d.DonGia.ToString("#,##0") đ</td>
                                 <td class="text-end">@d.ThanhTien.ToString("#,##0") đ</td>

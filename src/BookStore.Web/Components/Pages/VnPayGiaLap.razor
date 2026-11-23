@@ -1,71 +1,244 @@
 @page "/vnpay-gia-lap"
+@layout TrangTrongLayout
 @inject NavigationManager Nav
 
-@* Cong thanh toan gia lap. Chi dung khi chua cau hinh TmnCode / HashSecret cua VNPay sandbox.
-   Tham so nhan vao da duoc ky HMAC-SHA512; khi nguoi dung chon ket qua, may chu ky lai ket qua
-   va chuyen ve /thanh-toan/vnpay-tra-ve dung nhu cong VNPay that. *@
+@* Cong thanh toan gia lap, dung khi chua cau hinh TmnCode / HashSecret cua VNPay sandbox.
+   Mo phong cac buoc cua cong that: chon phuong thuc -> quet ma VNPAY-QR hoac nhap the ATM -> OTP.
+   Moi buoc deu gui kem tham so vnp_* da ky; may chu kiem tra chu ky truoc khi xu ly. *@
 
-<PageTitle>Cổng thanh toán VNPay (giả lập)</PageTitle>
+<PageTitle>Thanh toán qua VNPAY</PageTitle>
 
-<div class="row justify-content-center">
-    <div class="col-md-8 col-lg-6">
-        <div class="khung-trang">
-            <div class="d-flex align-items-center justify-content-between mb-3">
-                <h1 class="h5 mb-0">Cổng thanh toán VNPay</h1>
-                <span class="badge bg-warning text-dark">Môi trường giả lập</span>
-            </div>
-
-            @if (_thamSo.Count == 0)
-            {
-                <div class="alert alert-danger mb-0">Không có yêu cầu thanh toán hợp lệ.</div>
-            }
-            else
-            {
-                <table class="table table-sm mb-3">
-                    <tbody>
-                        <tr><th class="w-50">Nội dung</th><td>@_thamSo.GetValueOrDefault("vnp_OrderInfo")</td></tr>
-                        <tr><th>Mã giao dịch tham chiếu</th><td>@_thamSo.GetValueOrDefault("vnp_TxnRef")</td></tr>
-                        <tr><th>Số tiền</th><td class="gia">@_soTien.ToString("#,##0") đ</td></tr>
-                        <tr><th>Ngân hàng</th><td>NCB – Ngân hàng Quốc Dân (thẻ thử nghiệm)</td></tr>
-                    </tbody>
-                </table>
-
-                <form method="post" action="/vnpay-gia-lap/xac-nhan">
-                    <AntiforgeryToken />
-                    @foreach (var p in _thamSo)
-                    {
-                        <input type="hidden" name="@p.Key" value="@p.Value" />
-                    }
-                    <div class="d-flex gap-2">
-                        <button class="btn btn-primary flex-fill" name="ketQua" value="thanhcong" type="submit">
-                            Xác nhận thanh toán
-                        </button>
-                        <button class="btn btn-outline-danger flex-fill" name="ketQua" value="huy" type="submit">
-                            Hủy giao dịch
-                        </button>
-                    </div>
-                </form>
-
-                <p class="small text-muted mt-3 mb-0">
-                    Hệ thống chưa được cấu hình mã TmnCode và khóa HashSecret của VNPay sandbox nên dùng cổng
-                    giả lập nội bộ. Yêu cầu và kết quả vẫn được ký và kiểm tra chữ ký HMAC-SHA512 theo đúng đặc
-                    tả VNPay 2.1.0; khi điền khóa thật vào cấu hình, khách hàng sẽ được chuyển sang cổng VNPay.
-                </p>
-            }
+<div class="vnp-nen">
+    <header class="vnp-dau">
+        <div class="vnp-khung d-flex align-items-center justify-content-between">
+            <span class="vnp-logo"><span class="vnp-logo-vn">VN</span><span class="vnp-logo-pay">PAY</span></span>
+            <span class="vnp-ho-tro">Hỗ trợ: 1900 55 55 77</span>
         </div>
-    </div>
+    </header>
+
+    <main class="vnp-khung py-4">
+        @if (_thamSo.Count == 0)
+        {
+            <div class="vnp-the p-4 text-center">
+                <h1 class="h5">Không có yêu cầu thanh toán hợp lệ</h1>
+                <a href="/tai-khoan/don-hang" class="btn btn-outline-secondary mt-2">Về trang đơn hàng</a>
+            </div>
+        }
+        else
+        {
+            <div class="row g-4">
+                <div class="col-lg-8 order-2 order-lg-1">
+                    <div class="vnp-the p-4">
+                        @if (!string.IsNullOrEmpty(Loi))
+                        {
+                            <div class="alert alert-danger py-2">@Loi</div>
+                        }
+
+                        @switch (Buoc)
+                        {
+                            case "qr":
+                                <h1 class="vnp-tieu-de">Quét mã qua ứng dụng ngân hàng / ví điện tử</h1>
+                                <div class="text-center">
+                                    <div class="vnp-qr">
+                                        <img src="@_anhQr" alt="Mã VNPAY-QR" width="240" height="240" />
+                                    </div>
+                                    <div class="mt-2 fw-semibold">Số tiền: <span class="vnp-tien">@_soTien.ToString("#,##0") VND</span></div>
+                                    <div class="text-muted small mt-1">Giao dịch hết hạn sau <strong id="vnp-dem-nguoc">@DinhDangThoiGian(_giayConLai)</strong></div>
+
+                                    <ol class="vnp-huong-dan text-start mx-auto mt-3">
+                                        <li>Mở ứng dụng ngân hàng hoặc ví điện tử có hỗ trợ VNPAY-QR</li>
+                                        <li>Chọn chức năng quét mã <strong>QR Pay</strong></li>
+                                        <li>Quét mã trên màn hình và xác nhận thanh toán</li>
+                                    </ol>
+                                </div>
+
+                                <form method="post" action="/vnpay-gia-lap/xac-nhan" class="d-flex gap-2 mt-3">
+                                    <AntiforgeryToken />
+                                    <ThamSoAn ThamSo="_thamSo" />
+                                    <input type="hidden" name="phuongThuc" value="qr" />
+                                    <a class="btn btn-outline-secondary flex-fill" href="@UrlBuoc(null)" data-enhance-nav="false">Quay lại</a>
+                                    <button class="btn btn-vnp flex-fill" name="ketQua" value="thanhcong" type="submit">Tôi đã thanh toán</button>
+                                </form>
+                                break;
+
+                            case "the":
+                                <h1 class="vnp-tieu-de">Thanh toán qua thẻ nội địa và tài khoản ngân hàng</h1>
+                                <form method="post" action="/vnpay-gia-lap/the">
+                                    <AntiforgeryToken />
+                                    <ThamSoAn ThamSo="_thamSo" />
+                                    <input type="hidden" name="lanSai" value="@LanSai" />
+
+                                    <div class="mb-3">
+                                        <label class="form-label fw-semibold">Chọn ngân hàng</label>
+                                        <div class="vnp-ngan-hang">
+                                            @foreach (var (ma, ten) in NganHang)
+                                            {
+                                                <input type="radio" class="btn-check" name="nganHang" id="nh-@ma" value="@ma" checked="@(ma == (NganHangChon ?? "NCB"))" />
+                                                <label class="btn btn-outline-secondary" for="nh-@ma">
+                                                    <strong>@ma</strong><span>@ten</span>
+                                                </label>
+                                            }
+                                        </div>
+                                    </div>
+
+                                    <div class="mb-3">
+                                        <label class="form-label" for="so-the">Số thẻ</label>
+                                        <input class="form-control" id="so-the" name="soThe" inputmode="numeric" autocomplete="off"
+                                               maxlength="23" placeholder="Nhập số thẻ" required />
+                                    </div>
+                                    <div class="row g-3 mb-3">
+                                        <div class="col-md-7">
+                                            <label class="form-label" for="ten-chu-the">Tên chủ thẻ</label>
+                                            <input class="form-control text-uppercase" id="ten-chu-the" name="tenChuThe" autocomplete="off"
+                                                   placeholder="Nhập tên chủ thẻ (không dấu)" required />
+                                        </div>
+                                        <div class="col-md-5">
+                                            <label class="form-label" for="ngay-phat-hanh">Ngày phát hành</label>
+                                            <input class="form-control" id="ngay-phat-hanh" name="ngayPhatHanh" autocomplete="off"
+                                                   placeholder="MM/YY" maxlength="5" required />
+                                        </div>
+                                    </div>
+
+                                    <div class="d-flex gap-2">
+                                        <a class="btn btn-outline-secondary flex-fill" href="@UrlBuoc(null)" data-enhance-nav="false">Quay lại</a>
+                                        <button class="btn btn-vnp flex-fill" type="submit">Tiếp tục</button>
+                                    </div>
+                                </form>
+                                break;
+
+                            case "otp":
+                                <h1 class="vnp-tieu-de">Xác thực OTP</h1>
+                                <p class="mb-3">
+                                    Mã OTP đã được gửi tới số điện thoại đăng ký với thẻ
+                                    <strong>**** **** @The</strong>. Vui lòng nhập mã để hoàn tất giao dịch.
+                                </p>
+                                <form method="post" action="/vnpay-gia-lap/otp">
+                                    <AntiforgeryToken />
+                                    <ThamSoAn ThamSo="_thamSo" />
+                                    <input type="hidden" name="the" value="@The" />
+                                    <input type="hidden" name="xt" value="@Xt" />
+                                    <input type="hidden" name="lanSai" value="@LanSai" />
+                                    <div class="mb-3">
+                                        <label class="form-label" for="ma-otp">Mã OTP</label>
+                                        <input class="form-control form-control-lg text-center vnp-otp" id="ma-otp" name="otp"
+                                               inputmode="numeric" maxlength="6" autocomplete="one-time-code" required autofocus />
+                                    </div>
+                                    @* Nut Xac nhan dung truoc trong ma de phim Enter gui OTP, khong kich hoat nut Huy *@
+                                    <div class="d-flex gap-2">
+                                        <button class="btn btn-vnp flex-fill order-2" type="submit">Xác nhận</button>
+                                        <button class="btn btn-outline-danger flex-fill order-1" type="submit" formaction="/vnpay-gia-lap/xac-nhan"
+                                                formnovalidate name="ketQua" value="huy">Hủy giao dịch</button>
+                                    </div>
+                                </form>
+                                break;
+
+                            default:
+                                <h1 class="vnp-tieu-de">Chọn phương thức thanh toán</h1>
+                                <div class="d-grid gap-3">
+                                    <a class="vnp-phuong-thuc" href="@UrlBuoc("qr")" data-enhance-nav="false">
+                                        <span class="vnp-bieu-tuong">▦</span>
+                                        <span>
+                                            <strong>Ứng dụng thanh toán hỗ trợ VNPAY-QR</strong>
+                                            <small>Quét mã bằng ứng dụng ngân hàng hoặc ví điện tử</small>
+                                        </span>
+                                    </a>
+                                    <a class="vnp-phuong-thuc" href="@UrlBuoc("the")" data-enhance-nav="false">
+                                        <span class="vnp-bieu-tuong">▭</span>
+                                        <span>
+                                            <strong>Thẻ nội địa và tài khoản ngân hàng</strong>
+                                            <small>Thẻ ATM của các ngân hàng trong nước</small>
+                                        </span>
+                                    </a>
+                                </div>
+                                <form method="post" action="/vnpay-gia-lap/xac-nhan" class="mt-4">
+                                    <AntiforgeryToken />
+                                    <ThamSoAn ThamSo="_thamSo" />
+                                    <button class="btn btn-link text-danger p-0" name="ketQua" value="huy" type="submit">Hủy thanh toán</button>
+                                </form>
+                                break;
+                        }
+                    </div>
+                </div>
+
+                <div class="col-lg-4 order-1 order-lg-2">
+                    <div class="vnp-the p-4">
+                        <h2 class="h6 text-uppercase text-muted mb-3">Thông tin đơn hàng</h2>
+                        <div class="vnp-dong"><span>Số tiền thanh toán</span><strong class="vnp-tien">@_soTien.ToString("#,##0") VND</strong></div>
+                        <div class="vnp-dong"><span>Giá trị đơn hàng</span><span>@_soTien.ToString("#,##0") VND</span></div>
+                        <div class="vnp-dong"><span>Phí giao dịch</span><span>0 VND</span></div>
+                        <div class="vnp-dong"><span>Mã đơn hàng</span><span>@_thamSo.GetValueOrDefault("vnp_TxnRef")</span></div>
+                        <div class="vnp-dong"><span>Nhà cung cấp</span><span>Nhà sách trực tuyến</span></div>
+                        <div class="vnp-dong"><span>Nội dung</span><span class="text-end">@_thamSo.GetValueOrDefault("vnp_OrderInfo")</span></div>
+                    </div>
+                </div>
+            </div>
+        }
+    </main>
 </div>
 
+@if (Buoc == "qr" && _giayConLai > 0)
+{
+    <script>
+        (function () {
+            var conLai = @_giayConLai, o = document.getElementById('vnp-dem-nguoc');
+            setInterval(function () {
+                if (conLai > 0) conLai--;
+                var p = Math.floor(conLai / 60), g = conLai % 60;
+                o.textContent = (p < 10 ? '0' : '') + p + ':' + (g < 10 ? '0' : '') + g;
+            }, 1000);
+        })();
+    </script>
+}
+
 @code {
+    [SupplyParameterFromQuery] private string? Buoc { get; set; }
+    [SupplyParameterFromQuery] private string? Loi { get; set; }
+    [SupplyParameterFromQuery] private string? The { get; set; }
+    [SupplyParameterFromQuery] private string? Xt { get; set; }
+    [SupplyParameterFromQuery] private int LanSai { get; set; }
+    [SupplyParameterFromQuery] private string? NganHangChon { get; set; }
+
+    private static readonly (string Ma, string Ten)[] NganHang =
+    [
+        ("NCB", "Quốc Dân"), ("VCB", "Vietcombank"), ("TCB", "Techcombank"), ("BIDV", "BIDV"),
+        ("VTB", "VietinBank"), ("AGR", "Agribank"), ("MB", "MB Bank"), ("ACB", "ACB"), ("TPB", "TPBank")
+    ];
+
     private Dictionary<string, string> _thamSo = new();
     private decimal _soTien;
+    private int _giayConLai;
+    private string _anhQr = string.Empty;
 
     protected override void OnInitialized()
     {
-        var uri = new Uri(Nav.Uri);
-        var q = Microsoft.AspNetCore.WebUtilities.QueryHelpers.ParseQuery(uri.Query);
+        var q = Microsoft.AspNetCore.WebUtilities.QueryHelpers.ParseQuery(new Uri(Nav.Uri).Query);
         _thamSo = q.Where(x => x.Key.StartsWith("vnp_", StringComparison.Ordinal))
                    .ToDictionary(x => x.Key, x => x.Value.ToString());
+        if (_thamSo.Count == 0) return;
+
         if (long.TryParse(_thamSo.GetValueOrDefault("vnp_Amount"), out var xu)) _soTien = xu / 100m;
+
+        // vnp_ExpireDate theo gio Viet Nam (GMT+7)
+        if (DateTime.TryParseExact(_thamSo.GetValueOrDefault("vnp_ExpireDate"), "yyyyMMddHHmmss",
+                System.Globalization.CultureInfo.InvariantCulture, System.Globalization.DateTimeStyles.None, out var hetHan))
+            _giayConLai = Math.Max(0, (int)(hetHan - DateTime.UtcNow.AddHours(7)).TotalSeconds);
+
+        if (Buoc == "qr")
+        {
+            // Noi dung ma QR theo dang chuoi thanh toan cua VNPAY-QR (ma merchant, ma giao dich, so tien)
+            var noiDung = $"00020101021226280010A000000775011001{_thamSo.GetValueOrDefault("vnp_TmnCode")}"
+                          + $"5204599953037045405{(long)_soTien}5802VN5910NHASACHTT62{_thamSo.GetValueOrDefault("vnp_TxnRef")}";
+            var png = QRCoder.PngByteQRCodeHelper.GetQRCode(noiDung, QRCoder.QRCodeGenerator.ECCLevel.M, 8);
+            _anhQr = "data:image/png;base64," + Convert.ToBase64String(png);
+        }
     }
+
+    private string UrlBuoc(string? buoc)
+    {
+        var thamSo = new Dictionary<string, string?>(_thamSo.Select(p => new KeyValuePair<string, string?>(p.Key, p.Value)));
+        if (buoc is not null) thamSo["buoc"] = buoc;
+        return Microsoft.AspNetCore.WebUtilities.QueryHelpers.AddQueryString("/vnpay-gia-lap", thamSo);
+    }
+
+    private static string DinhDangThoiGian(int giay) => $"{giay / 60:00}:{giay % 60:00}";
 }
