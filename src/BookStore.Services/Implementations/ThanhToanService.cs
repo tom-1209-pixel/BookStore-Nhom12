@@ -117,7 +117,7 @@ public class ThanhToanService : IThanhToanService
 
         var hetHan = don.NgayDat.AddMinutes(QuyTacNghiepVu.SoPhutHetHanThanhToan);
         if (hetHan <= DateTime.Now)
-            return KetQua<string>.Loi("Đơn hàng đã quá hạn thanh toán và sẽ bị hủy (BR04).", "BR04");
+            return KetQua<string>.Loi("Đơn hàng đã quá hạn thanh toán và sẽ bị hủy.", "BR05");
 
         // Lan thanh toan truoc that bai thi mo mot ban ghi thanh toan moi o trang thai Cho
         if (!don.ThanhToans.Any(t => t.TrangThai == TrangThaiThanhToan.Cho))
@@ -221,8 +221,15 @@ public class ThanhToanService : IThanhToanService
         return KetQua<int>.Dung(maDon, $"Thanh toán thành công. Đơn hàng #{maDon} đang chờ nhà sách xác nhận.");
     }
 
-    public KetQua<string> TaoKetQuaGiaLap(IReadOnlyDictionary<string, string> thamSoYeuCau, bool thanhCong)
+    public bool KiemTraYeuCauGiaLap(IReadOnlyDictionary<string, string> thamSoYeuCau)
+        => !_cauHinh.DaCauHinh && VnPayChuKy.KiemTra(thamSoYeuCau, _cauHinh.KhoaGiaLap);
+
+    public string KyBuocGiaLap(string duLieu) => VnPayChuKy.Bam(_cauHinh.KhoaGiaLap, "buoc|" + duLieu);
+
+    public KetQua<string> TaoKetQuaGiaLap(IReadOnlyDictionary<string, string> thamSoYeuCau, bool thanhCong,
+        string? maPhanHoi = null, string nganHang = "NCB", string loaiThe = "ATM")
     {
+        maPhanHoi ??= thanhCong ? "00" : "24";
         if (_cauHinh.DaCauHinh)
             return KetQua<string>.Loi("Hệ thống đang dùng cổng VNPay thật, cổng giả lập đã bị tắt.");
         if (!VnPayChuKy.KiemTra(thamSoYeuCau, _cauHinh.KhoaGiaLap))
@@ -234,12 +241,12 @@ public class ThanhToanService : IThanhToanService
         var ketQua = new Dictionary<string, string>
         {
             ["vnp_Amount"] = thamSoYeuCau.GetValueOrDefault("vnp_Amount") ?? "0",
-            ["vnp_BankCode"] = "NCB",
+            ["vnp_BankCode"] = nganHang,
             ["vnp_BankTranNo"] = thanhCong ? $"VNP{Random.Shared.Next(10_000_000, 99_999_999)}" : "",
-            ["vnp_CardType"] = "ATM",
+            ["vnp_CardType"] = loaiThe,
             ["vnp_OrderInfo"] = thamSoYeuCau.GetValueOrDefault("vnp_OrderInfo") ?? "",
             ["vnp_PayDate"] = GioVietNam(DateTime.Now).ToString("yyyyMMddHHmmss"),
-            ["vnp_ResponseCode"] = thanhCong ? "00" : "24",
+            ["vnp_ResponseCode"] = thanhCong ? "00" : maPhanHoi,
             ["vnp_TmnCode"] = thamSoYeuCau.GetValueOrDefault("vnp_TmnCode") ?? "",
             ["vnp_TransactionNo"] = thanhCong ? Random.Shared.Next(10_000_000, 99_999_999).ToString() : "0",
             ["vnp_TransactionStatus"] = thanhCong ? "00" : "02",

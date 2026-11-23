@@ -70,6 +70,7 @@ public class DongDonHangDto
 {
     public int MaSach { get; set; }
     public string TenSach { get; set; } = string.Empty;
+    public string? AnhBia { get; set; }
     public int SoLuong { get; set; }
     public decimal DonGia { get; set; }
     public decimal ThanhTien => SoLuong * DonGia;

@@ -61,6 +61,24 @@ public class DiaChiGiaoHangDto
     public int MaDiaChi { get; set; }
     public string HoTenNguoiNhan { get; set; } = string.Empty;
     public string SoDienThoai { get; set; } = string.Empty;
+    public string DiaChiChiTiet { get; set; } = string.Empty;
+    public string PhuongXa { get; set; } = string.Empty;
+    public string QuanHuyen { get; set; } = string.Empty;
+    public string TinhThanh { get; set; } = string.Empty;
     public string DiaChiDayDu { get; set; } = string.Empty;
     public bool LaMacDinh { get; set; }
+}
+
+/// <summary>Thong tin ca nhan cua khach hang (man hinh W07 - Tai khoan cua toi).</summary>
+public class HoSoKhachHangDto
+{
+    public string TenDangNhap { get; set; } = string.Empty;
+    public string Email { get; set; } = string.Empty;
+    public string HoTen { get; set; } = string.Empty;
+    public string? SoDienThoai { get; set; }
+    public DateTime? NgaySinh { get; set; }
+
+    /// <summary>0: nu, 1: nam, null: khong cho biet.</summary>
+    public byte? GioiTinh { get; set; }
+    public DateTime NgayDangKy { get; set; }
 }

@@ -7,7 +7,7 @@ using Microsoft.EntityFrameworkCore;
 namespace BookStore.Services.Implementations;
 
 /// <summary>
-/// Bao cao thong ke (D08). BR09: doanh thu chi tinh cac don o trang thai Hoan thanh.
+/// Bao cao thong ke (D08). BR10: doanh thu chi tinh cac don o trang thai Hoan thanh.
 /// </summary>
 public class BaoCaoService : IBaoCaoService
 {
@@ -92,8 +92,8 @@ public class BaoCaoService : IBaoCaoService
 
     /// <summary>
     /// Bao cao nhap - xuat - ton trong ky.
-    /// Nhap = so luong cua cac phieu nhap Hoan thanh trong ky (BR06).
-    /// Xuat = so luong cua cac don tao trong ky va khong bi huy (ton kho bi tru ngay khi tao don - BR01,
+    /// Nhap = so luong cua cac phieu nhap Hoan thanh trong ky (BR08).
+    /// Xuat = so luong cua cac don tao trong ky va khong bi huy (ton kho bi tru ngay khi tao don - BR03,
     /// don huy da duoc hoan lai - BR03).
     /// Ton cuoi ky duoc suy nguoc tu ton hien tai, ton dau ky = ton cuoi - nhap + xuat.
     /// </summary>

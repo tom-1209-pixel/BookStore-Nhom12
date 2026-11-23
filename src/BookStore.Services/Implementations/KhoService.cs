@@ -10,7 +10,7 @@ using Microsoft.Extensions.Logging;
 namespace BookStore.Services.Implementations;
 
 /// <summary>
-/// Quan ly kho va nhap hang (D06). Noi cai dat quy tac BR06: phieu nhap chi cong
+/// Quan ly kho va nhap hang (D06). Noi cai dat quy tac BR08: phieu nhap chi cong
 /// vao ton kho khi duoc xac nhan Hoan thanh, sau do khong duoc sua hay xoa.
 /// </summary>
 public class KhoService : IKhoService
@@ -132,7 +132,7 @@ public class KhoService : IKhoService
             .FirstOrDefaultAsync(x => x.MaPhieuNhap == maPhieuNhap);
         if (p is null) return KetQua.Loi("Không tìm thấy phiếu nhập.");
         if (p.TrangThai != TrangThaiPhieuNhap.Nhap)
-            return KetQua.Loi("Phiếu nhập đã hoàn thành nên không thể sửa.", "BR06");
+            return KetQua.Loi("Phiếu nhập đã hoàn thành nên không thể sửa.", "BR08");
 
         var loi = await KiemTraAsync(dto);
         if (loi is not null) return KetQua.Loi(loi);
@@ -149,7 +149,7 @@ public class KhoService : IKhoService
     }
 
     /// <summary>
-    /// BR06: cong so luong cua tung dong vao ton kho trong cung mot transaction voi
+    /// BR08: cong so luong cua tung dong vao ton kho trong cung mot transaction voi
     /// viec doi trang thai phieu, de ton kho khong bao gio lech voi phieu da hoan thanh.
     /// </summary>
     public async Task<KetQua> HoanThanhPhieuNhapAsync(int maPhieuNhap)
@@ -158,7 +158,7 @@ public class KhoService : IKhoService
             .FirstOrDefaultAsync(x => x.MaPhieuNhap == maPhieuNhap);
         if (p is null) return KetQua.Loi("Không tìm thấy phiếu nhập.");
         if (p.TrangThai == TrangThaiPhieuNhap.HoanThanh)
-            return KetQua.Loi("Phiếu nhập đã được hoàn thành trước đó.", "BR06");
+            return KetQua.Loi("Phiếu nhập đã được hoàn thành trước đó.", "BR08");
         if (p.CTPhieuNhaps.Count == 0)
             return KetQua.Loi("Phiếu nhập chưa có sách nào.");
 
@@ -183,7 +183,7 @@ public class KhoService : IKhoService
                 await _db.SaveChangesAsync();
                 await tran.CommitAsync();
 
-                _log.LogInformation("Phiếu nhập {MaPhieuNhap} hoàn thành, cộng {SoLuong} quyển vào tồn kho (BR06).",
+                _log.LogInformation("Phiếu nhập {MaPhieuNhap} hoàn thành, cộng {SoLuong} quyển vào tồn kho (BR08).",
                     maPhieuNhap, p.CTPhieuNhaps.Sum(x => x.SoLuong));
                 return KetQua.Dung($"Phiếu nhập #{maPhieuNhap} đã hoàn thành, tồn kho đã được cộng thêm.");
             }
@@ -201,7 +201,7 @@ public class KhoService : IKhoService
         var p = await _db.PhieuNhap.FindAsync(maPhieuNhap);
         if (p is null) return KetQua.Loi("Không tìm thấy phiếu nhập.");
         if (p.TrangThai == TrangThaiPhieuNhap.HoanThanh)
-            return KetQua.Loi("Phiếu nhập đã hoàn thành nên không thể xóa.", "BR06");
+            return KetQua.Loi("Phiếu nhập đã hoàn thành nên không thể xóa.", "BR08");
 
         _db.PhieuNhap.Remove(p);   // chi tiet phieu xoa theo (cascade)
         await _db.SaveChangesAsync();

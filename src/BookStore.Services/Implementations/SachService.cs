@@ -119,7 +119,9 @@ public class SachService : ISachService
             NamXuatBan = dto.NamXuatBan,
             SoTrang = dto.SoTrang,
             GiaBan = dto.GiaBan,
-            SoLuongTon = dto.SoLuongTon,
+            // Tồn kho chỉ thay đổi qua phiếu nhập hoàn thành, đơn hàng và hủy đơn (BR03, BR08),
+            // nên sách mới luôn bắt đầu từ 0; báo cáo nhập – xuất – tồn dựa vào điều này.
+            SoLuongTon = 0,
             NguongCanhBao = dto.NguongCanhBao,
             MoTa = dto.MoTa,
             AnhBia = dto.AnhBia,
@@ -160,7 +162,7 @@ public class SachService : ISachService
         s.NamXuatBan = dto.NamXuatBan;
         s.SoTrang = dto.SoTrang;
         s.GiaBan = dto.GiaBan;
-        s.SoLuongTon = dto.SoLuongTon;
+        // Không ghi SoLuongTon: tồn kho không sửa tay được, chỉ đổi qua phiếu nhập và đơn hàng.
         s.NguongCanhBao = dto.NguongCanhBao;
         s.MoTa = dto.MoTa;
         s.AnhBia = dto.AnhBia;
@@ -175,7 +177,7 @@ public class SachService : ISachService
     }
 
     /// <summary>
-    /// BR07: sach da phat sinh giao dich (don hang hoac phieu nhap) khong duoc xoa,
+    /// BR09: sach da phat sinh giao dich (don hang hoac phieu nhap) khong duoc xoa,
     /// chi duoc chuyen sang trang thai Ngung kinh doanh.
     /// </summary>
     public async Task<KetQua> XoaAsync(int maSach)
@@ -190,7 +192,7 @@ public class SachService : ISachService
         {
             s.TrangThai = TrangThaiSach.NgungKinhDoanh;
             await _db.SaveChangesAsync();
-            _log.LogInformation("Sách {MaSach} đã phát sinh giao dịch, chuyển sang Ngừng kinh doanh (BR07).", maSach);
+            _log.LogInformation("Sách {MaSach} đã phát sinh giao dịch, chuyển sang Ngừng kinh doanh (BR09).", maSach);
             return KetQua.Dung("Sách đã phát sinh giao dịch nên được chuyển sang trạng thái Ngừng kinh doanh thay vì xóa.");
         }
 

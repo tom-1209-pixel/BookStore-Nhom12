@@ -14,11 +14,35 @@ public static class SeedData
 {
     public const string MatKhauMacDinh = "123456";
 
+    /// <summary>ISBN cua cac sach mau co san anh bia (tep {ISBN}.png trong thu muc anh bia dung chung).</summary>
+    private static readonly string[] IsbnCoAnhMau =
+    [
+        "9786046742011", "9780132350884", "9786046743012", "9786041081338", "9786041093256", "9786041125478",
+        "9786045868751", "9786047736333", "9786049558412", "9786049558419", "9786047742215", "9786042108881"
+    ];
+
     public static async Task KhoiTaoAsync(BookStoreDbContext db)
     {
         await db.Database.MigrateAsync();
 
-        if (await db.VaiTro.AnyAsync()) return;
+        if (!await db.VaiTro.AnyAsync())
+            await TaoDuLieuMauAsync(db);
+
+        await BoSungAnhBiaMauAsync(db);
+    }
+
+    /// <summary>Gan anh bia mau cho sach mau chua co anh (ca CSDL tao tu truoc khi co anh bia).</summary>
+    private static async Task BoSungAnhBiaMauAsync(BookStoreDbContext db)
+    {
+        var ds = await db.Sach
+            .Where(s => s.AnhBia == null && s.ISBN != null && IsbnCoAnhMau.Contains(s.ISBN))
+            .ToListAsync();
+        foreach (var s in ds) s.AnhBia = $"/anh-bia/{s.ISBN}.png";
+        if (ds.Count > 0) await db.SaveChangesAsync();
+    }
+
+    private static async Task TaoDuLieuMauAsync(BookStoreDbContext db)
+    {
 
         var hasher = new PasswordHasher<TaiKhoan>();
         string Hash(TaiKhoan tk) => hasher.HashPassword(tk, MatKhauMacDinh);
@@ -111,7 +135,9 @@ public static class SeedData
             new TacGia { TenTacGia = "Dale Carnegie" },
             new TacGia { TenTacGia = "Paulo Coelho" },
             new TacGia { TenTacGia = "To Hoai" },
-            new TacGia { TenTacGia = "Robert C. Martin" }
+            new TacGia { TenTacGia = "Robert C. Martin" },
+            new TacGia { TenTacGia = "Adam Khoo" },
+            new TacGia { TenTacGia = "Fujiko F. Fujio" }
         };
         db.TacGia.AddRange(tacGia);
 
@@ -148,7 +174,9 @@ public static class SeedData
             new Sach_TacGia { MaSach = sachs[4].MaSach, MaTacGia = tacGia[0].MaTacGia, VaiTroTacGia = "Tac gia chinh" },
             new Sach_TacGia { MaSach = sachs[5].MaSach, MaTacGia = tacGia[4].MaTacGia, VaiTroTacGia = "Tac gia chinh" },
             new Sach_TacGia { MaSach = sachs[6].MaSach, MaTacGia = tacGia[3].MaTacGia, VaiTroTacGia = "Tac gia chinh" },
-            new Sach_TacGia { MaSach = sachs[7].MaSach, MaTacGia = tacGia[2].MaTacGia, VaiTroTacGia = "Tac gia chinh" });
+            new Sach_TacGia { MaSach = sachs[7].MaSach, MaTacGia = tacGia[2].MaTacGia, VaiTroTacGia = "Tac gia chinh" },
+            new Sach_TacGia { MaSach = sachs[10].MaSach, MaTacGia = tacGia[6].MaTacGia, VaiTroTacGia = "Tac gia chinh" },
+            new Sach_TacGia { MaSach = sachs[11].MaSach, MaTacGia = tacGia[7].MaTacGia, VaiTroTacGia = "Tac gia chinh" });
 
         await db.SaveChangesAsync();
     }

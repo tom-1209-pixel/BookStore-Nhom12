@@ -15,6 +15,16 @@ public interface ITaiKhoanService
     /// <summary>Lay dia chi giao hang mac dinh de dien san vao trang thanh toan.</summary>
     Task<DiaChiGiaoHangDto?> LayDiaChiMacDinhAsync(int maKhachHang);
 
+    // ----- Tai khoan cua toi (subsystem Tai khoan khach hang) -----
+    Task<HoSoKhachHangDto?> LayHoSoAsync(int maKhachHang);
+    Task<KetQua> CapNhatHoSoAsync(int maKhachHang, HoSoKhachHangDto dto);
+    Task<List<DiaChiGiaoHangDto>> LayDanhSachDiaChiAsync(int maKhachHang);
+
+    /// <summary>Them (MaDiaChi = 0) hoac sua dia chi giao hang cua chinh khach hang.</summary>
+    Task<KetQua> LuuDiaChiAsync(int maKhachHang, DiaChiGiaoHangDto dto);
+    Task<KetQua> XoaDiaChiAsync(int maKhachHang, int maDiaChi);
+    Task<KetQua> DatDiaChiMacDinhAsync(int maKhachHang, int maDiaChi);
+
     /// <summary>Quen mat khau: sinh token, gui lien ket dat lai qua email. Luon tra ve cung mot thong bao.</summary>
     Task<KetQua> YeuCauDatLaiMatKhauAsync(string email, Func<string, string> taoLienKet);
 
@@ -43,7 +53,7 @@ public interface IGioHangService
 
 public interface IDonHangService
 {
-    /// <summary>Tao don hang tu gio hang. Thuc hien BR01, BR02, BR10 trong mot transaction.</summary>
+    /// <summary>Tao don hang tu gio hang. Thuc hien BR02, BR03, BR04, BR07 trong mot transaction.</summary>
     Task<KetQua<DonHangDto>> DatHangAsync(int maKhachHang, DatHangDto dto);
 
     Task<DonHangDto?> LayChiTietAsync(int maDonHang, int? maKhachHangLoc = null);
@@ -53,10 +63,10 @@ public interface IDonHangService
     /// <summary>Nhan vien doi trang thai don theo so do trang thai (Hinh 3.3).</summary>
     Task<KetQua> ChuyenTrangThaiAsync(int maDonHang, TrangThaiDonHang trangThaiMoi, string nguoiThucHien, int? maQuanLy, string? ghiChu = null);
 
-    /// <summary>Khach hang tu huy don. Chi cho phep o trang thai 0 hoac 1 (BR05).</summary>
+    /// <summary>Khach hang tu huy don. Chi cho phep o trang thai 0 hoac 1 (BR06).</summary>
     Task<KetQua> KhachHuyDonAsync(int maDonHang, int maKhachHang, string? lyDo);
 
-    /// <summary>BR04: huy cac don VNPay qua han thanh toan.</summary>
+    /// <summary>BR05: huy cac don VNPay qua han thanh toan.</summary>
     Task<int> HuyDonQuaHanAsync();
 }
 
@@ -78,7 +88,7 @@ public interface IDanhMucService
     Task<KetQua> XoaAsync(LoaiDanhMuc loai, int ma);
 }
 
-/// <summary>Ton kho va phieu nhap (D06). Cai dat BR06.</summary>
+/// <summary>Ton kho va phieu nhap (D06). Cai dat BR08.</summary>
 public interface IKhoService
 {
     Task<List<TonKhoDto>> LayTonKhoAsync(string? tuKhoa = null, bool chiSapHetHang = false);
@@ -110,7 +120,14 @@ public interface IThanhToanService
     bool DungCongThat { get; }
     Task<KetQua<string>> TaoYeuCauThanhToanAsync(int maDonHang, int maKhachHang, string ipKhach, string urlTraVe, string urlCongGiaLap);
     Task<KetQua<int>> XuLyKetQuaTraVeAsync(IReadOnlyDictionary<string, string> thamSo);
-    KetQua<string> TaoKetQuaGiaLap(IReadOnlyDictionary<string, string> thamSoYeuCau, bool thanhCong);
+    KetQua<string> TaoKetQuaGiaLap(IReadOnlyDictionary<string, string> thamSoYeuCau, bool thanhCong,
+        string? maPhanHoi = null, string nganHang = "NCB", string loaiThe = "ATM");
+
+    /// <summary>Kiem tra yeu cau thanh toan gui toi cong gia lap co chu ky hop le khong.</summary>
+    bool KiemTraYeuCauGiaLap(IReadOnlyDictionary<string, string> thamSoYeuCau);
+
+    /// <summary>Ky mot buoc trung gian cua cong gia lap (vd. da xac thuc the, chuyen sang OTP).</summary>
+    string KyBuocGiaLap(string duLieu);
 }
 
 public interface IXuatExcelService

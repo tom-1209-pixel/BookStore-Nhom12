@@ -1,6 +1,6 @@
 namespace BookStore.Domain.Enums;
 
-/// <summary>Trang thai don hang (BR03, BR04).</summary>
+/// <summary>Trang thai don hang (BR03, BR05).</summary>
 public enum TrangThaiDonHang : byte
 {
     ChoThanhToan = 0,
@@ -24,7 +24,7 @@ public enum TrangThaiThanhToan : byte
     ThatBai = 2
 }
 
-/// <summary>0 = Ngung kinh doanh, 1 = Dang kinh doanh (BR07).</summary>
+/// <summary>0 = Ngung kinh doanh, 1 = Dang kinh doanh (BR09).</summary>
 public enum TrangThaiSach : byte
 {
     NgungKinhDoanh = 0,
@@ -37,7 +37,7 @@ public enum TrangThaiTaiKhoan : byte
     HoatDong = 1
 }
 
-/// <summary>Phieu nhap chi cong ton khi Hoan thanh (BR06).</summary>
+/// <summary>Phieu nhap chi cong ton khi Hoan thanh (BR08).</summary>
 public enum TrangThaiPhieuNhap : byte
 {
     Nhap = 0,

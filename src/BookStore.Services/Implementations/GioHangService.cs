@@ -62,7 +62,7 @@ public class GioHangService : IGioHangService
         var soLuongMoi = (dong?.SoLuong ?? 0) + soLuong;
 
         if (soLuongMoi > sach.SoLuongTon)
-            return KetQua.Loi($"Số lượng tồn chỉ còn {sach.SoLuongTon} quyển.", "BR01");
+            return KetQua.Loi($"Số lượng tồn chỉ còn {sach.SoLuongTon} quyển.", "BR02");
 
         if (dong is null)
             _db.CTGioHang.Add(new CTGioHang { MaGioHang = gio.MaGioHang, MaSach = maSach, SoLuong = soLuong });
@@ -92,7 +92,7 @@ public class GioHangService : IGioHangService
             var sach = await _db.Sach.FirstOrDefaultAsync(s => s.MaSach == maSach);
             if (sach is null) return KetQua.Loi("Không tìm thấy sách.");
             if (soLuong > sach.SoLuongTon)
-                return KetQua.Loi($"Số lượng tồn chỉ còn {sach.SoLuongTon} quyển.", "BR01");
+                return KetQua.Loi($"Số lượng tồn chỉ còn {sach.SoLuongTon} quyển.", "BR02");
             dong.SoLuong = soLuong;
         }
 
