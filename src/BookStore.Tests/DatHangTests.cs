@@ -4,8 +4,8 @@ using BookStore.Services.Dtos;
 namespace BookStore.Tests;
 
 /// <summary>
-/// Kiem thu quy trinh dat hang tren trang Web: BR01 (tru ton kho),
-/// BR02 (luu don gia), BR10 (phi van chuyen).
+/// Kiem thu quy trinh dat hang tren trang Web: BR03 (tru ton kho),
+/// BR04 (luu don gia), BR07 (phi van chuyen).
 /// </summary>
 public class DatHangTests : CoSoKiemThu
 {
@@ -59,7 +59,7 @@ public class DatHangTests : CoSoKiemThu
         var kq = await DonHangService.DatHangAsync(MaKhachHang, ThongTinGiao());
 
         Assert.False(kq.ThanhCong);
-        Assert.Equal("BR01", kq.MaLoi);
+        Assert.Equal("BR02", kq.MaLoi);
         Assert.Equal(3, LayTonKho(MaSachB));           // ton kho giu nguyen
         Assert.Empty(Db.DonHang);                      // khong tao don nao
     }
@@ -114,7 +114,7 @@ public class DatHangTests : CoSoKiemThu
 
         var don = await DonHangService.LayChiTietAsync(maDon);
 
-        Assert.Equal(100_000m, don!.Dong.Single().DonGia);   // BR02: gia cu duoc giu nguyen
+        Assert.Equal(100_000m, don!.Dong.Single().DonGia);   // BR04: gia cu duoc giu nguyen
         Assert.Equal(125_000m, don.TongTien);
     }
 
@@ -148,6 +148,6 @@ public class DatHangTests : CoSoKiemThu
         var kq = await GioHangService.ThemVaoGioAsync(MaKhachHang, MaSachB, 99);
 
         Assert.False(kq.ThanhCong);
-        Assert.Equal("BR01", kq.MaLoi);
+        Assert.Equal("BR02", kq.MaLoi);
     }
 }
