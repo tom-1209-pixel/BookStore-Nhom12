@@ -8,7 +8,7 @@ namespace BookStore.Admin.ViewModels;
 
 /// <summary>
 /// Man hinh D06 - Quan ly kho va nhap hang. The Ton kho: xem ton, canh bao, dat nguong.
-/// The Phieu nhap: lap, sua, hoan thanh (cong ton - BR06), xoa phieu chua hoan thanh.
+/// The Phieu nhap: lap, sua, hoan thanh (cong ton - BR08), xoa phieu chua hoan thanh.
 /// </summary>
 public partial class KhoViewModel : ObservableObject
 {

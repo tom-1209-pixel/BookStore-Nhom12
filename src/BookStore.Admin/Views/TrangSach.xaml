@@ -82,12 +82,18 @@
                                         <ColumnDefinition Width="52" />
                                         <ColumnDefinition Width="112" />
                                     </Grid.ColumnDefinitions>
-                                    <TextBlock Grid.Column="0" Text="{x:Bind MaSach}" />
-                                    <StackPanel Grid.Column="1">
+                                    <TextBlock Grid.Column="0" Text="{x:Bind MaSach}" VerticalAlignment="Center" />
+                                    <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="10">
+                                    <Border Width="30" Height="42" CornerRadius="3"
+                                            Background="{ThemeResource LayerFillColorDefaultBrush}">
+                                        <Image Source="{x:Bind AnhHienThi}" Stretch="UniformToFill" />
+                                    </Border>
+                                    <StackPanel VerticalAlignment="Center">
                                         <TextBlock Text="{x:Bind TenSach}" TextTrimming="CharacterEllipsis" />
                                         <TextBlock Text="{x:Bind TenLoaiSach}"
                                                    Style="{StaticResource CaptionTextBlockStyle}"
                                                    Foreground="{ThemeResource TextFillColorSecondaryBrush}" />
+                                    </StackPanel>
                                     </StackPanel>
                                     <TextBlock Grid.Column="2" Text="{x:Bind GiaBanHienThi}" HorizontalAlignment="Right" />
                                     <TextBlock Grid.Column="3" Text="{x:Bind SoLuongTon}" HorizontalAlignment="Right" />
@@ -110,6 +116,30 @@
 
                         <InfoBar IsOpen="{x:Bind ViewModel.CoThongBao, Mode=OneWay}" IsClosable="True"
                                  Message="{x:Bind ViewModel.ThongBao, Mode=OneWay}" />
+
+                        <TextBlock Text="Ảnh bìa" />
+                        <Grid ColumnSpacing="14">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto" />
+                                <ColumnDefinition Width="*" />
+                            </Grid.ColumnDefinitions>
+                            <Border Grid.Column="0" Width="110" Height="156" CornerRadius="6"
+                                    Background="{ThemeResource LayerFillColorDefaultBrush}"
+                                    BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" BorderThickness="1">
+                                <Grid>
+                                    <FontIcon Glyph="&#xE8B9;" FontSize="30"
+                                              Foreground="{ThemeResource TextFillColorTertiaryBrush}"
+                                              Visibility="{x:Bind ViewModel.ChuaCoAnh, Mode=OneWay, Converter={StaticResource BoolSangVisibility}}" />
+                                    <Image Source="{x:Bind ViewModel.AnhXemTruoc, Mode=OneWay}" Stretch="UniformToFill" />
+                                    <ProgressRing IsActive="{x:Bind ViewModel.DangTaiAnh, Mode=OneWay}" Width="28" Height="28" />
+                                </Grid>
+                            </Border>
+                            <StackPanel Grid.Column="1" Spacing="8" VerticalAlignment="Center">
+                                <Button Content="Chọn ảnh…" Click="ChonAnh_Click" HorizontalAlignment="Stretch" />
+                                <Button Content="Bỏ ảnh" Command="{x:Bind ViewModel.BoAnhCommand}" HorizontalAlignment="Stretch"
+                                        IsEnabled="{x:Bind ViewModel.CoAnh, Mode=OneWay}" />
+                            </StackPanel>
+                        </Grid>
 
                         <TextBox Header="Tên sách"
                                  Text="{x:Bind ViewModel.FormTenSach, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
@@ -142,8 +172,8 @@
                                 <ColumnDefinition Width="*" />
                                 <ColumnDefinition Width="*" />
                             </Grid.ColumnDefinitions>
-                            <NumberBox Grid.Column="0" Header="Số lượng tồn" SpinButtonPlacementMode="Compact" Minimum="0"
-                                       Value="{x:Bind ViewModel.FormSoLuongTon, Mode=TwoWay, Converter={StaticResource IntSangDouble}}" />
+                            <NumberBox Grid.Column="0" Header="Số lượng tồn" Minimum="0" IsEnabled="False"
+                                       Value="{x:Bind ViewModel.FormSoLuongTon, Mode=OneWay, Converter={StaticResource IntSangDouble}}" />
                             <NumberBox Grid.Column="1" Header="Ngưỡng cảnh báo" SpinButtonPlacementMode="Compact" Minimum="0"
                                        Value="{x:Bind ViewModel.FormNguongCanhBao, Mode=TwoWay, Converter={StaticResource IntSangDouble}}" />
                         </Grid>
@@ -161,10 +191,6 @@
                             <Button Content="Xóa" Command="{x:Bind ViewModel.XoaCommand}"
                                     IsEnabled="{x:Bind ViewModel.DangSua, Mode=OneWay}" />
                         </StackPanel>
-
-                        <TextBlock Style="{StaticResource CaptionTextBlockStyle}" TextWrapping="Wrap"
-                                   Foreground="{ThemeResource TextFillColorSecondaryBrush}"
-                                   Text="Theo BR07, sách đã phát sinh đơn hàng hoặc phiếu nhập sẽ không bị xóa mà chỉ chuyển sang Ngừng kinh doanh." />
                     </StackPanel>
                 </ScrollViewer>
             </Border>

@@ -118,6 +118,38 @@ public class ApiClient
     public Task<KetQuaApi<PhanHoi>> XoaSachAsync(int maSach)
         => GoiAsync<PhanHoi>(HttpMethod.Delete, $"api/sach/{maSach}");
 
+    /// <summary>Tai anh bia len Web API, tra ve duong dan anh de luu vao sach.</summary>
+    public async Task<KetQuaApi<string>> TaiAnhBiaAsync(string tenTep, byte[] noiDung)
+    {
+        try
+        {
+            if (!_phien.DaDangNhap) return KetQuaApi<string>.Loi("Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại.");
+
+            using var form = new MultipartFormDataContent();
+            var tep = new ByteArrayContent(noiDung);
+            tep.Headers.ContentType = new MediaTypeHeaderValue(Path.GetExtension(tenTep).ToLowerInvariant() switch
+            {
+                ".png" => "image/png",
+                ".webp" => "image/webp",
+                _ => "image/jpeg"
+            });
+            form.Add(tep, "tep", tenTep);
+
+            using var req = new HttpRequestMessage(HttpMethod.Post, "api/sach/anhbia") { Content = form };
+            req.Headers.Authorization = new AuthenticationHeaderValue("Bearer", _phien.Token);
+            using var res = await _http.SendAsync(req);
+            if (!res.IsSuccessStatusCode) return KetQuaApi<string>.Loi(await DocThongBaoLoiAsync(res));
+
+            using var doc = JsonDocument.Parse(await res.Content.ReadAsStringAsync());
+            return KetQuaApi<string>.Dung(doc.RootElement.GetProperty("duongDan").GetString() ?? string.Empty);
+        }
+        catch (HttpRequestException ex)
+        {
+            _log.LogError(ex, "Không tải được ảnh bìa lên.");
+            return KetQuaApi<string>.Loi("Không kết nối được máy chủ. Kiểm tra Web API đã chạy chưa.");
+        }
+    }
+
     // ---------------- Danh muc (loai: loaisach | tacgia | nhaxuatban | nhacungcap) ----------------
 
     public Task<KetQuaApi<List<DanhMuc>>> LayDanhMucChungAsync(string loai, string? tuKhoa = null)

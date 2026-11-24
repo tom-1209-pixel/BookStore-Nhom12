@@ -39,11 +39,6 @@
 
                 <ProgressRing IsActive="{x:Bind ViewModel.DangXuLy, Mode=OneWay}"
                               HorizontalAlignment="Center" Width="24" Height="24" />
-
-                <TextBlock Style="{StaticResource CaptionTextBlockStyle}"
-                           Foreground="{ThemeResource TextFillColorSecondaryBrush}"
-                           TextWrapping="Wrap" HorizontalAlignment="Center"
-                           Text="Tài khoản demo: quanly / 123456. Tài khoản khách hàng không đăng nhập được vào đây." />
             </StackPanel>
         </Border>
     </Grid>

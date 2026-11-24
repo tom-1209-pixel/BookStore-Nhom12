@@ -197,10 +197,6 @@
                                         Command="{x:Bind ViewModel.HuyDonCommand}" />
                             </Grid>
 
-                            <TextBlock Style="{StaticResource CaptionTextBlockStyle}" TextWrapping="Wrap"
-                                       Foreground="{ThemeResource TextFillColorSecondaryBrush}"
-                                       Text="Nút chỉ bật khi bước chuyển hợp lệ theo sơ đồ trạng thái. Hủy đơn sẽ hoàn lại số lượng tồn kho (BR03)." />
-
                             <Button Content="In hóa đơn" HorizontalAlignment="Stretch" Margin="0,6,0,0"
                                     Command="{x:Bind ViewModel.InHoaDonCommand}" />
                         </StackPanel>

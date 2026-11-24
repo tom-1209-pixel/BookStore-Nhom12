@@ -31,6 +31,19 @@ public static class TienIch
         }
     }
 
+    /// <summary>
+    /// Tao anh tu duong dan luu trong CSDL ("/anh-bia/abc.jpg"). Anh duoc tai qua Web API
+    /// vi ung dung quan tri khong truy cap thu muc cua may chu.
+    /// </summary>
+    public static Microsoft.UI.Xaml.Media.ImageSource? TaoAnh(string? duongDan)
+    {
+        if (string.IsNullOrWhiteSpace(duongDan)) return null;
+        var uri = Uri.TryCreate(duongDan, UriKind.Absolute, out var tuyetDoi) && tuyetDoi.Scheme.StartsWith("http")
+            ? tuyetDoi
+            : new Uri(new Uri(App.DiaChiApi), duongDan.TrimStart('/'));
+        return new Microsoft.UI.Xaml.Media.Imaging.BitmapImage(uri);
+    }
+
     /// <summary>Mo tap tin bang chuong trinh mac dinh cua Windows (Excel, trinh duyet...).</summary>
     public static void MoTep(string duongDan)
         => Process.Start(new ProcessStartInfo(duongDan) { UseShellExecute = true });

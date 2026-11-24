@@ -77,7 +77,7 @@
                         BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
                         BorderThickness="1" CornerRadius="8">
                     <StackPanel Spacing="6">
-                        <TextBlock Text="Doanh thu theo ngày (chỉ tính đơn Hoàn thành – BR09)"
+                        <TextBlock Text="Doanh thu theo ngày"
                                    Style="{StaticResource BodyStrongTextBlockStyle}" />
                         <ItemsControl ItemsSource="{x:Bind ViewModel.TheoNgay}">
                             <ItemsControl.ItemTemplate>

@@ -154,10 +154,6 @@
                                             IsEnabled="{x:Bind ViewModel.ChoPhepXoa, Mode=OneWay}"
                                             Command="{x:Bind ViewModel.XoaPhieuCommand}" />
                                 </StackPanel>
-
-                                <TextBlock Style="{StaticResource CaptionTextBlockStyle}" TextWrapping="Wrap"
-                                           Foreground="{ThemeResource TextFillColorSecondaryBrush}"
-                                           Text="Theo BR06, phiếu ở trạng thái Chờ nhập chưa ảnh hưởng tồn kho. Khi bấm Hoàn thành, số lượng từng sách được cộng vào tồn kho và phiếu không thể sửa hay xóa nữa." />
                             </StackPanel>
                         </ScrollViewer>
                     </Border>
@@ -248,8 +244,6 @@
                             BorderThickness="1" CornerRadius="8" Padding="18">
                         <StackPanel Spacing="12">
                             <TextBlock Text="Ngưỡng cảnh báo hết hàng" Style="{StaticResource SubtitleTextBlockStyle}" />
-                            <TextBlock TextWrapping="Wrap" Foreground="{ThemeResource TextFillColorSecondaryBrush}"
-                                       Text="Sách có số lượng tồn nhỏ hơn hoặc bằng ngưỡng sẽ được đánh dấu Sắp hết và đếm vào màn hình Tổng quan." />
                             <TextBlock Text="{x:Bind ViewModel.TonDangChon.TenSach, Mode=OneWay}"
                                        Style="{StaticResource BodyStrongTextBlockStyle}" TextWrapping="Wrap" />
                             <NumberBox Header="Ngưỡng mới" Minimum="0" SpinButtonPlacementMode="Compact"
