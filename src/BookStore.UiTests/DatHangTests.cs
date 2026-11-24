@@ -4,7 +4,7 @@ using static Microsoft.Playwright.Assertions;
 
 namespace BookStore.UiTests;
 
-/// <summary>Gio hang va dat hang: BR01 (dang nhap de them vao gio), tinh tien, tru ton kho (BR02), VNPay.</summary>
+/// <summary>Gio hang va dat hang: BR01 (dang nhap de them vao gio), tinh tien, tru ton kho (BR03), VNPay.</summary>
 public class DatHangTests : TestCoSo
 {
     public DatHangTests(WebFixture web) : base(web) { }
@@ -48,7 +48,7 @@ public class DatHangTests : TestCoSo
     }
 
     [Fact]
-    public async Task DatHang_COD_ThanhCongVaTruTonKho_BR02()
+    public async Task DatHang_COD_ThanhCongVaTruTonKho_BR03()
     {
         await DangKyMoiAsync();
         var tonTruoc = await TonKhoTrenChiTietAsync("Doraemon");
@@ -68,7 +68,7 @@ public class DatHangTests : TestCoSo
     }
 
     [Fact]
-    public async Task DatHang_VNPayGiaLap_XacNhanThanhToan_DonChuyenSangChoXacNhan()
+    public async Task DatHang_VNPayGiaLap_TheATMVaOtp_DonChuyenSangChoXacNhan()
     {
         await DangKyMoiAsync();
         await ThemVaoGioTuChiTietAsync("Dac nhan tam"); // 108.000 + 25.000
@@ -80,10 +80,66 @@ public class DatHangTests : TestCoSo
 
         // Chua cau hinh khoa VNPay nen duoc chuyen sang cong gia lap
         await Expect(Trang).ToHaveURLAsync(new Regex("/vnpay-gia-lap"));
-        await Expect(Trang.Locator("h1")).ToContainTextAsync("Cổng thanh toán VNPay");
-        await Expect(Trang.Locator("table .gia")).ToContainTextAsync(Tien("133.000"));
+        await Expect(Trang.Locator("h1")).ToContainTextAsync("Chọn phương thức thanh toán");
+        await Expect(Trang.Locator(".vnp-dong .vnp-tien")).ToContainTextAsync(new Regex(@"133[.,]000\s*VND"));
 
-        await Trang.ClickAsync("button:has-text('Xác nhận thanh toán')");
+        await Trang.ClickAsync("text=Thẻ nội địa và tài khoản ngân hàng");
+        await Trang.FillAsync("#so-the", "9704198526191432198");
+        await Trang.FillAsync("#ten-chu-the", "NGUYEN VAN A");
+        await Trang.FillAsync("#ngay-phat-hanh", "07/15");
+        await Trang.ClickAsync("button:has-text('Tiếp tục')");
+
+        // Sai OTP thi bao loi va cho nhap lai
+        await Expect(Trang.Locator("h1")).ToContainTextAsync("Xác thực OTP");
+        await Trang.FillAsync("#ma-otp", "000000");
+        await Trang.ClickAsync("button:has-text('Xác nhận')");
+        await Expect(Trang.Locator(".alert-danger")).ToContainTextAsync("Mã OTP không đúng");
+
+        // Nhan Enter trong o OTP phai gui ma, khong duoc kich hoat nut Huy giao dich
+        await Trang.FillAsync("#ma-otp", "123456");
+        await Trang.PressAsync("#ma-otp", "Enter");
+
+        await Expect(Trang).ToHaveURLAsync(new Regex(@"/ket-qua-dat-hang/\d+"));
+        await Expect(Trang.Locator(".badge.bg-primary")).ToContainTextAsync("Chờ xác nhận");
+    }
+
+    [Fact]
+    public async Task DatHang_VNPayGiaLap_SaiThongTinThe_BaoLoiVaKhongThanhToan()
+    {
+        await DangKyMoiAsync();
+        await ThemVaoGioTuChiTietAsync("Nha gia kim");
+
+        await Trang.GotoAsync("/thanh-toan");
+        await DienThongTinNhanHangAsync();
+        await Trang.CheckAsync("#tt-vnpay");
+        await Trang.ClickAsync("button:has-text('Đặt hàng')");
+        await Expect(Trang).ToHaveURLAsync(new Regex("/vnpay-gia-lap"));
+
+        await Trang.ClickAsync("text=Thẻ nội địa và tài khoản ngân hàng");
+        await Trang.FillAsync("#so-the", "9704000000000000");
+        await Trang.FillAsync("#ten-chu-the", "NGUYEN VAN B");
+        await Trang.FillAsync("#ngay-phat-hanh", "01/20");
+        await Trang.ClickAsync("button:has-text('Tiếp tục')");
+
+        await Expect(Trang.Locator(".alert-danger")).ToContainTextAsync("Thông tin thẻ không chính xác");
+        await Expect(Trang.Locator("#so-the")).ToBeVisibleAsync();
+    }
+
+    [Fact]
+    public async Task DatHang_VNPayGiaLap_QuetMaQR_HienMaVaXacNhan()
+    {
+        await DangKyMoiAsync();
+        await ThemVaoGioTuChiTietAsync("Mat biec");
+
+        await Trang.GotoAsync("/thanh-toan");
+        await DienThongTinNhanHangAsync();
+        await Trang.CheckAsync("#tt-vnpay");
+        await Trang.ClickAsync("button:has-text('Đặt hàng')");
+        await Expect(Trang).ToHaveURLAsync(new Regex("/vnpay-gia-lap"));
+
+        await Trang.ClickAsync("text=Ứng dụng thanh toán hỗ trợ VNPAY-QR");
+        await Expect(Trang.Locator(".vnp-qr img")).ToBeVisibleAsync();
+        await Trang.ClickAsync("button:has-text('Tôi đã thanh toán')");
 
         await Expect(Trang).ToHaveURLAsync(new Regex(@"/ket-qua-dat-hang/\d+"));
         await Expect(Trang.Locator(".badge.bg-primary")).ToContainTextAsync("Chờ xác nhận");
@@ -101,7 +157,7 @@ public class DatHangTests : TestCoSo
         await Trang.ClickAsync("button:has-text('Đặt hàng')");
         await Expect(Trang).ToHaveURLAsync(new Regex("/vnpay-gia-lap"));
 
-        await Trang.ClickAsync("button:has-text('Hủy giao dịch')");
+        await Trang.ClickAsync("button:has-text('Hủy thanh toán')");
 
         await Expect(Trang).ToHaveURLAsync(new Regex(@"/ket-qua-dat-hang/\d+"));
         await Expect(Trang.Locator("h1")).ToContainTextAsync("chờ thanh toán");

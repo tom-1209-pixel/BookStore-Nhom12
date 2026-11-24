@@ -6,8 +6,8 @@ namespace BookStore.Tests;
 
 /// <summary>
 /// Kiem thu phia ung dung quan tri: so do chuyen trang thai don hang,
-/// BR03 (hoan ton kho khi huy), BR04 (huy don qua han), BR05 (khach tu huy),
-/// BR09 (doanh thu chi tinh don hoan thanh).
+/// BR03 (hoan ton kho khi huy), BR05 (huy don qua han), BR06 (khach tu huy),
+/// BR10 (doanh thu chi tinh don hoan thanh).
 /// </summary>
 public class XuLyDonHangTests : CoSoKiemThu
 {
@@ -106,7 +106,7 @@ public class XuLyDonHangTests : CoSoKiemThu
     }
 
     [Fact]
-    public async Task KhachHuyDon_SauKhiDaXacNhan_BiTuChoi_Theo_BR05()
+    public async Task KhachHuyDon_SauKhiDaXacNhan_BiTuChoi_Theo_BR06()
     {
         var ma = await TaoDonAsync();
         await DonHangService.ChuyenTrangThaiAsync(ma, TrangThaiDonHang.DaXacNhan, "ql01", null);
@@ -114,7 +114,7 @@ public class XuLyDonHangTests : CoSoKiemThu
         var kq = await DonHangService.KhachHuyDonAsync(ma, MaKhachHang, null);
 
         Assert.False(kq.ThanhCong);
-        Assert.Equal("BR05", kq.MaLoi);
+        Assert.Equal("BR06", kq.MaLoi);
     }
 
     [Fact]
@@ -128,7 +128,7 @@ public class XuLyDonHangTests : CoSoKiemThu
     }
 
     [Fact]
-    public async Task HuyDonQuaHan_ChiHuyDonVNPayDaQuaBaMuoiPhut_Theo_BR04()
+    public async Task HuyDonQuaHan_ChiHuyDonVNPayDaQuaBaMuoiPhut_Theo_BR05()
     {
         var maQuaHan = await TaoDonAsync(1, HinhThucThanhToan.VNPay);
         var maMoiDat = await TaoDonAsync(1, HinhThucThanhToan.VNPay);
@@ -146,7 +146,7 @@ public class XuLyDonHangTests : CoSoKiemThu
     }
 
     [Fact]
-    public async Task DoanhThu_ChiTinhDonHoanThanh_Theo_BR09()
+    public async Task DoanhThu_ChiTinhDonHoanThanh_Theo_BR10()
     {
         var maHoanThanh = await TaoDonAsync(1);   // 100.000 + 25.000 = 125.000
         await DonHangService.ChuyenTrangThaiAsync(maHoanThanh, TrangThaiDonHang.DaXacNhan, "ql01", null);

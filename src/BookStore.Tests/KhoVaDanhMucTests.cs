@@ -3,7 +3,7 @@ using BookStore.Services.Dtos;
 
 namespace BookStore.Tests;
 
-/// <summary>Kiem thu phan he kho, phieu nhap (BR06), danh muc va quan ly khach hang.</summary>
+/// <summary>Kiem thu phan he kho, phieu nhap (BR08), danh muc va quan ly khach hang.</summary>
 public class KhoVaDanhMucTests : CoSoKiemThu
 {
     private PhieuNhapLuuDto Phieu(params (int MaSach, int SoLuong, decimal Gia)[] dong) => new()
@@ -21,7 +21,7 @@ public class KhoVaDanhMucTests : CoSoKiemThu
         var p = await KhoService.LayPhieuNhapAsync(kq.DuLieu);
         Assert.Equal(TrangThaiPhieuNhap.Nhap, p!.TrangThai);
         Assert.Equal(20 * 60_000m + 4 * 150_000m, p.TongTien);
-        Assert.Equal(10, LayTonKho(MaSachA));   // BR06: chua hoan thanh thi chua cong ton
+        Assert.Equal(10, LayTonKho(MaSachA));   // BR08: chua hoan thanh thi chua cong ton
     }
 
     [Fact]

@@ -2,7 +2,7 @@ using BookStore.Services.Common;
 
 namespace BookStore.Tests;
 
-/// <summary>Kiem thu cong thuc tinh phi van chuyen (BR10).</summary>
+/// <summary>Kiem thu cong thuc tinh phi van chuyen (BR07).</summary>
 public class QuyTacNghiepVuTests
 {
     [Theory]

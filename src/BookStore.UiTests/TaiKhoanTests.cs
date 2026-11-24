@@ -20,6 +20,36 @@ public class TaiKhoanTests : TestCoSo
     }
 
     [Fact]
+    public async Task TaiKhoanCuaToi_CapNhatHoTenVaThemDiaChi_HienTrenTrangVaTrangThanhToan()
+    {
+        await DangKyMoiAsync();
+        await Trang.GotoAsync("/tai-khoan");
+
+        await Trang.FillAsync("#ho-ten", "Tran Thi Kiem Thu");
+        await Trang.FillAsync("#sdt", "0987654321");
+        await Trang.ClickAsync("button:has-text('Lưu thông tin')");
+        await Expect(Trang.Locator(".alert-success")).ToContainTextAsync("Đã cập nhật thông tin cá nhân");
+        await Expect(Trang.Locator("#ho-ten")).ToHaveValueAsync("Tran Thi Kiem Thu");
+
+        await Trang.FillAsync("#dc-ten", "Nguoi Nhan UI");
+        await Trang.FillAsync("#dc-sdt", "0911222333");
+        await Trang.FillAsync("#dc-chi-tiet", "12 Le Loi");
+        await Trang.FillAsync("#dc-phuong", "Ben Nghe");
+        await Trang.FillAsync("#dc-quan", "Quan 1");
+        await Trang.FillAsync("#dc-tinh", "TP Ho Chi Minh");
+        await Trang.ClickAsync("button:has-text('Thêm địa chỉ')");
+
+        await Expect(Trang.Locator(".alert-success")).ToContainTextAsync("Đã thêm địa chỉ");
+        await Expect(Trang.Locator(".dia-chi")).ToContainTextAsync("Nguoi Nhan UI");
+        await Expect(Trang.Locator(".dia-chi .badge")).ToContainTextAsync("Mặc định");
+
+        // Dia chi mac dinh duoc dien san o trang thanh toan
+        await ThemVaoGioTuChiTietAsync("Doraemon");
+        await Trang.GotoAsync("/thanh-toan");
+        await Expect(Trang.Locator("input[name='hoTenNguoiNhan']")).ToHaveValueAsync("Nguoi Nhan UI");
+    }
+
+    [Fact]
     public async Task DangNhap_DungTaiKhoanMau_VaoDuocVaDangXuatDuoc()
     {
         await DangNhapAsync("khachhang");

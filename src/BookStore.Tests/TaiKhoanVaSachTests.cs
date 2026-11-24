@@ -4,7 +4,7 @@ using BookStore.Services.Dtos;
 
 namespace BookStore.Tests;
 
-/// <summary>Kiem thu xac thuc, phan quyen va quan ly sach (BR07).</summary>
+/// <summary>Kiem thu xac thuc, phan quyen va quan ly sach (BR09).</summary>
 public class TaiKhoanVaSachTests : CoSoKiemThu
 {
     // ---------- Xac thuc ----------
@@ -142,6 +142,39 @@ public class TaiKhoanVaSachTests : CoSoKiemThu
     }
 
     [Fact]
+    public async Task ThemSach_DuNhapTon_TonKhoLuonBatDauTuKhong()
+    {
+        // Ton kho chi doi qua phieu nhap va don hang nen bao cao nhap - xuat - ton khong lech
+        var kq = await SachService.ThemAsync(new SachLuuDto
+        {
+            TenSach = "Sách mới nhập tồn",
+            MaLoaiSach = Db.LoaiSach.First().MaLoaiSach,
+            GiaBan = 70_000,
+            SoLuongTon = 999
+        });
+
+        Assert.True(kq.ThanhCong, kq.ThongBao);
+        Assert.Equal(0, LayTonKho(kq.DuLieu));
+    }
+
+    [Fact]
+    public async Task CapNhatSach_GuiTonKhoMoi_TonKhoKhongDoi()
+    {
+        var truoc = LayTonKho(MaSachA);
+        var sach = await SachService.LayTheoMaAsync(MaSachA);
+
+        var kq = await SachService.CapNhatAsync(new SachLuuDto
+        {
+            MaSach = MaSachA, TenSach = "Sách A (đổi tên)", MaLoaiSach = sach!.MaLoaiSach,
+            GiaBan = sach.GiaBan, SoLuongTon = truoc + 500
+        });
+
+        Assert.True(kq.ThanhCong, kq.ThongBao);
+        Assert.Equal(truoc, LayTonKho(MaSachA));
+        Assert.Equal("Sách A (đổi tên)", (await SachService.LayTheoMaAsync(MaSachA))!.TenSach);
+    }
+
+    [Fact]
     public async Task XoaSach_ChuaPhatSinhGiaoDich_XoaHan()
     {
         var kqThem = await SachService.ThemAsync(new SachLuuDto
@@ -159,7 +192,7 @@ public class TaiKhoanVaSachTests : CoSoKiemThu
     }
 
     [Fact]
-    public async Task XoaSach_DaCoDonHang_ChiChuyenSangNgungKinhDoanh_Theo_BR07()
+    public async Task XoaSach_DaCoDonHang_ChiChuyenSangNgungKinhDoanh_Theo_BR09()
     {
         await GioHangService.ThemVaoGioAsync(MaKhachHang, MaSachA, 1);
         await DonHangService.DatHangAsync(MaKhachHang, new DatHangDto
