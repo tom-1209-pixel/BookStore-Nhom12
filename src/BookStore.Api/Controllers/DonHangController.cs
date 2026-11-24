@@ -51,7 +51,7 @@ public class DonHangController : ControllerBase
         return kq.ThanhCong ? Ok(new { thongBao = kq.ThongBao }) : BadRequest(new { thongBao = kq.ThongBao });
     }
 
-    /// <summary>BR04: huy cac don VNPay qua han thanh toan.</summary>
+    /// <summary>BR05: huy cac don VNPay qua han thanh toan.</summary>
     [HttpPost("huydonquahan")]
     [Authorize(Roles = TenVaiTro.QuanLy)]
     public async Task<IActionResult> HuyDonQuaHan()
@@ -90,7 +90,7 @@ public class BaoCaoController : ControllerBase
         return Ok(new { tuNgay, denNgay, doanhThu, topSachBanChay = top });
     }
 
-    /// <summary>Bao cao doanh thu chi tiet theo ngay kem top sach ban chay (BR09).</summary>
+    /// <summary>Bao cao doanh thu chi tiet theo ngay kem top sach ban chay (BR10).</summary>
     [HttpGet("doanhthu/chitiet")]
     public async Task<ActionResult<BaoCaoDoanhThuDto>> DoanhThuChiTiet([FromQuery] DateTime tuNgay, [FromQuery] DateTime denNgay)
         => KyHopLe(tuNgay, denNgay) ?? (ActionResult<BaoCaoDoanhThuDto>)Ok(await _baoCao.LayBaoCaoDoanhThuAsync(tuNgay, denNgay));

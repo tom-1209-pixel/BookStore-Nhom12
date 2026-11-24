@@ -60,7 +60,7 @@ public class DanhMucController : ControllerBase
         => BadRequest(new { thongBao = "Loại danh mục phải là loaisach, tacgia, nhaxuatban hoặc nhacungcap." });
 }
 
-/// <summary>Ton kho va phieu nhap (D06). Quy tac BR06 nam o tang Services.</summary>
+/// <summary>Ton kho va phieu nhap (D06). Quy tac BR08 nam o tang Services.</summary>
 [ApiController]
 [Route("api/kho")]
 [Authorize(Roles = TenVaiTro.QuanLy)]

@@ -3,7 +3,9 @@ using BookStore.Api.Middlewares;
 using BookStore.Api.Services;
 using BookStore.Data;
 using BookStore.Services;
+using BookStore.Services.Common;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.Extensions.FileProviders;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 
@@ -75,6 +77,13 @@ if (app.Environment.IsDevelopment())
 
 // Bat moi ngoai le chua xu ly, tra ve ProblemDetails thong nhat (thiet ke thich ung)
 app.UseMiddleware<XuLyLoiMiddleware>();
+
+// Phuc vu anh bia (ung dung quan tri xem truoc anh qua dia chi nay)
+app.UseStaticFiles(new StaticFileOptions
+{
+    FileProvider = new PhysicalFileProvider(AnhBia.LayThuMuc(app.Configuration, app.Environment.ContentRootPath)),
+    RequestPath = AnhBia.DuongDanUrl
+});
 
 app.UseSwagger();
 app.UseSwaggerUI(c =>
