@@ -42,7 +42,11 @@ public class Sach
     public int SoLuongTon { get; set; }
     public int NguongCanhBao { get; set; } = 5;
     public string? MoTa { get; set; }
+    public string? AnhBia { get; set; }
     public byte TrangThai { get; set; }
+
+    /// <summary>Anh bia lay qua Web API (cung thu muc anh voi trang Web).</summary>
+    public Microsoft.UI.Xaml.Media.ImageSource? AnhHienThi => BookStore.Admin.Helpers.TienIch.TaoAnh(AnhBia);
 
     public string GiaBanHienThi => GiaBan.ToString("#,##0") + " đ";
     public string TrangThaiHienThi => TrangThai == 1 ? "Đang kinh doanh" : "Ngừng kinh doanh";

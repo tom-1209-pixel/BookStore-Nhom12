@@ -23,6 +23,9 @@ public partial class App : Application
 
     private Window? _cuaSo;
 
+    /// <summary>Cua so dang mo, can cho hop thoai chon tep (ung dung unpackaged phai gan HWND).</summary>
+    public static Window? CuaSoHienTai => (Current as App)?._cuaSo;
+
     public App()
     {
         InitializeComponent();

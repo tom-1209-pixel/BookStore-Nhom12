@@ -143,9 +143,6 @@
                                         IsEnabled="{x:Bind ViewModel.ChoPhepMoKhoa, Mode=OneWay}"
                                         Command="{x:Bind ViewModel.MoKhoaCommand}" />
                             </StackPanel>
-                            <TextBlock Style="{StaticResource CaptionTextBlockStyle}" TextWrapping="Wrap"
-                                       Foreground="{ThemeResource TextFillColorSecondaryBrush}"
-                                       Text="Tài khoản bị khóa không đăng nhập được trang Web; các đơn hàng cũ vẫn được giữ nguyên." />
                         </StackPanel>
                     </StackPanel>
                 </ScrollViewer>

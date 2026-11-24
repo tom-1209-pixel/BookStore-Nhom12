@@ -8,7 +8,7 @@ using CommunityToolkit.Mvvm.Input;
 namespace BookStore.Admin.ViewModels;
 
 /// <summary>
-/// Man hinh D08 - Bao cao thong ke: doanh thu theo ngay (BR09), sach ban chay,
+/// Man hinh D08 - Bao cao thong ke: doanh thu theo ngay (BR10), sach ban chay,
 /// don theo trang thai, nhap - xuat - ton va xuat bao cao ra Excel.
 /// </summary>
 public partial class BaoCaoViewModel : ObservableObject

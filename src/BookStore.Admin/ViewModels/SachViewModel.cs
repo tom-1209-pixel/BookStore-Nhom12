@@ -37,6 +37,19 @@ public partial class SachViewModel : ObservableObject
     [ObservableProperty] private DanhMuc? _formNhaXuatBan;
     [ObservableProperty] private string _formMoTa = string.Empty;
     [ObservableProperty] private bool _formDangKinhDoanh = true;
+    [ObservableProperty] private string? _formAnhBia;
+    [ObservableProperty] private bool _dangTaiAnh;
+
+    public Microsoft.UI.Xaml.Media.ImageSource? AnhXemTruoc => Helpers.TienIch.TaoAnh(FormAnhBia);
+    public bool CoAnh => !string.IsNullOrWhiteSpace(FormAnhBia);
+    public bool ChuaCoAnh => !CoAnh;
+
+    partial void OnFormAnhBiaChanged(string? value)
+    {
+        OnPropertyChanged(nameof(AnhXemTruoc));
+        OnPropertyChanged(nameof(CoAnh));
+        OnPropertyChanged(nameof(ChuaCoAnh));
+    }
 
     public bool CoThongBao => !string.IsNullOrEmpty(ThongBao);
     partial void OnThongBaoChanged(string value) => OnPropertyChanged(nameof(CoThongBao));
@@ -63,8 +76,38 @@ public partial class SachViewModel : ObservableObject
         FormNhaXuatBan = NhaXuatBans.FirstOrDefault(n => n.Ma == value.MaNXB);
         FormMoTa = value.MoTa ?? string.Empty;
         FormDangKinhDoanh = value.TrangThai == 1;
+        FormAnhBia = value.AnhBia;
         foreach (var tg in TacGias) tg.DaChon = value.MaTacGias.Contains(tg.Ma);
     }
+
+    /// <summary>Tai anh vua chon len may chu; anh chi gan vao sach khi bam Luu.</summary>
+    public async Task TaiAnhAsync(string tenTep, byte[] noiDung)
+    {
+        if (noiDung.Length > 5 * 1024 * 1024)
+        {
+            ThongBaoLaLoi = true;
+            ThongBao = "Ảnh quá lớn, tối đa 5 MB.";
+            return;
+        }
+
+        DangTaiAnh = true;
+        var kq = await _api.TaiAnhBiaAsync(tenTep, noiDung);
+        DangTaiAnh = false;
+
+        if (kq.ThanhCong)
+        {
+            FormAnhBia = kq.DuLieu;
+            ThongBao = string.Empty;
+        }
+        else
+        {
+            ThongBaoLaLoi = true;
+            ThongBao = kq.ThongBao;
+        }
+    }
+
+    [RelayCommand]
+    private void BoAnh() => FormAnhBia = null;
 
     [RelayCommand]
     public async Task NapDuLieuAsync()
@@ -124,6 +167,7 @@ public partial class SachViewModel : ObservableObject
         foreach (var tg in TacGias) tg.DaChon = false;
         FormMoTa = string.Empty;
         FormDangKinhDoanh = true;
+        FormAnhBia = null;
         ThongBao = string.Empty;
     }
 
@@ -156,6 +200,7 @@ public partial class SachViewModel : ObservableObject
             maNXB = FormNhaXuatBan?.Ma,
             maTacGias = TacGias.Where(t => t.DaChon).Select(t => t.Ma).ToList(),
             moTa = FormMoTa,
+            anhBia = string.IsNullOrWhiteSpace(FormAnhBia) ? null : FormAnhBia,
             trangThai = FormDangKinhDoanh ? 1 : 0
         };
 

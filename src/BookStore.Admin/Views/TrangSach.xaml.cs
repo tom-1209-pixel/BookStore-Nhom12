@@ -27,4 +27,26 @@ public sealed partial class TrangSach : Page
     {
         if (e.Key == VirtualKey.Enter) await ViewModel.NapDuLieuAsync();
     }
+
+    /// <summary>Mo hop thoai chon anh bia roi tai len Web API.</summary>
+    private async void ChonAnh_Click(object sender, Microsoft.UI.Xaml.RoutedEventArgs e)
+    {
+        var hopThoai = new Windows.Storage.Pickers.FileOpenPicker
+        {
+            SuggestedStartLocation = Windows.Storage.Pickers.PickerLocationId.PicturesLibrary,
+            ViewMode = Windows.Storage.Pickers.PickerViewMode.Thumbnail
+        };
+        foreach (var duoi in new[] { ".jpg", ".jpeg", ".png", ".webp" }) hopThoai.FileTypeFilter.Add(duoi);
+
+        // Ung dung khong dong goi (unpackaged) phai gan hop thoai vao cua so hien tai
+        if (App.CuaSoHienTai is null) return;
+        WinRT.Interop.InitializeWithWindow.Initialize(hopThoai,
+            WinRT.Interop.WindowNative.GetWindowHandle(App.CuaSoHienTai));
+
+        var tep = await hopThoai.PickSingleFileAsync();
+        if (tep is null) return;
+
+        var noiDung = await System.IO.File.ReadAllBytesAsync(tep.Path);
+        await ViewModel.TaiAnhAsync(tep.Name, noiDung);
+    }
 }

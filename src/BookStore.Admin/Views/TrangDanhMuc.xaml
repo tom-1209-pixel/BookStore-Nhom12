@@ -132,9 +132,6 @@
                                     IsEnabled="{x:Bind ViewModel.DangSua, Mode=OneWay}" />
                         </StackPanel>
 
-                        <TextBlock Style="{StaticResource CaptionTextBlockStyle}" TextWrapping="Wrap"
-                                   Foreground="{ThemeResource TextFillColorSecondaryBrush}"
-                                   Text="Mục đang được sách hoặc phiếu nhập sử dụng sẽ không xóa được, để giữ toàn vẹn dữ liệu các giao dịch cũ." />
                     </StackPanel>
                 </ScrollViewer>
             </Border>
